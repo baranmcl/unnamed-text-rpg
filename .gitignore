@@ -1,0 +1,14 @@
+# Brainstorming / design-time artifacts
+.superpowers/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / build (pre-scaffolding placeholders)
+node_modules/
+dist/
+.cache/
+*.log

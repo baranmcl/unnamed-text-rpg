@@ -1,11 +1,6 @@
 {
   "name": "heroic-chronicle",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
   "scripts": {
     "test": "vitest run --passWithNoTests",
     "dev": "vite",
@@ -18,8 +13,6 @@
     "type": "git",
     "url": "git+https://github.com/baranmcl/unnamed-text-rpg.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {

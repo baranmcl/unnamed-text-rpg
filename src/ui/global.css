@@ -1,3 +1,100 @@
-:root { color-scheme: light dark; }
-html, body, #app { height: 100%; margin: 0; padding: 0; }
-body { font-family: 'EB Garamond', Georgia, serif; }
+/* =====================================================================
+   The Heroic Chronicle — global stylesheet
+   - Theme variables for Parchment (default) and Moonlit (alt)
+   - Base typography
+   - Page background (paper texture + corner foxing)
+   ===================================================================== */
+
+:root {
+  --serif-display: 'IM Fell DW Pica', Georgia, serif;
+  --serif-body: 'EB Garamond', Georgia, serif;
+  --mono: 'Courier Prime', 'Courier New', monospace;
+
+  --font-size-base: 17px;
+  --line-height-base: 1.65;
+  --max-content-width: 1400px;
+}
+
+/* Parchment (default) */
+html[data-theme='parchment'] {
+  --paper: #f4ecd8;
+  --paper-warm: #efe4c8;
+  --paper-shadow: rgba(83, 56, 22, 0.10);
+  --foxing: rgba(139, 94, 44, 0.18);
+  --ink: #1f1a12;
+  --ink-muted: #6b5f47;
+  --ink-faint: #9c8c6f;
+  --hairline: #c5b48f;
+  --crimson: #8b1a1a;
+  --crimson-deep: #5d1010;
+  --gilt: #a68338;
+  --gilt-bright: #c89b3e;
+  --moss: #4a6b3a;
+}
+
+/* Moonlit (sepia ink on deep-indigo vellum) */
+html[data-theme='moonlit'] {
+  --paper: #1a1f2e;
+  --paper-warm: #232838;
+  --paper-shadow: rgba(0, 0, 0, 0.3);
+  --foxing: rgba(0, 0, 0, 0.4);
+  --ink: #d8c89a;
+  --ink-muted: #9c8e68;
+  --ink-faint: #6f644a;
+  --hairline: #4a4030;
+  --crimson: #c54a4a;
+  --crimson-deep: #8b2a2a;
+  --gilt: #d4a849;
+  --gilt-bright: #e8c062;
+  --moss: #7a9c5a;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--serif-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% 50%, transparent 50%, var(--paper-shadow) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.13  0 0 0 0 0.07  0 0 0 0.05 0'/></filter><rect width='400' height='400' filter='url(%23n)'/></svg>");
+  background-attachment: fixed;
+  overflow: hidden; /* App component manages its own scrolling */
+}
+
+/* Foxing — corner age spots */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--foxing) 0%, transparent 65%);
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+body::before { top: -80px; left: -80px; }
+body::after  { bottom: -80px; right: -80px; }
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}

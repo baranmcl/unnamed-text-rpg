@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
 
   const KEY = 'heroicchronicle.ui.dividerWidth';
   const DEFAULT_FRACTION = 0.62;
@@ -45,15 +44,6 @@
       /* ignore */
     }
   }
-
-  onMount(() => {
-    if (containerEl) {
-      const parent = containerEl.parentElement;
-      if (parent) {
-        parent.style.setProperty('--world-fraction', fraction.toString());
-      }
-    }
-  });
 
   $effect(() => {
     if (containerEl) {

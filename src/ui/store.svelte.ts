@@ -1,7 +1,7 @@
 import { reduce, type GameEvent } from '../engine/events';
 import { createDemoState } from '../engine/state';
 import { serialize, deserialize, SaveLoadError } from '../engine/save';
-import { applyTheme, loadStoredTheme, storeTheme } from './theme';
+import { applyTheme, loadStoredTheme, storeTheme, applyTextSize } from './theme';
 import type { GameState } from '../engine/types';
 
 const SAVE_KEY = 'heroicchronicle.save.v1';
@@ -42,6 +42,7 @@ class GameStore {
       this.state = reduce(this.state, { kind: 'SetTheme', theme: stored });
     }
     applyTheme(this.state.settings.theme);
+    applyTextSize(this.state.settings.textSize);
   }
 
   dispatch(event: GameEvent): void {
@@ -52,6 +53,10 @@ class GameStore {
     if (event.kind === 'SetTheme') {
       applyTheme(event.theme);
       storeTheme(event.theme);
+    }
+
+    if (event.kind === 'SetTextSize') {
+      applyTextSize(event.size);
     }
 
     if (next.settings.autoSave) {
@@ -77,6 +82,7 @@ class GameStore {
     try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ }
     this.state = createDemoState();
     applyTheme(this.state.settings.theme);
+    applyTextSize(this.state.settings.textSize);
   }
 }
 

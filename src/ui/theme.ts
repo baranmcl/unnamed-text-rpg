@@ -24,3 +24,9 @@ export function storeTheme(theme: ThemeName): void {
     /* private mode / quota exceeded; ignore */
   }
 }
+
+export type TextSize = 'small' | 'medium' | 'large';
+
+export function applyTextSize(size: TextSize): void {
+  document.documentElement.dataset.textSize = size;
+}

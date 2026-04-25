@@ -15,6 +15,10 @@
   --max-content-width: 1400px;
 }
 
+html[data-text-size='small']  { --font-size-base: 15px; }
+html[data-text-size='medium'] { --font-size-base: 17px; }
+html[data-text-size='large']  { --font-size-base: 20px; }
+
 /* Parchment (default) */
 html[data-theme='parchment'] {
   --paper: #f4ecd8;
@@ -97,4 +101,11 @@ button {
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

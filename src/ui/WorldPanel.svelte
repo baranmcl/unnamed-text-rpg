@@ -1,0 +1,191 @@
+<script lang="ts">
+  import { gameStore } from './store.svelte';
+  import { ACT_TITLES } from '../engine/types';
+
+  // Plan 1: location name comes from state.world.currentLocation id capitalized.
+  // Plan 2 wires this to actual Location data.
+  function locationDisplayName(id: string): string {
+    if (!id) return '— (no location) —';
+    return id
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  let actLabel = $derived(ACT_TITLES[gameStore.state.story.stage]);
+  let locName = $derived(locationDisplayName(gameStore.state.world.currentLocation));
+  let log = $derived(gameStore.state.log);
+</script>
+
+<section class="world" aria-label="World panel">
+  <header class="world-header">
+    <div class="header-text">
+      <p class="act-marker">{actLabel}</p>
+      <h1 class="location-title">{locName}</h1>
+    </div>
+    <button
+      class="compass"
+      aria-label="Look at the map"
+      title="Look at the map (coming in Plan 5)"
+      type="button"
+    >
+      <svg viewBox="0 0 64 64" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="32" cy="32" r="28" />
+        <circle cx="32" cy="32" r="22" />
+        <path d="M32 6 L36 32 L32 58 L28 32 Z" fill="currentColor" stroke="none" />
+        <path d="M6 32 L32 28 L58 32 L32 36 Z" fill="currentColor" fill-opacity="0.35" stroke="none" />
+        <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
+  </header>
+
+  <div class="rule"></div>
+
+  <div class="log" aria-live="polite">
+    {#each log as entry (entry.id)}
+      {#if entry.kind === 'narration'}
+        <p class="entry narration">{entry.text}</p>
+      {:else if entry.kind === 'dialogue'}
+        <div class="entry dialogue">
+          <span class="speaker">{entry.speaker ?? ''}</span>
+          <span class="line">{entry.text}</span>
+        </div>
+      {:else if entry.kind === 'system'}
+        <div class="entry system">
+          <span class="system-label">{entry.systemLabel ?? 'NOTE'} —</span>
+          <span class="system-text">{entry.text}</span>
+        </div>
+      {:else if entry.kind === 'combat'}
+        <p class="entry combat">{entry.text}</p>
+      {:else if entry.kind === 'loot'}
+        <p class="entry loot">{entry.text}</p>
+      {:else if entry.kind === 'scene-divider'}
+        <p class="entry scene-divider">· · ·</p>
+      {/if}
+    {/each}
+  </div>
+
+  <div class="button-bar">
+    <p class="placeholder">Buttons appear here in Plan 2 (exploration) and Plan 4 (combat).</p>
+  </div>
+</section>
+
+<style>
+  .world {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 24px 36px;
+    box-sizing: border-box;
+  }
+
+  .world-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .act-marker {
+    font-family: var(--serif-display);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  .location-title {
+    font-family: var(--serif-display);
+    font-size: 36px;
+    font-weight: normal;
+    margin: 4px 0 0;
+    line-height: 1.1;
+  }
+
+  .compass {
+    color: var(--ink);
+    opacity: 0.7;
+    transition: opacity 160ms ease, transform 400ms ease;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+  }
+  .compass:hover {
+    opacity: 1;
+    transform: rotate(8deg);
+  }
+
+  .rule {
+    height: 1px;
+    background: var(--ink);
+    opacity: 0.6;
+    margin: 18px 0 24px;
+  }
+
+  .log {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  .entry {
+    margin: 0 0 16px;
+  }
+  .narration {
+    text-align: justify;
+  }
+  .dialogue {
+    margin-left: 28px;
+  }
+  .dialogue .speaker {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+  .dialogue .line {
+    display: block;
+    font-style: italic;
+  }
+  .system {
+    margin: 0 0 14px 28px;
+    padding-left: 14px;
+    border-left: 2px solid var(--hairline);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+  .system-label {
+    font-family: var(--serif-display);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 11px;
+    font-style: normal;
+    color: var(--ink-faint);
+    margin-right: 4px;
+  }
+  .combat { font-size: 16px; line-height: 1.5; }
+  .loot { color: var(--gilt); }
+  .scene-divider {
+    text-align: center;
+    font-family: var(--serif-display);
+    color: var(--ink-faint);
+    letter-spacing: 0.8em;
+    margin: 24px 0;
+  }
+
+  .button-bar {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+  }
+  .placeholder {
+    font-style: italic;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+</style>

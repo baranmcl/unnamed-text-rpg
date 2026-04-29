@@ -80,7 +80,19 @@ describe('checkBeats', () => {
     expect(s2.story.completedBeats.length).toBe(0);
   });
 
-  it.todo('fires a beat once preconditions are met and marks it completed');
+  it('fires a beat once preconditions are met and marks it completed', () => {
+    let s = freshState();
+    s = { ...s, world: { ...s.world, visited: [LocationId('family_farm')] } };
+    s = checkBeats(s);
+    expect(s.story.completedBeats).toContain(BeatId('ordinary_world_established'));
+  });
 
-  it.todo('does not fire the same beat twice');
+  it('does not fire the same beat twice', () => {
+    let s = freshState();
+    s = { ...s, world: { ...s.world, visited: [LocationId('family_farm')] } };
+    s = checkBeats(s);
+    const completedAfterFirst = s.story.completedBeats.length;
+    s = checkBeats(s);
+    expect(s.story.completedBeats.length).toBe(completedAfterFirst);
+  });
 });

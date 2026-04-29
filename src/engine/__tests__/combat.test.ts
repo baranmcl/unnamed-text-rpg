@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { rollHit, rollDamage, rollCrit, rollFlee } from '../combat';
+import { startCombat, playerAttack, monsterTurn, endCombat } from '../combat';
+import { createInitialState } from '../state';
+import { content } from '../../content';
+import { ClassId, ItemId, LocationId } from '../types';
 
 const rng0 = { seed: 42, step: 0 };
 
@@ -84,5 +88,86 @@ describe('rollFlee', () => {
       s = r.state;
     }
     expect(highFlee).toBeGreaterThan(lowFlee);
+  });
+});
+
+function characterAtLocation() {
+  let s = createInitialState(7);
+  // Mock-set a character and current location by hand.
+  s = {
+    ...s,
+    character: {
+      ...s.character,
+      name: 'Test',
+      classId: ClassId('reluctant_farmboy'),
+      level: 1,
+      hp: { current: 50, max: 50 },
+      mp: { current: 10, max: 10 },
+      stats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
+      equipment: { weapon: ItemId('rusty_pitchfork') },
+      inventory: [{ itemId: ItemId('hardtack'), qty: 1 }]
+    },
+    world: { ...s.world, currentLocation: LocationId('family_farm') }
+  };
+  return s;
+}
+
+describe('combat sub-reducer', () => {
+  it('startCombat creates a combat state with the right combatants', () => {
+    const s0 = characterAtLocation();
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    const s1 = startCombat(s0, enc);
+    expect(s1.combat).not.toBeNull();
+    expect(s1.combat!.combatants).toHaveLength(2);
+    expect(s1.combat!.combatants.find((c) => c.kind === 'player')!.hp).toBe(50);
+    expect(s1.combat!.round).toBe(1);
+  });
+
+  it('playerAttack reduces monster hp on hit', () => {
+    const s0 = characterAtLocation();
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    let s = startCombat(s0, enc);
+    const monBefore = s.combat!.combatants.find((c) => c.kind === 'monster')!.hp;
+
+    // Iterate up to 20 rounds — at least one should land for these stats.
+    let landed = false;
+    for (let i = 0; i < 20; i++) {
+      const after = playerAttack(s);
+      const monAfter = after.combat?.combatants.find((c) => c.kind === 'monster')?.hp;
+      if (monAfter !== undefined && monAfter < monBefore) {
+        landed = true;
+        break;
+      }
+      s = after;
+      if (!s.combat) break;
+    }
+    expect(landed).toBe(true);
+  });
+
+  it('endCombat clears combat state and grants xp on victory', () => {
+    const s0 = characterAtLocation();
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    let s = startCombat(s0, enc);
+    const xpBefore = s.character.xp;
+    s = endCombat(s, 'victory', enc);
+    expect(s.combat).toBeNull();
+    expect(s.character.xp).toBeGreaterThan(xpBefore);
+  });
+
+  it('monsterTurn applies damage to the player', () => {
+    const s0 = characterAtLocation();
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    let s = startCombat(s0, enc);
+    const playerHpBefore = s.combat!.combatants.find((c) => c.kind === 'player')!.hp;
+    // Force several monster turns to overcome variance.
+    let lostHp = false;
+    for (let i = 0; i < 30; i++) {
+      const after = monsterTurn(s);
+      const after2 = after.combat?.combatants.find((c) => c.kind === 'player')?.hp;
+      if (after2 !== undefined && after2 < playerHpBefore) { lostHp = true; break; }
+      s = after;
+      if (!s.combat) break;
+    }
+    expect(lostHp).toBe(true);
   });
 });

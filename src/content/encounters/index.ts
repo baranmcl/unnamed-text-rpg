@@ -6,5 +6,12 @@ export const encounters: Record<EncounterId, Encounter> = {
     kind: 'combat',
     monsterId: MonsterId('officious_tax_rat'),
     xpReward: 25
+  },
+  [EncounterId('practice_dummy')]: {
+    id: EncounterId('practice_dummy'),
+    kind: 'combat',
+    monsterId: MonsterId('practice_hay_bale'),
+    xpReward: 0,
+    repeatable: true
   }
 };

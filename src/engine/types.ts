@@ -163,6 +163,7 @@ export type CombatEncounter = {
   monsterId: MonsterId;
   noFlee?: boolean;
   xpReward: number;
+  repeatable?: boolean;
 };
 
 // Narrative encounters land in Plan 3.

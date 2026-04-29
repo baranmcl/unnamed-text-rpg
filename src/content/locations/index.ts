@@ -15,6 +15,6 @@ export const locations: Record<LocationId, Location> = {
       // The Village exit is gated behind a flag — it doesn't exist yet (Plan 5).
       { label: 'Walk into the village', targetId: LocationId('village'), visibleIfFlag: 'unlocked_village' }
     ],
-    encounterIds: [EncounterId('first_tax_rat')]
+    encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')]
   }
 };

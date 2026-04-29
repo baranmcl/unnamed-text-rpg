@@ -66,6 +66,34 @@
     return content.items[itemId]?.name ?? String(itemId);
   }
 
+  function equipmentTooltip(itemId: ItemId | undefined): string {
+    if (!itemId) return '';
+    const item = content.items[itemId];
+    if (!item) return '';
+    const parts: string[] = [];
+    if (item.damage !== undefined) parts.push(`Damage ${item.damage}`);
+    if (item.armor !== undefined) parts.push(`Armor ${item.armor}`);
+    if (item.statBonuses) {
+      for (const [stat, bonus] of Object.entries(item.statBonuses)) {
+        parts.push(`+${bonus} ${stat}`);
+      }
+    }
+    return parts.length > 0 ? parts.join(' · ') : item.flavor;
+  }
+
+  function itemGlyph(itemId: ItemId): string {
+    const item = content.items[itemId];
+    if (!item) return '✦';
+    switch (item.kind) {
+      case 'weapon': return '⚔';
+      case 'armor': return '◇';
+      case 'trinket': return '✦';
+      case 'quest': return '❦';
+      case 'consumable': return '❀';
+      default: return '✦';
+    }
+  }
+
   function xpToNextLevel(level: number): number {
     return level * 100;
   }
@@ -128,15 +156,15 @@
     {#if !collapsed.accoutrements}
       <div class="equip">
         <span class="slot-label">Wpn</span>
-        <span class="slot-item" class:empty={!c.equipment.weapon}>
+        <span class="slot-item" class:empty={!c.equipment.weapon} title={equipmentTooltip(c.equipment.weapon)}>
           {equippedName(c.equipment.weapon)}
         </span>
         <span class="slot-label">Arm</span>
-        <span class="slot-item" class:empty={!c.equipment.armor}>
+        <span class="slot-item" class:empty={!c.equipment.armor} title={equipmentTooltip(c.equipment.armor)}>
           {equippedName(c.equipment.armor)}
         </span>
         <span class="slot-label">Trk</span>
-        <span class="slot-item" class:empty={!c.equipment.trinket}>
+        <span class="slot-item" class:empty={!c.equipment.trinket} title={equipmentTooltip(c.equipment.trinket)}>
           {equippedName(c.equipment.trinket)}
         </span>
       </div>
@@ -154,8 +182,8 @@
         {#each Array(12) as _, i (i)}
           {#if i < c.inventory.length}
             {@const entry = c.inventory[i]!}
-            <button class="effect-slot filled" type="button" onclick={() => openInspect(entry.itemId)} aria-label="Inspect item">
-              <span class="glyph">✦</span>
+            <button class="effect-slot filled" type="button" onclick={() => openInspect(entry.itemId)} aria-label="Inspect item" title={content.items[entry.itemId]?.name ?? ''}>
+              <span class="glyph">{itemGlyph(entry.itemId)}</span>
             </button>
           {:else}
             <div class="effect-slot" aria-hidden="true"></div>

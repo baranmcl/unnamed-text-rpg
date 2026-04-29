@@ -33,6 +33,32 @@
   function onBackdrop(e: MouseEvent) {
     if (e.target === e.currentTarget) onClose();
   }
+
+  let upgradeBadge = $derived.by(() => {
+    if (!item || !item.slot) return null;
+    // Don't show flag if this IS the currently equipped item.
+    if (gameStore.state.character.equipment[item.slot] === itemId) return null;
+    const equippedId = gameStore.state.character.equipment[item.slot];
+    if (!equippedId) return { kind: 'new', label: 'Nothing equipped here' };
+    const equipped = content.items[equippedId];
+    if (!equipped) return null;
+
+    if (item.slot === 'weapon') {
+      const newDmg = item.damage ?? 0;
+      const oldDmg = equipped.damage ?? 0;
+      if (newDmg > oldDmg) return { kind: 'upgrade', label: `Upgrade (+${newDmg - oldDmg} damage)` };
+      if (newDmg < oldDmg) return { kind: 'downgrade', label: `Downgrade (−${oldDmg - newDmg} damage)` };
+      return { kind: 'sidegrade', label: 'Sidegrade' };
+    }
+    if (item.slot === 'armor') {
+      const newArm = item.armor ?? 0;
+      const oldArm = equipped.armor ?? 0;
+      if (newArm > oldArm) return { kind: 'upgrade', label: `Upgrade (+${newArm - oldArm} armor)` };
+      if (newArm < oldArm) return { kind: 'downgrade', label: `Downgrade (−${oldArm - newArm} armor)` };
+      return { kind: 'sidegrade', label: 'Sidegrade' };
+    }
+    return null; // trinket comparison deferred to a later plan
+  });
 </script>
 
 {#if item}
@@ -45,6 +71,11 @@
         {#if item.damage}<span class="stat">Damage {item.damage}</span>{/if}
         {#if item.armor}<span class="stat">Armor {item.armor}</span>{/if}
       </div>
+      {#if upgradeBadge}
+        <p class="upgrade-badge" class:upgrade={upgradeBadge.kind === 'upgrade'} class:downgrade={upgradeBadge.kind === 'downgrade'} class:sidegrade={upgradeBadge.kind === 'sidegrade'} class:new={upgradeBadge.kind === 'new'}>
+          {upgradeBadge.label}
+        </p>
+      {/if}
       <div class="actions">
         {#if item.kind === 'consumable' && inInventory}
           <button onclick={use}>Use</button>
@@ -81,4 +112,15 @@
   .actions button:hover { background: var(--ink); color: var(--paper); }
   .actions button.danger { border-color: var(--crimson); color: var(--crimson); }
   .actions button.danger:hover { background: var(--crimson); color: var(--paper); }
+  .upgrade-badge {
+    font-style: italic;
+    font-size: 14px;
+    margin: 8px 0 0;
+    padding: 4px 8px;
+    display: inline-block;
+  }
+  .upgrade-badge.upgrade { color: var(--moss); border-left: 2px solid var(--moss); }
+  .upgrade-badge.downgrade { color: var(--crimson); border-left: 2px solid var(--crimson); }
+  .upgrade-badge.sidegrade { color: var(--ink-muted); border-left: 2px solid var(--ink-muted); }
+  .upgrade-badge.new { color: var(--gilt); border-left: 2px solid var(--gilt); }
 </style>

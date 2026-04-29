@@ -1,6 +1,21 @@
 import { MonsterId, ItemId, type Monster } from '../../engine/types';
 
 export const monsters: Record<MonsterId, Monster> = {
+  [MonsterId('practice_hay_bale')]: {
+    id: MonsterId('practice_hay_bale'),
+    name: 'the Practice Hay Bale',
+    flavor: 'Stoic. Lumpy. The unspoken proof of every hero who hit something easy first.',
+    hp: 10,
+    brawn: 0,
+    bravado: 0,
+    dodge: 0,
+    armor: 0,
+    weaponDamage: 0,
+    actions: [
+      { kind: 'attack', weight: 1.0, flavor: 'The hay bale stares at you. Hay bales do this.' }
+    ],
+    loot: []
+  },
   [MonsterId('officious_tax_rat')]: {
     id: MonsterId('officious_tax_rat'),
     name: 'the Officious Tax Rat',

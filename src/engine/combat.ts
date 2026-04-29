@@ -231,16 +231,20 @@ export function monsterTurn(state: GameState): GameState {
 export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee', encounter: CombatEncounter): GameState {
   let s: GameState = { ...state, combat: null };
   if (result === 'victory') {
-    s = { ...s, character: { ...s.character, xp: s.character.xp + encounter.xpReward } };
-    s = pushLog(s, { kind: 'system', systemLabel: 'EXP.', text: `+${encounter.xpReward} experience.` });
+    if (encounter.xpReward > 0) {
+      s = { ...s, character: { ...s.character, xp: s.character.xp + encounter.xpReward } };
+      s = pushLog(s, { kind: 'system', systemLabel: 'EXP.', text: `+${encounter.xpReward} experience.` });
+    }
 
     // Fix 1: Roll monster loot table.
     const monster = content.monsters[encounter.monsterId];
     if (monster) {
+      let lootDropped = false;
       for (const lootEntry of monster.loot) {
         const roll = rng.d100(s.rng);
         s = { ...s, rng: roll.state };
         if (roll.value <= lootEntry.chance * 100) {
+          lootDropped = true;
           const item = content.items[lootEntry.itemId];
           if (item) {
             const existing = s.character.inventory.find((e) => e.itemId === lootEntry.itemId);
@@ -252,16 +256,21 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
           }
         }
       }
+      if (monster.loot.length > 0 && !lootDropped) {
+        s = pushLog(s, { kind: 'system', systemLabel: 'LOOT', text: 'Nothing of value remains.' });
+      }
     }
 
     // Fix 3: Mark encounter as defeated so it doesn't reappear.
-    s = {
-      ...s,
-      world: {
-        ...s.world,
-        flags: { ...s.world.flags, [`defeated:${encounter.id}`]: true }
-      }
-    };
+    if (!encounter.repeatable) {
+      s = {
+        ...s,
+        world: {
+          ...s.world,
+          flags: { ...s.world.flags, [`defeated:${encounter.id}`]: true }
+        }
+      };
+    }
 
     // Fix 4a: Level-up check (loop in case multiple levels gained at once).
     const xpThreshold = (level: number) => level * 100;

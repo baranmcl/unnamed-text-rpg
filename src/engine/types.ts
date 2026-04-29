@@ -115,6 +115,8 @@ export type Exit = {
   label: string;
   targetId: LocationId;
   visibleIfFlag?: string;
+  enabledIfFlag?: string;       // if set and not satisfied, exit shows as disabled
+  disabledTooltip?: string;     // tooltip text when disabled
 };
 
 export type Location = {

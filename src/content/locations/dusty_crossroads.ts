@@ -14,7 +14,13 @@ export const dusty_crossroads: Location = {
     { label: 'Back to the family farm', targetId: LocationId('family_farm') },
     // The threshold exit is gated behind accepted_call (visibleIfFlag); the
     // destination location is added in Plan 5.
-    { label: 'Cross the threshold', targetId: LocationId('the_old_road'), visibleIfFlag: 'crossed_threshold' }
+    {
+      label: 'Cross the threshold',
+      targetId: LocationId('the_old_road'),
+      visibleIfFlag: 'accepted_call',
+      enabledIfFlag: 'crossed_threshold',
+      disabledTooltip: 'The road is yet unwritten.'
+    }
   ],
   encounterIds: []
 };

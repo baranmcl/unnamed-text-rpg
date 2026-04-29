@@ -68,6 +68,11 @@
     return Boolean(gameStore.state.world.flags[visibleIfFlag]);
   }
 
+  function isExitEnabled(enabledIfFlag?: string): boolean {
+    if (!enabledIfFlag) return true;
+    return Boolean(gameStore.state.world.flags[enabledIfFlag]);
+  }
+
   function go(targetId: LocationId) {
     gameStore.dispatch({ kind: 'EnterLocation', locationId: targetId });
   }
@@ -151,7 +156,16 @@
     {#if !inCombat && currentLocation}
       {#each currentLocation.exits as exit (exit.targetId)}
         {#if isExitVisible(exit.visibleIfFlag)}
-          <button class="btn" type="button" onclick={() => go(exit.targetId)}>{exit.label}</button>
+          {@const enabled = isExitEnabled(exit.enabledIfFlag)}
+          <button
+            class="btn"
+            type="button"
+            disabled={!enabled}
+            title={enabled ? '' : (exit.disabledTooltip ?? '')}
+            onclick={() => enabled && go(exit.targetId)}
+          >
+            {exit.label}
+          </button>
         {/if}
       {/each}
       {#each (currentLocation.encounterIds ?? []).filter((id) => !isEncounterDefeated(id)) as encId (encId)}

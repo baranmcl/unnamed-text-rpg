@@ -55,25 +55,24 @@ export function reduce(state: GameState, event: GameEvent): GameState {
         const item = content.items[startItem.itemId];
         if (item?.slot) equipment[item.slot] = startItem.itemId;
       }
-      return appendLogs(
-        {
-          ...state,
-          character: {
-            name: event.name,
-            classId: event.classId,
-            level: 1,
-            xp: 0,
-            hp: { current: hpMax, max: hpMax },
-            mp: { current: mpMax, max: mpMax },
-            stats: { ...cls.startingStats },
-            equipment,
-            inventory,
-            knownSkills: []
-          },
-          world: { ...state.world, currentLocation: cls.openingLocationId, visited: [cls.openingLocationId] }
-        },
-        FARMBOY_OPENING_LINES
-      );
+      const populated: GameState = {
+        ...state,
+        character: {
+          name: event.name,
+          classId: event.classId,
+          level: 1,
+          xp: 0,
+          hp: { current: hpMax, max: hpMax },
+          mp: { current: mpMax, max: mpMax },
+          stats: { ...cls.startingStats },
+          equipment,
+          inventory,
+          knownSkills: []
+        }
+      };
+      const withOpening = appendLogs(populated, FARMBOY_OPENING_LINES);
+      // Recurse into EnterLocation for the description.
+      return reduce(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId });
     }
 
     case 'EnterLocation': {

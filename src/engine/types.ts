@@ -193,6 +193,8 @@ export type NarrativeEncounter = {
   noFlee?: boolean;
 };
 
+export type NarrativeResolver = (state: GameState) => { state: GameState; next: NarrativeNodeId | null };
+
 export type Encounter = CombatEncounter | NarrativeEncounter;
 
 // =====================================================================

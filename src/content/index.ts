@@ -4,6 +4,8 @@ import type {
   Item, ItemId,
   Location, LocationId,
   Monster, MonsterId,
+  NarrativeNode, NarrativeNodeId,
+  NarrativeResolver, NarrativeResolverId,
   Skill, SkillId,
   StoryBeat, BeatId
 } from '../engine/types';
@@ -18,6 +20,8 @@ import { locations } from './locations';
 import { classes } from './classes';
 import { skills } from './skills';
 import { beats } from './story/beats';
+import { narrativeNodes } from './narrative/nodes';
+import { narrativeResolvers } from './narrative/resolvers';
 
 export const content = {
   items: items as Record<ItemId, Item>,
@@ -26,7 +30,9 @@ export const content = {
   locations: locations as Record<LocationId, Location>,
   classes: classes as Record<ClassId, CharacterClass>,
   skills: skills as Record<SkillId, Skill>,
-  beats: beats as Record<BeatId, StoryBeat>
+  beats: beats as Record<BeatId, StoryBeat>,
+  narrativeNodes: narrativeNodes as Record<NarrativeNodeId, NarrativeNode>,
+  narrativeResolvers: narrativeResolvers as Record<NarrativeResolverId, NarrativeResolver>
 };
 
 export class ContentValidationError extends Error {}

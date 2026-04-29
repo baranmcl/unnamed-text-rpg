@@ -3,13 +3,22 @@
   import CharacterPanel from './CharacterPanel.svelte';
   import Divider from './Divider.svelte';
   import PageTools from './PageTools.svelte';
+  import CharacterCreation from './CharacterCreation.svelte';
+  import { gameStore } from './store.svelte';
+  import { isCharacterCreated } from '../engine/state';
+
+  let created = $derived(isCharacterCreated(gameStore.state));
 </script>
 
-<div class="chronicle">
-  <WorldPanel />
-  <Divider />
-  <CharacterPanel />
-</div>
+{#if created}
+  <div class="chronicle">
+    <WorldPanel />
+    <Divider />
+    <CharacterPanel />
+  </div>
+{:else}
+  <CharacterCreation />
+{/if}
 
 <PageTools />
 
@@ -25,7 +34,6 @@
     margin: 0 auto;
   }
 
-  /* Mobile: panels stack vertically (functional accordion polish in Plan 6) */
   @media (max-width: 900px) {
     .chronicle {
       grid-template-columns: 1fr;

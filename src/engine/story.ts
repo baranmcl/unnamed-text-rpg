@@ -1,6 +1,6 @@
 import { content } from '../content';
 import type {
-  ActId, BeatEffect, BeatId, GameState, ItemId, LogEntry,
+  BeatEffect, GameState, LogEntry,
   Predicate, StoryBeat
 } from './types';
 import { MAX_LOG_ENTRIES } from './types';

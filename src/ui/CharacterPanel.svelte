@@ -61,6 +61,9 @@
     return `${word} Hero`;
   }
 
+  function xpToNextLevel(level: number): number {
+    return level * 100;
+  }
 
 </script>
 
@@ -89,8 +92,8 @@
         <span class="value">{c.mp.current} / {c.mp.max}</span>
 
         <span class="label">XP</span>
-        <div class="bar"><div class="fill xp" style:width="{c.xp}%"></div></div>
-        <span class="value">{c.xp}%</span>
+        <div class="bar"><div class="fill xp" style:width="{Math.min(100, (c.xp / xpToNextLevel(c.level)) * 100)}%"></div></div>
+        <span class="value">{c.xp} / {xpToNextLevel(c.level)}</span>
       </div>
     {/if}
   </section>

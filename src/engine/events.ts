@@ -1,8 +1,9 @@
 import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, LogEntry } from './types';
+import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endCombat } from './combat';
 
-const MAX_LOG = 200;
+// MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
 // Append entries to the log, deriving sequential ids from the existing log
 // tail. This MUST match the id-generation pattern in combat.ts so the two
@@ -11,7 +12,7 @@ function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameStat
   let nextId = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
   const withIds: LogEntry[] = entries.map((e) => ({ ...e, id: nextId++ }));
   const merged = [...state.log, ...withIds];
-  return { ...state, log: merged.length > MAX_LOG ? merged.slice(-MAX_LOG) : merged };
+  return { ...state, log: merged.length > MAX_LOG_ENTRIES ? merged.slice(-MAX_LOG_ENTRIES) : merged };
 }
 
 export type GameEvent =
@@ -68,7 +69,20 @@ export function reduce(state: GameState, event: GameEvent): GameState {
           equipment,
           inventory,
           knownSkills: []
-        }
+        },
+        world: {
+          currentLocation: state.world.currentLocation,
+          visited: [],
+          flags: {}
+        },
+        story: {
+          stage: 'act_i',
+          currentBeat: null,
+          completedBeats: [],
+          activeQuests: []
+        },
+        combat: null,
+        log: []
       };
       const withOpening = appendLogs(populated, FARMBOY_OPENING_LINES);
       // Recurse into EnterLocation for the description.

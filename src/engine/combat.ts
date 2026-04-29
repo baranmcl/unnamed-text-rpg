@@ -1,5 +1,6 @@
 import { rng, type RngState, type RngResult } from './rng';
 import type { GameState, CombatState, MonsterId, ItemId, CombatEncounter } from './types';
+import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 
 // Spec §7 combat math.
@@ -39,12 +40,12 @@ export function rollFlee(state: RngState, bluck: number, bravado: number): RngRe
 // Combat sub-reducers
 // =====================================================================
 
-const MAX_LOG = 200;
+// MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
 function pushLog(state: GameState, entry: { kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }): GameState {
   const id = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
   const newLog = [...state.log, { id, ...entry }];
-  return { ...state, log: newLog.length > MAX_LOG ? newLog.slice(-MAX_LOG) : newLog };
+  return { ...state, log: newLog.length > MAX_LOG_ENTRIES ? newLog.slice(-MAX_LOG_ENTRIES) : newLog };
 }
 
 export function startCombat(state: GameState, encounter: CombatEncounter): GameState {
@@ -53,9 +54,11 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
     return pushLog(state, { kind: 'system', systemLabel: 'ERROR', text: `Unknown monster ${encounter.monsterId}.` });
   }
 
-  // Initiative: bravado + d6 for each.
-  const playerInit = state.character.stats.bravado + 1 + Math.floor(Math.random() * 6);
-  const monsterInit = monster.bravado + 1 + Math.floor(Math.random() * 6);
+  // Initiative: bravado + d6 for each (deterministic via state.rng).
+  const playerInitRoll = rng.d6(state.rng);
+  const monsterInitRoll = rng.d6(playerInitRoll.state);
+  const playerInit = state.character.stats.bravado + playerInitRoll.value;
+  const monsterInit = monster.bravado + monsterInitRoll.value;
 
   const combat: CombatState = {
     encounterId: encounter.id,
@@ -67,7 +70,7 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
     round: 1
   };
 
-  let s: GameState = { ...state, combat };
+  let s: GameState = { ...state, rng: monsterInitRoll.state, combat };
   s = pushLog(s, { kind: 'combat', text: `${monster.name} appears.` });
   s = pushLog(s, { kind: 'combat', text: monster.flavor });
   return s;
@@ -200,7 +203,10 @@ export function monsterTurn(state: GameState): GameState {
     s = pushLog(s, { kind: 'combat', text: `${action.flavor} (You dodge.)` });
     return s;
   }
-  const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, /*player armor*/ 0);
+  const armorId = state.character.equipment.armor;
+  const armorItem = armorId ? content.items[armorId] : undefined;
+  const playerArmor = armorItem?.armor ?? 0;
+  const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, playerArmor);
   s = { ...s, rng: dmg.state };
   // Apply to player
   const newHp = Math.max(0, state.character.hp.current - dmg.value);

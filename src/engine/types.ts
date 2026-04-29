@@ -99,6 +99,7 @@ export type Monster = {
   id: MonsterId;
   name: string;
   flavor: string;
+  defeatedFlavor: string;   // log entry shown on victory, before XP/loot
   hp: number;
   brawn: number;
   bravado: number;

@@ -231,13 +231,19 @@ export function monsterTurn(state: GameState): GameState {
 export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee', encounter: CombatEncounter): GameState {
   let s: GameState = { ...state, combat: null };
   if (result === 'victory') {
+    // Push the monster's defeated-flavor line before XP/loot, so the player
+    // gets a closure beat before the mechanical readouts.
+    const monster = content.monsters[encounter.monsterId];
+    if (monster?.defeatedFlavor) {
+      s = pushLog(s, { kind: 'narration', text: monster.defeatedFlavor });
+    }
+
     if (encounter.xpReward > 0) {
       s = { ...s, character: { ...s.character, xp: s.character.xp + encounter.xpReward } };
       s = pushLog(s, { kind: 'system', systemLabel: 'EXP.', text: `+${encounter.xpReward} experience.` });
     }
 
     // Fix 1: Roll monster loot table.
-    const monster = content.monsters[encounter.monsterId];
     if (monster) {
       let lootDropped = false;
       for (const lootEntry of monster.loot) {

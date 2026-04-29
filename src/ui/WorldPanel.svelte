@@ -20,6 +20,17 @@
 
   let currentLocation = $derived(content.locations[gameStore.state.world.currentLocation]);
   let inCombat = $derived(gameStore.state.combat !== null);
+  let inNarrativeCombat = $derived(gameStore.state.combat?.kind === 'narrative');
+  let inTurnCombat = $derived(gameStore.state.combat?.kind === 'turn-based');
+
+  let currentNarrativeNode = $derived.by(() => {
+    if (gameStore.state.combat?.kind !== 'narrative') return null;
+    return content.narrativeNodes[gameStore.state.combat.currentNodeId] ?? null;
+  });
+
+  function chooseOption(index: number) {
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: index });
+  }
 
   let showItemPicker = $state(false);
 
@@ -149,7 +160,7 @@
       {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0}
         <p class="placeholder">There seems nothing immediate to do here.</p>
       {/if}
-    {:else if inCombat}
+    {:else if inTurnCombat}
       <button class="btn" type="button" onclick={attack}>Attack</button>
 
       <span class="skill-wrap">
@@ -174,6 +185,10 @@
       </span>
 
       <button class="btn" type="button" onclick={flee}>Flee</button>
+    {:else if inNarrativeCombat && currentNarrativeNode}
+      {#each currentNarrativeNode.choices as choice, idx (idx)}
+        <button class="btn" type="button" onclick={() => chooseOption(idx)}>{choice.label}</button>
+      {/each}
     {/if}
   </div>
 </section>

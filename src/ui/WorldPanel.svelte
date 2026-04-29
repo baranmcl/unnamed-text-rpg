@@ -71,6 +71,21 @@
     const monster = content.monsters[enc.monsterId];
     return monster ? `Confront ${monster.name}` : 'Investigate';
   }
+
+  function isEncounterDefeated(encId: EncounterId): boolean {
+    return Boolean(gameStore.state.world.flags[`defeated:${encId}`]);
+  }
+
+  // Fix 5: Auto-scroll log to bottom on new entries.
+  let logEl = $state<HTMLElement | null>(null);
+
+  $effect(() => {
+    // Touch the log length to make this effect reactive to log changes.
+    void log.length;
+    if (logEl) {
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+  });
 </script>
 
 <section class="world" aria-label="World panel">
@@ -97,7 +112,7 @@
 
   <div class="rule"></div>
 
-  <div class="log" aria-live="polite">
+  <div class="log" aria-live="polite" bind:this={logEl}>
     {#each log as entry (entry.id)}
       {#if entry.kind === 'narration'}
         <p class="entry narration">{entry.text}</p>
@@ -128,7 +143,7 @@
           <button class="btn" type="button" onclick={() => go(exit.targetId)}>{exit.label}</button>
         {/if}
       {/each}
-      {#each currentLocation.encounterIds ?? [] as encId (encId)}
+      {#each (currentLocation.encounterIds ?? []).filter((id) => !isEncounterDefeated(id)) as encId (encId)}
         <button class="btn" type="button" onclick={() => confront(encId)}>{encounterLabel(encId)}</button>
       {/each}
       {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0}

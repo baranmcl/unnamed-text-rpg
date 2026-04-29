@@ -42,6 +42,11 @@ export function rollFlee(state: RngState, bluck: number, bravado: number): RngRe
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
+function ordinal(n: number): string {
+  const titles = ['Untested', 'First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
+  return titles[Math.min(n, titles.length - 1)] ?? `${n}th`;
+}
+
 function pushLog(state: GameState, entry: { kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }): GameState {
   const id = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
   const newLog = [...state.log, { id, ...entry }];
@@ -228,6 +233,56 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
   if (result === 'victory') {
     s = { ...s, character: { ...s.character, xp: s.character.xp + encounter.xpReward } };
     s = pushLog(s, { kind: 'system', systemLabel: 'EXP.', text: `+${encounter.xpReward} experience.` });
+
+    // Fix 1: Roll monster loot table.
+    const monster = content.monsters[encounter.monsterId];
+    if (monster) {
+      for (const lootEntry of monster.loot) {
+        const roll = rng.d100(s.rng);
+        s = { ...s, rng: roll.state };
+        if (roll.value <= lootEntry.chance * 100) {
+          const item = content.items[lootEntry.itemId];
+          if (item) {
+            const existing = s.character.inventory.find((e) => e.itemId === lootEntry.itemId);
+            const newInv = existing
+              ? s.character.inventory.map((e) => e.itemId === lootEntry.itemId ? { ...e, qty: e.qty + 1 } : e)
+              : [...s.character.inventory, { itemId: lootEntry.itemId, qty: 1 }];
+            s = { ...s, character: { ...s.character, inventory: newInv } };
+            s = pushLog(s, { kind: 'loot', text: `You find: ${item.name}.` });
+          }
+        }
+      }
+    }
+
+    // Fix 3: Mark encounter as defeated so it doesn't reappear.
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, [`defeated:${encounter.id}`]: true }
+      }
+    };
+
+    // Fix 4a: Level-up check (loop in case multiple levels gained at once).
+    const xpThreshold = (level: number) => level * 100;
+    while (s.character.xp >= xpThreshold(s.character.level)) {
+      s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level), level: s.character.level + 1 } };
+      const newHpMax = s.character.hp.max + Math.floor(s.character.stats.brawn * 1.5);
+      const newMpMax = s.character.mp.max + s.character.stats.brains;
+      s = {
+        ...s,
+        character: {
+          ...s.character,
+          hp: { current: newHpMax, max: newHpMax },
+          mp: { current: newMpMax, max: newMpMax }
+        }
+      };
+      s = pushLog(s, {
+        kind: 'system',
+        systemLabel: 'LEVEL',
+        text: `You attain the ${ordinal(s.character.level)} Degree of Heroism. (Healed to full.)`
+      });
+    }
   } else if (result === 'defeat') {
     s = pushLog(s, { kind: 'narration', text: 'The world goes dim. You wake some time later, with a headache and your dignity rumpled.' });
     // Plan 4 will add proper defeat handling. For Plan 2, restore HP to 1.

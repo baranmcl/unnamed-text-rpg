@@ -58,7 +58,12 @@
       'Eighth-Degree', 'Ninth-Degree', 'Tenth-Degree'
     ];
     const word = ordinals[Math.min(level, ordinals.length - 1)] ?? 'Legendary';
-    return `${word} Hero`;
+    return `Level ${level} · ${word} Hero`;
+  }
+
+  function equippedName(itemId: ItemId | undefined): string {
+    if (!itemId) return '— unchosen —';
+    return content.items[itemId]?.name ?? String(itemId);
   }
 
   function xpToNextLevel(level: number): number {
@@ -124,15 +129,15 @@
       <div class="equip">
         <span class="slot-label">Wpn</span>
         <span class="slot-item" class:empty={!c.equipment.weapon}>
-          {c.equipment.weapon ?? '— unchosen —'}
+          {equippedName(c.equipment.weapon)}
         </span>
         <span class="slot-label">Arm</span>
         <span class="slot-item" class:empty={!c.equipment.armor}>
-          {c.equipment.armor ?? '— unchosen —'}
+          {equippedName(c.equipment.armor)}
         </span>
         <span class="slot-label">Trk</span>
         <span class="slot-item" class:empty={!c.equipment.trinket}>
-          {c.equipment.trinket ?? '— unchosen —'}
+          {equippedName(c.equipment.trinket)}
         </span>
       </div>
     {/if}

@@ -4,7 +4,8 @@ import type {
   Item, ItemId,
   Location, LocationId,
   Monster, MonsterId,
-  Skill, SkillId
+  Skill, SkillId,
+  StoryBeat, BeatId
 } from '../engine/types';
 
 // Each per-type file exports a single object literal keyed by id.
@@ -16,6 +17,7 @@ import { encounters } from './encounters';
 import { locations } from './locations';
 import { classes } from './classes';
 import { skills } from './skills';
+import { beats } from './story/beats';
 
 export const content = {
   items: items as Record<ItemId, Item>,
@@ -23,7 +25,8 @@ export const content = {
   encounters: encounters as Record<EncounterId, Encounter>,
   locations: locations as Record<LocationId, Location>,
   classes: classes as Record<ClassId, CharacterClass>,
-  skills: skills as Record<SkillId, Skill>
+  skills: skills as Record<SkillId, Skill>,
+  beats: beats as Record<BeatId, StoryBeat>
 };
 
 export class ContentValidationError extends Error {}

@@ -2,7 +2,7 @@
   import { gameStore } from './store.svelte';
   import { ACT_TITLES } from '../engine/types';
   import { content } from '../content';
-  import type { LocationId, EncounterId } from '../engine/types';
+  import type { LocationId, EncounterId, ItemId } from '../engine/types';
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
   // Plan 2 wires this to actual Location data.
@@ -20,6 +20,37 @@
 
   let currentLocation = $derived(content.locations[gameStore.state.world.currentLocation]);
   let inCombat = $derived(gameStore.state.combat !== null);
+
+  let showItemPicker = $state(false);
+
+  let consumables = $derived(
+    gameStore.state.character.inventory
+      .map((entry) => ({ entry, item: content.items[entry.itemId] }))
+      .filter(({ item }) => item?.kind === 'consumable')
+  );
+
+  let signatureSkill = $derived.by(() => {
+    const cls = content.classes[gameStore.state.character.classId];
+    if (!cls) return null;
+    return content.skills[cls.signatureMove] ?? null;
+  });
+
+  let signatureSkillTooltip = $derived.by(() => {
+    const skill = signatureSkill;
+    if (!skill) return 'No skills available.';
+    return `${skill.name} — ${skill.description} (Unlocks at level ${skill.unlockLevel}.)`;
+  });
+
+  function attack() {
+    gameStore.dispatch({ kind: 'AttackTarget' });
+  }
+  function flee() {
+    gameStore.dispatch({ kind: 'Flee' });
+  }
+  function consume(itemId: ItemId) {
+    gameStore.dispatch({ kind: 'UseItem', itemId });
+    showItemPicker = false;
+  }
 
   function isExitVisible(visibleIfFlag?: string): boolean {
     if (!visibleIfFlag) return true;
@@ -103,6 +134,31 @@
       {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0}
         <p class="placeholder">There seems nothing immediate to do here.</p>
       {/if}
+    {:else if inCombat}
+      <button class="btn" type="button" onclick={attack}>Attack</button>
+
+      <span class="skill-wrap">
+        <button class="btn" type="button" disabled title={signatureSkillTooltip}>Skill</button>
+      </span>
+
+      <span class="item-wrap">
+        <button class="btn" type="button" onclick={() => { showItemPicker = !showItemPicker; }}>Item</button>
+        {#if showItemPicker}
+          <div class="item-picker" role="menu">
+            {#if consumables.length === 0}
+              <p>No consumables.</p>
+            {:else}
+              {#each consumables as { entry, item } (entry.itemId)}
+                <button class="picker-row" type="button" onclick={() => consume(entry.itemId)}>
+                  {item!.name} <span class="qty">×{entry.qty}</span>
+                </button>
+              {/each}
+            {/if}
+          </div>
+        {/if}
+      </span>
+
+      <button class="btn" type="button" onclick={flee}>Flee</button>
     {/if}
   </div>
 </section>
@@ -245,4 +301,33 @@
   .btn::before { content: '['; margin-right: 4px; color: var(--ink-muted); }
   .btn::after { content: ']'; margin-left: 4px; color: var(--ink-muted); }
   .btn:hover::before, .btn:hover::after { color: var(--paper-warm); }
+
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn:disabled:hover { background: transparent; color: var(--ink); }
+  .skill-wrap, .item-wrap { position: relative; display: inline-block; }
+  .item-picker {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 8px 4px;
+    min-width: 220px;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.2);
+    z-index: 30;
+  }
+  .item-picker p { margin: 6px 12px; font-style: italic; color: var(--ink-muted); }
+  .picker-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    font-family: var(--serif-body);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .picker-row:hover { background: rgba(166, 131, 56, 0.12); }
+  .picker-row .qty { color: var(--ink-muted); font-size: 12px; }
 </style>

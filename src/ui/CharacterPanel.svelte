@@ -155,15 +155,15 @@
     </button>
     {#if !collapsed.accoutrements}
       <div class="equip">
-        <span class="slot-label">Wpn</span>
+        <span class="slot-label" title="Weapon">Wpn</span>
         <span class="slot-item" class:empty={!c.equipment.weapon} title={equipmentTooltip(c.equipment.weapon)}>
           {equippedName(c.equipment.weapon)}
         </span>
-        <span class="slot-label">Arm</span>
+        <span class="slot-label" title="Armor">Arm</span>
         <span class="slot-item" class:empty={!c.equipment.armor} title={equipmentTooltip(c.equipment.armor)}>
           {equippedName(c.equipment.armor)}
         </span>
-        <span class="slot-label">Trk</span>
+        <span class="slot-label" title="Accessory">Acc</span>
         <span class="slot-item" class:empty={!c.equipment.trinket} title={equipmentTooltip(c.equipment.trinket)}>
           {equippedName(c.equipment.trinket)}
         </span>

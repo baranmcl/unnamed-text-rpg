@@ -1,5 +1,8 @@
 <script lang="ts">
   import { gameStore } from './store.svelte';
+  import InspectModal from './InspectModal.svelte';
+  import { content } from '../content';
+  import type { ItemId } from '../engine/types';
 
   const SECTION_KEY = 'heroicchronicle.ui.sectionsCollapsed';
 
@@ -32,6 +35,17 @@
 
   let c = $derived(gameStore.state.character);
 
+  let inspectingItem = $state<ItemId | null>(null);
+
+  function openInspect(itemId: ItemId) {
+    inspectingItem = itemId;
+  }
+  function closeInspect() {
+    inspectingItem = null;
+  }
+
+  let dynamicEpithet = $derived(content.classes[c.classId]?.epithet ?? 'the Untitled');
+
   function pct(part: number, whole: number): number {
     if (whole <= 0) return 0;
     return Math.max(0, Math.min(100, (part / whole) * 100));
@@ -47,11 +61,7 @@
     return `${word} Hero`;
   }
 
-  function epithet(): string {
-    // Plan 2 will pull this from the class definition. Plan 1 hardcodes
-    // for demo state.
-    return 'the Reluctant Farmboy';
-  }
+
 </script>
 
 <aside class="persona" aria-label="Character panel">
@@ -59,7 +69,7 @@
   <div class="persona-rule"></div>
 
   <h2 class="persona-name">{c.name || '— (unnamed) —'}</h2>
-  <p class="persona-epithet">{epithet()}</p>
+  <p class="persona-epithet">{dynamicEpithet}</p>
   <p class="persona-level">{levelTitle(c.level)}</p>
 
   <!-- Vitals -->
@@ -134,9 +144,14 @@
     {#if !collapsed.effects}
       <div class="effects">
         {#each Array(12) as _, i (i)}
-          <div class="effect-slot" class:filled={i < c.inventory.length}>
-            {#if i < c.inventory.length}<span class="glyph">✦</span>{/if}
-          </div>
+          {#if i < c.inventory.length}
+            {@const entry = c.inventory[i]!}
+            <button class="effect-slot filled" type="button" onclick={() => openInspect(entry.itemId)} aria-label="Inspect item">
+              <span class="glyph">✦</span>
+            </button>
+          {:else}
+            <div class="effect-slot" aria-hidden="true"></div>
+          {/if}
         {/each}
       </div>
       <div class="effects-count">{c.inventory.length} / 12</div>
@@ -145,6 +160,10 @@
 
   <p class="persona-footer">(<em>dram. pers.: our hero</em>)</p>
 </aside>
+
+{#if inspectingItem}
+  <InspectModal itemId={inspectingItem} onClose={closeInspect} />
+{/if}
 
 <style>
   .persona {
@@ -305,6 +324,8 @@
     border-color: var(--ink);
     color: var(--ink);
   }
+  button.effect-slot { cursor: pointer; background: transparent; }
+  button.effect-slot:hover { background: rgba(166, 131, 56, 0.12); }
   .effects-count {
     font-family: var(--mono);
     font-size: 11px;

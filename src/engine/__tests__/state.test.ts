@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { createInitialState, createDemoState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { reduce } from '../events';
-import { content } from '../../content';
 import { ClassId, ItemId, LocationId, EncounterId } from '../types';
 
 describe('createInitialState', () => {

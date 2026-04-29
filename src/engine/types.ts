@@ -141,6 +141,44 @@ export type CharacterClass = {
 };
 
 // =====================================================================
+// Skills
+// =====================================================================
+
+export type Skill = {
+  id: SkillId;
+  name: string;                  // "Tempt Fate"
+  description: string;           // tooltip text
+  mpCost: number;
+  scalingStat: keyof StatBlock;  // 'bluck'
+  unlockLevel: number;           // 3 in v1
+};
+
+// =====================================================================
+// Encounters
+// =====================================================================
+
+export type CombatEncounter = {
+  id: EncounterId;
+  kind: 'combat';
+  monsterId: MonsterId;
+  noFlee?: boolean;
+  xpReward: number;
+};
+
+// Narrative encounters land in Plan 3.
+export type Encounter = CombatEncounter;
+
+// =====================================================================
+// Combat helpers
+// =====================================================================
+
+export type CombatActionResult = {
+  hit: boolean;
+  crit: boolean;
+  damage: number;
+};
+
+// =====================================================================
 // State
 // =====================================================================
 

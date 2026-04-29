@@ -1,20 +1,8 @@
-import { LocationId, EncounterId, type Location } from '../../engine/types';
+import { type Location, type LocationId } from '../../engine/types';
+import { family_farm } from './family_farm';
+import { dusty_crossroads } from './dusty_crossroads';
 
 export const locations: Record<LocationId, Location> = {
-  [LocationId('family_farm')]: {
-    id: LocationId('family_farm'),
-    name: 'The Family Farm',
-    act: 'act_i',
-    description:
-      'The farm sprawls in three directions, mostly downhill. Chickens are in the early stages of a labour dispute. ' +
-      'The barn slumps companionably against a fence that has given up. From the eastern field, you hear the ' +
-      'unmistakable sound of someone *filing*.',
-    reEntryDescription:
-      'The farm continues to be the farm. The chickens have moved on to a more polished list of grievances.',
-    exits: [
-      // The Village exit is gated behind a flag — it doesn't exist yet (Plan 5).
-      { label: 'Walk into the village', targetId: LocationId('village'), visibleIfFlag: 'unlocked_village' }
-    ],
-    encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')]
-  }
+  [family_farm.id]: family_farm,
+  [dusty_crossroads.id]: dusty_crossroads
 };

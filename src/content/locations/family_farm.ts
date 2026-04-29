@@ -1,0 +1,18 @@
+import { LocationId, EncounterId, type Location } from '../../engine/types';
+
+export const family_farm: Location = {
+  id: LocationId('family_farm'),
+  name: 'The Family Farm',
+  act: 'act_i',
+  description:
+    'The farm sprawls in three directions, mostly downhill. Chickens are in the early stages of a labour dispute. ' +
+    'The barn slumps companionably against a fence that has given up. From the eastern field, you hear the ' +
+    'unmistakable sound of someone *filing*.',
+  reEntryDescription:
+    'The farm continues to be the farm. The chickens have moved on to a more polished list of grievances.',
+  exits: [
+    // Crossroads exit unlocks via the hermit_beckons beat.
+    { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' }
+  ],
+  encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')]
+};

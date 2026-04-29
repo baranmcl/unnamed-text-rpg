@@ -186,6 +186,8 @@ export type NarrativeResolverId = string;
 export type NarrativeChoice = {
   label: string;
   visible?: Predicate;
+  disabledIfFlag?: string;       // if this flag is truthy, choice renders disabled
+  disabledTooltip?: string;      // tooltip shown when disabled
   resolve: NarrativeResolverId;
 };
 

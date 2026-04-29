@@ -7,8 +7,18 @@ const callRoot: NarrativeNode = {
   choices: [
     { label: 'Accept Quest', resolve: 'call_accept' },
     { label: 'Refuse (traditional)', resolve: 'call_refuse' },
-    { label: 'Insult Hat', resolve: 'call_insult' },
-    { label: 'Cry, Briefly', resolve: 'call_cry' }
+    {
+      label: 'Insult Hat',
+      resolve: 'call_insult',
+      disabledIfFlag: 'insulted_hermit_hat',
+      disabledTooltip: 'You have already insulted the hat.'
+    },
+    {
+      label: 'Cry, Briefly',
+      resolve: 'call_cry',
+      disabledIfFlag: 'cried_at_hermit',
+      disabledTooltip: 'You have already wept your share for now.'
+    }
   ]
 };
 

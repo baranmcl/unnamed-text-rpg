@@ -46,13 +46,17 @@ export function chooseNarrativeOption(state: GameState, choiceIndex: number): Ga
   if (!node) return state;
   const choice = node.choices[choiceIndex];
   if (!choice) return state;
+  // Defense-in-depth: if the choice is flag-disabled, ignore the dispatch.
+  if (choice.disabledIfFlag && state.world.flags[choice.disabledIfFlag]) return state;
   const resolver = content.narrativeResolvers[choice.resolve];
   if (!resolver) return state;
+  const currentNodeId = state.combat.currentNodeId;
   const result = resolver(state);
   let s = result.state;
   if (result.next === null) {
     s = { ...s, combat: null };
-  } else {
+  } else if (result.next !== currentNodeId) {
+    // Move to a new node and push its prose.
     s = {
       ...s,
       combat: {
@@ -63,6 +67,10 @@ export function chooseNarrativeOption(state: GameState, choiceIndex: number): Ga
     };
     s = pushNode(s, result.next);
   }
+  // If result.next === currentNodeId, we self-loop:
+  // - Combat state already points to currentNodeId; no update needed.
+  // - Don't re-push the node's prose (avoid speaker dialogue repeating).
+  // - Resolver-pushed log entries (narrator interjections, hermit reactions) remain.
   return s;
 }
 

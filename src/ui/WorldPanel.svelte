@@ -211,7 +211,16 @@
       <button class="btn" type="button" onclick={flee}>Flee</button>
     {:else if inNarrativeCombat && currentNarrativeNode}
       {#each currentNarrativeNode.choices as choice, idx (idx)}
-        <button class="btn" type="button" onclick={() => chooseOption(idx)}>{choice.label}</button>
+        {@const disabled = choice.disabledIfFlag ? Boolean(gameStore.state.world.flags[choice.disabledIfFlag]) : false}
+        <button
+          class="btn"
+          type="button"
+          disabled={disabled}
+          title={disabled ? (choice.disabledTooltip ?? '') : ''}
+          onclick={() => !disabled && chooseOption(idx)}
+        >
+          {choice.label}
+        </button>
       {/each}
     {/if}
   </div>

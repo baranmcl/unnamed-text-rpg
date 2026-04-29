@@ -31,29 +31,67 @@ const call_accept: NarrativeResolver = (state) => {
   };
 };
 
+// Refuse escalates each time the player clicks it. Tracked via a counter
+// flag (`refusal_count`). After the last line, additional refusals reuse it.
+const REFUSE_LINES = [
+  "(Fate's greatest skill is the illusion of choice.)",
+  "(I understand you're reluctant — but Fate has other plans.)",
+  '(The narrator sighs heavily, retrieves the manuscript, smooths it, and we try this again.)',
+  '(...the narrator says nothing this time. The crossroads grows quiet.)'
+];
+
 const call_refuse: NarrativeResolver = (state) => {
+  const prev = (state.world.flags['refusal_count'] as number | undefined) ?? 0;
+  const count = prev + 1;
+  const lineIndex = Math.min(count - 1, REFUSE_LINES.length - 1);
+  const line = REFUSE_LINES[lineIndex]!;
   const s = appendLogs(state, [
-    {
-      kind: 'system',
-      systemLabel: 'NARRATOR',
-      text: '(The narrator sighs heavily, retrieves the manuscript, smooths it, and we try this again.)'
-    }
+    { kind: 'system', systemLabel: 'NARRATOR', text: line }
   ]);
-  return { state: s, next: ROOT };
+  return {
+    state: {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, refusal_count: count }
+      }
+    },
+    next: ROOT
+  };
 };
 
 const call_insult: NarrativeResolver = (state) => {
   const s = appendLogs(state, [
-    { kind: 'system', systemLabel: 'NARRATOR', text: 'That is not, strictly speaking, in the script.' }
+    { kind: 'system', systemLabel: 'NARRATOR', text: 'That is not, strictly speaking, in the script.' },
+    { kind: 'dialogue', speaker: 'Old Hermit', text: '"...My hat is, in point of fact, a perfectly serviceable hat."' }
   ]);
-  return { state: s, next: ROOT };
+  return {
+    state: {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, insulted_hermit_hat: true }
+      }
+    },
+    next: ROOT
+  };
 };
 
 const call_cry: NarrativeResolver = (state) => {
   const s = appendLogs(state, [
-    { kind: 'system', systemLabel: 'NARRATOR', text: 'There, there.' }
+    { kind: 'system', systemLabel: 'NARRATOR', text: 'There, there.' },
+    { kind: 'dialogue', speaker: 'Old Hermit', text: '"(Politely offers a slightly grimy handkerchief.)"' }
   ]);
-  return { state: s, next: ROOT };
+  return {
+    state: {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, cried_at_hermit: true }
+      }
+    },
+    next: ROOT
+  };
 };
 
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {

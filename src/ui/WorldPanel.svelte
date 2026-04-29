@@ -1,6 +1,8 @@
 <script lang="ts">
   import { gameStore } from './store.svelte';
   import { ACT_TITLES } from '../engine/types';
+  import { content } from '../content';
+  import type { LocationId, EncounterId } from '../engine/types';
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
   // Plan 2 wires this to actual Location data.
@@ -15,6 +17,29 @@
   let actLabel = $derived(ACT_TITLES[gameStore.state.story.stage]);
   let locName = $derived(locationDisplayName(gameStore.state.world.currentLocation));
   let log = $derived(gameStore.state.log);
+
+  let currentLocation = $derived(content.locations[gameStore.state.world.currentLocation]);
+  let inCombat = $derived(gameStore.state.combat !== null);
+
+  function isExitVisible(visibleIfFlag?: string): boolean {
+    if (!visibleIfFlag) return true;
+    return Boolean(gameStore.state.world.flags[visibleIfFlag]);
+  }
+
+  function go(targetId: LocationId) {
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: targetId });
+  }
+
+  function confront(encounterId: EncounterId) {
+    gameStore.dispatch({ kind: 'TriggerEncounter', encounterId });
+  }
+
+  function encounterLabel(encounterId: EncounterId): string {
+    const enc = content.encounters[encounterId];
+    if (!enc || enc.kind !== 'combat') return 'Investigate';
+    const monster = content.monsters[enc.monsterId];
+    return monster ? `Confront ${monster.name}` : 'Investigate';
+  }
 </script>
 
 <section class="world" aria-label="World panel">
@@ -66,7 +91,19 @@
   </div>
 
   <div class="button-bar">
-    <p class="placeholder">Buttons appear here in Plan 2 (exploration) and Plan 4 (combat).</p>
+    {#if !inCombat && currentLocation}
+      {#each currentLocation.exits as exit (exit.targetId)}
+        {#if isExitVisible(exit.visibleIfFlag)}
+          <button class="btn" type="button" onclick={() => go(exit.targetId)}>{exit.label}</button>
+        {/if}
+      {/each}
+      {#each currentLocation.encounterIds ?? [] as encId (encId)}
+        <button class="btn" type="button" onclick={() => confront(encId)}>{encounterLabel(encId)}</button>
+      {/each}
+      {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0}
+        <p class="placeholder">There seems nothing immediate to do here.</p>
+      {/if}
+    {/if}
   </div>
 </section>
 
@@ -188,4 +225,24 @@
     color: var(--ink-faint);
     margin: 0;
   }
+
+  .btn {
+    font-family: var(--serif-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--ink);
+    padding: 8px 16px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 180ms ease, color 180ms ease;
+    margin-right: 12px;
+  }
+  .btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn::before { content: '['; margin-right: 4px; color: var(--ink-muted); }
+  .btn::after { content: ']'; margin-left: 4px; color: var(--ink-muted); }
+  .btn:hover::before, .btn:hover::after { color: var(--paper-warm); }
 </style>

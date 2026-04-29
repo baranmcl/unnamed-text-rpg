@@ -2,6 +2,7 @@
   import { gameStore } from './store.svelte';
   import { ACT_TITLES } from '../engine/types';
   import { content } from '../content';
+  import { fade, fly } from 'svelte/transition';
   import type { LocationId, EncounterId, ItemId } from '../engine/types';
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
@@ -109,52 +110,54 @@
 </script>
 
 <section class="world" aria-label="World panel">
-  <header class="world-header">
-    <div class="header-text">
-      <p class="act-marker">{actLabel}</p>
-      <h1 class="location-title">{locName}</h1>
+  {#key gameStore.state.world.currentLocation}
+    <header class="world-header" in:fly={{ y: 8, duration: 400 }}>
+      <div class="header-text">
+        <p class="act-marker">{actLabel}</p>
+        <h1 class="location-title">{locName}</h1>
+      </div>
+      <button
+        class="compass"
+        aria-label="Look at the map"
+        title="Look at the map (coming in Plan 5)"
+        type="button"
+      >
+        <svg viewBox="0 0 64 64" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="32" cy="32" r="28" />
+          <circle cx="32" cy="32" r="22" />
+          <path d="M32 6 L36 32 L32 58 L28 32 Z" fill="currentColor" stroke="none" />
+          <path d="M6 32 L32 28 L58 32 L32 36 Z" fill="currentColor" fill-opacity="0.35" stroke="none" />
+          <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="rule" in:fade={{ duration: 200, delay: 150 }}></div>
+
+    <div class="log" aria-live="polite" bind:this={logEl} in:fade={{ duration: 300, delay: 200 }}>
+      {#each log as entry (entry.id)}
+        {#if entry.kind === 'narration'}
+          <p class="entry narration">{entry.text}</p>
+        {:else if entry.kind === 'dialogue'}
+          <div class="entry dialogue">
+            <span class="speaker">{entry.speaker ?? ''}</span>
+            <span class="line">{entry.text}</span>
+          </div>
+        {:else if entry.kind === 'system'}
+          <div class="entry system">
+            <span class="system-label">{entry.systemLabel ?? 'NOTE'} —</span>
+            <span class="system-text">{entry.text}</span>
+          </div>
+        {:else if entry.kind === 'combat'}
+          <p class="entry combat">{entry.text}</p>
+        {:else if entry.kind === 'loot'}
+          <p class="entry loot">{entry.text}</p>
+        {:else if entry.kind === 'scene-divider'}
+          <p class="entry scene-divider">· · ·</p>
+        {/if}
+      {/each}
     </div>
-    <button
-      class="compass"
-      aria-label="Look at the map"
-      title="Look at the map (coming in Plan 5)"
-      type="button"
-    >
-      <svg viewBox="0 0 64 64" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="32" cy="32" r="28" />
-        <circle cx="32" cy="32" r="22" />
-        <path d="M32 6 L36 32 L32 58 L28 32 Z" fill="currentColor" stroke="none" />
-        <path d="M6 32 L32 28 L58 32 L32 36 Z" fill="currentColor" fill-opacity="0.35" stroke="none" />
-        <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
-      </svg>
-    </button>
-  </header>
-
-  <div class="rule"></div>
-
-  <div class="log" aria-live="polite" bind:this={logEl}>
-    {#each log as entry (entry.id)}
-      {#if entry.kind === 'narration'}
-        <p class="entry narration">{entry.text}</p>
-      {:else if entry.kind === 'dialogue'}
-        <div class="entry dialogue">
-          <span class="speaker">{entry.speaker ?? ''}</span>
-          <span class="line">{entry.text}</span>
-        </div>
-      {:else if entry.kind === 'system'}
-        <div class="entry system">
-          <span class="system-label">{entry.systemLabel ?? 'NOTE'} —</span>
-          <span class="system-text">{entry.text}</span>
-        </div>
-      {:else if entry.kind === 'combat'}
-        <p class="entry combat">{entry.text}</p>
-      {:else if entry.kind === 'loot'}
-        <p class="entry loot">{entry.text}</p>
-      {:else if entry.kind === 'scene-divider'}
-        <p class="entry scene-divider">· · ·</p>
-      {/if}
-    {/each}
-  </div>
+  {/key}
 
   <div class="button-bar">
     {#if !inCombat && currentLocation}

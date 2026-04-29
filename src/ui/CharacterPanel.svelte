@@ -98,6 +98,18 @@
     return level * 100;
   }
 
+  function formatCurrency(leaves: number): string {
+    if (leaves === 0) return '— empty —';
+    const logs = Math.floor(leaves / 100);
+    const branches = Math.floor((leaves % 100) / 10);
+    const remainder = leaves % 10;
+    const parts: string[] = [];
+    if (logs > 0) parts.push(`${logs} log${logs === 1 ? '' : 's'}`);
+    if (branches > 0) parts.push(`${branches} branch${branches === 1 ? '' : 'es'}`);
+    if (remainder > 0) parts.push(`${remainder} ${remainder === 1 ? 'leaf' : 'leaves'}`);
+    return parts.join(' · ');
+  }
+
 </script>
 
 <aside class="persona" aria-label="Character panel">
@@ -127,6 +139,9 @@
         <span class="label">XP</span>
         <div class="bar"><div class="fill xp" style:width="{Math.min(100, (c.xp / xpToNextLevel(c.level)) * 100)}%"></div></div>
         <span class="value">{c.xp} / {xpToNextLevel(c.level)}</span>
+
+        <span class="label">Purse</span>
+        <span class="purse-value" style="grid-column: span 2; text-align: right; font-family: var(--mono); font-size: 13px;">{formatCurrency(c.currency)}</span>
       </div>
     {/if}
   </section>

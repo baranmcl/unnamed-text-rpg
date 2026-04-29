@@ -81,6 +81,10 @@
     gameStore.dispatch({ kind: 'TriggerEncounter', encounterId });
   }
 
+  function rest(spotId: string) {
+    gameStore.dispatch({ kind: 'Rest', spotId });
+  }
+
   function encounterLabel(encounterId: EncounterId): string {
     const enc = content.encounters[encounterId];
     if (!enc || enc.kind !== 'combat') return 'Investigate';
@@ -171,7 +175,10 @@
       {#each (currentLocation.encounterIds ?? []).filter((id) => !isEncounterDefeated(id)) as encId (encId)}
         <button class="btn" type="button" onclick={() => confront(encId)}>{encounterLabel(encId)}</button>
       {/each}
-      {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0}
+      {#each currentLocation.restSpots ?? [] as spot (spot.id)}
+        <button class="btn" type="button" onclick={() => rest(spot.id)}>{spot.label}</button>
+      {/each}
+      {#if currentLocation.exits.length === 0 && (currentLocation.encounterIds ?? []).length === 0 && (currentLocation.restSpots ?? []).length === 0}
         <p class="placeholder">There seems nothing immediate to do here.</p>
       {/if}
     {:else if inTurnCombat}

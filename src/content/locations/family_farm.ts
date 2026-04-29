@@ -14,5 +14,12 @@ export const family_farm: Location = {
     // Crossroads exit unlocks via the hermit_beckons beat.
     { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' }
   ],
-  encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')]
+  encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')],
+  restSpots: [
+    {
+      id: 'farm_haystack',
+      label: 'Rest in the haystack',
+      flavor: 'You burrow into the hay until only your nose is visible. The barn smells of dust, mice, and an emerging sense of self. After a while, you feel restored.'
+    }
+  ]
 };

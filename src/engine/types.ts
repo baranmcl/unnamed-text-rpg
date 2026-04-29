@@ -109,6 +109,7 @@ export type Monster = {
   actions: MonsterAction[];
   loot: LootTableEntry[];
   noFlee?: boolean;
+  currencyDrop?: { min: number; max: number };
 };
 
 export type Exit = {
@@ -117,6 +118,12 @@ export type Exit = {
   visibleIfFlag?: string;
   enabledIfFlag?: string;       // if set and not satisfied, exit shows as disabled
   disabledTooltip?: string;     // tooltip text when disabled
+};
+
+export type RestSpot = {
+  id: string;
+  label: string;          // "Rest in the haystack"
+  flavor: string;         // narration entry shown when used
 };
 
 export type Location = {
@@ -128,6 +135,7 @@ export type Location = {
   exits: Exit[];
   encounterIds?: EncounterId[];
   npcIds?: NpcId[];
+  restSpots?: RestSpot[];
 };
 
 export type CharacterClass = {
@@ -266,6 +274,7 @@ export type GameState = {
     equipment: { weapon?: ItemId; armor?: ItemId; trinket?: ItemId };
     inventory: Array<{ itemId: ItemId; qty: number }>;
     knownSkills: SkillId[];
+    currency: number;
   };
   world: {
     currentLocation: LocationId;

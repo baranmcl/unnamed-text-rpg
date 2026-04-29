@@ -21,7 +21,8 @@ export function createInitialState(seed: number): GameState {
       stats: { brawn: 0, brains: 0, bravado: 0, bluck: 0 },
       equipment: {},
       inventory: [],
-      knownSkills: []
+      knownSkills: [],
+      currency: 0
     },
     world: {
       currentLocation: LocationId(''),
@@ -93,7 +94,8 @@ export function createDemoState(): GameState {
         { itemId: ItemId('suspicious_coin'), qty: 1 },
         { itemId: ItemId('note_from_mother'), qty: 1 }
       ],
-      knownSkills: []
+      knownSkills: [],
+      currency: 47
     },
     world: {
       currentLocation: LocationId('dusty_crossroads'),

@@ -270,6 +270,24 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
       }
     }
 
+    // Roll currency drop.
+    if (monster?.currencyDrop) {
+      const { min, max } = monster.currencyDrop;
+      if (max > 0 && max >= min) {
+        const range = max - min + 1;
+        const r = rng.d100(s.rng);
+        s = { ...s, rng: r.state };
+        const drop = min + (r.value % range);
+        if (drop > 0) {
+          s = {
+            ...s,
+            character: { ...s.character, currency: s.character.currency + drop }
+          };
+          s = pushLog(s, { kind: 'loot', text: `You collect ${drop} ${drop === 1 ? 'leaf' : 'leaves'}.` });
+        }
+      }
+    }
+
     // Fix 3: Mark encounter as defeated so it doesn't reappear.
     if (!encounter.repeatable) {
       s = {

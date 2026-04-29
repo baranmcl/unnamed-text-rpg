@@ -35,6 +35,7 @@ export const monsters: Record<MonsterId, Monster> = {
     ],
     loot: [
       { itemId: ItemId('hardtack'), chance: 0.5 }
-    ]
+    ],
+    currencyDrop: { min: 3, max: 8 }
   }
 };

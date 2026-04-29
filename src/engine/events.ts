@@ -22,7 +22,7 @@ export type GameEvent =
   | { kind: 'SetTextSize'; size: 'small' | 'medium' | 'large' }
   | { kind: 'ToggleAutoSave' }
   | { kind: 'StartNewGame'; name: string; classId: ClassId }
-  | { kind: 'EnterLocation'; locationId: LocationId }
+  | { kind: 'EnterLocation'; locationId: LocationId; preserveLog?: boolean }
   | { kind: 'TriggerEncounter'; encounterId: EncounterId }
   | { kind: 'AttackTarget' }
   | { kind: 'UseItem'; itemId: ItemId }
@@ -30,7 +30,8 @@ export type GameEvent =
   | { kind: 'EquipItem'; itemId: ItemId }
   | { kind: 'UnequipSlot'; slot: EquipSlot }
   | { kind: 'DropItem'; itemId: ItemId }
-  | { kind: 'ChooseNarrativeOption'; choiceIndex: number };
+  | { kind: 'ChooseNarrativeOption'; choiceIndex: number }
+  | { kind: 'Rest'; spotId: string };
 
 const FARMBOY_OPENING_LINES: Array<{ kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }> = [
   { kind: 'narration', text: 'You wake on a Tuesday, which is, statistically, when most prophecies arrive.' },
@@ -94,7 +95,8 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           stats: { ...cls.startingStats },
           equipment,
           inventory,
-          knownSkills: []
+          knownSkills: [],
+          currency: 0
         },
         world: {
           currentLocation: state.world.currentLocation,
@@ -111,8 +113,9 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
         log: []
       };
       const withOpening = appendLogs(populated, FARMBOY_OPENING_LINES);
-      // Recurse into EnterLocation for the description.
-      return reduceInner(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId });
+      // Recurse into EnterLocation for the description. preserveLog prevents the
+      // new-game opening lines from being cleared on first entry.
+      return reduceInner(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId, preserveLog: true });
     }
 
     case 'EnterLocation': {
@@ -121,10 +124,14 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
       const isReentry = state.world.visited.includes(event.locationId);
       const text = isReentry ? loc.reEntryDescription ?? loc.description : loc.description;
       const visited = isReentry ? state.world.visited : [...state.world.visited, event.locationId].sort();
-      return appendLogs(
-        { ...state, world: { ...state.world, currentLocation: event.locationId, visited } },
-        [{ kind: 'narration', text }]
-      );
+      // Clear log on actual location transition, unless the caller requests we preserve it.
+      const isLocationChange = state.world.currentLocation !== event.locationId;
+      const shouldClear = isLocationChange && !event.preserveLog;
+      const worldUpdate = { ...state.world, currentLocation: event.locationId, visited };
+      const baseState = shouldClear
+        ? { ...state, log: [], world: worldUpdate }
+        : { ...state, world: worldUpdate };
+      return appendLogs(baseState, [{ kind: 'narration', text }]);
     }
 
     case 'TriggerEncounter': {
@@ -211,6 +218,21 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
 
     case 'ChooseNarrativeOption':
       return chooseNarrativeOption(state, event.choiceIndex);
+
+    case 'Rest': {
+      const loc = content.locations[state.world.currentLocation];
+      const spot = loc?.restSpots?.find((s) => s.id === event.spotId);
+      if (!spot) return state;
+      const restored: GameState = {
+        ...state,
+        character: {
+          ...state.character,
+          hp: { ...state.character.hp, current: state.character.hp.max },
+          mp: { ...state.character.mp, current: state.character.mp.max }
+        }
+      };
+      return appendLogs(restored, [{ kind: 'narration', text: spot.flavor }]);
+    }
   }
 }
 

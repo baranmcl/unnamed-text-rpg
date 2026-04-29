@@ -115,3 +115,7 @@ export function createDemoState(): GameState {
     }
   };
 }
+
+export function isCharacterCreated(state: GameState): boolean {
+  return state.character.name.length > 0;
+}

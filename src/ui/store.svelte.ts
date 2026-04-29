@@ -1,5 +1,5 @@
 import { reduce, type GameEvent } from '../engine/events';
-import { createDemoState } from '../engine/state';
+import { createInitialState } from '../engine/state';
 import { serialize, deserialize, SaveLoadError } from '../engine/save';
 import { applyTheme, loadStoredTheme, storeTheme, applyTextSize } from './theme';
 import type { GameState } from '../engine/types';
@@ -13,11 +13,10 @@ function loadOrCreate(): GameState {
     if (raw) return deserialize(raw);
   } catch (e) {
     if (e instanceof SaveLoadError) {
-      // Future: show error toast. Plan 1 falls back to demo state.
       console.warn('Failed to load save:', e.message);
     }
   }
-  return createDemoState();
+  return createInitialState(Date.now());
 }
 
 function persist(state: GameState): void {
@@ -77,10 +76,10 @@ class GameStore {
     persist(this.state);
   }
 
-  // Delete save and reset to demo state
+  // Delete save and reset to initial state
   resetSave(): void {
     try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ }
-    this.state = createDemoState();
+    this.state = createInitialState(Date.now());
     applyTheme(this.state.settings.theme);
     applyTextSize(this.state.settings.textSize);
   }

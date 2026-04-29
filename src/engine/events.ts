@@ -2,6 +2,8 @@ import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, Lo
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endCombat } from './combat';
+import { checkBeats } from './story';
+import { startNarrativeEncounter, chooseNarrativeOption } from './narrative';
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
@@ -27,7 +29,8 @@ export type GameEvent =
   | { kind: 'Flee' }
   | { kind: 'EquipItem'; itemId: ItemId }
   | { kind: 'UnequipSlot'; slot: EquipSlot }
-  | { kind: 'DropItem'; itemId: ItemId };
+  | { kind: 'DropItem'; itemId: ItemId }
+  | { kind: 'ChooseNarrativeOption'; choiceIndex: number };
 
 const FARMBOY_OPENING_LINES: Array<{ kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }> = [
   { kind: 'narration', text: 'You wake on a Tuesday, which is, statistically, when most prophecies arrive.' },
@@ -36,6 +39,29 @@ const FARMBOY_OPENING_LINES: Array<{ kind: GameState['log'][number]['kind']; tex
 ];
 
 export function reduce(state: GameState, event: GameEvent): GameState {
+  let next = reduceInner(state, event);
+  next = checkBeats(next);
+  // Handle any pending encounter trigger that beats may have queued.
+  next = drainPendingEncounter(next);
+  return next;
+}
+
+function drainPendingEncounter(state: GameState): GameState {
+  const pending = state.world.flags['__pending_encounter'];
+  if (typeof pending !== 'string') return state;
+  // Clear the flag first to prevent infinite loops if the encounter trigger fires again.
+  const cleared = { ...state.world.flags };
+  delete (cleared as Record<string, unknown>)['__pending_encounter'];
+  let s: GameState = { ...state, world: { ...state.world, flags: cleared } };
+  // Dispatch the encounter via reduceInner (NOT reduce — avoids infinite recursion).
+  s = reduceInner(s, { kind: 'TriggerEncounter', encounterId: pending as EncounterId });
+  // Re-check beats in case the encounter starting unlocked other beats.
+  s = checkBeats(s);
+  // (Don't re-drain — the encounter just started; another pending shouldn't queue from a single trigger.)
+  return s;
+}
+
+function reduceInner(state: GameState, event: GameEvent): GameState {
   switch (event.kind) {
     case 'SetTheme':
       return { ...state, settings: { ...state.settings, theme: event.theme } };
@@ -86,7 +112,7 @@ export function reduce(state: GameState, event: GameEvent): GameState {
       };
       const withOpening = appendLogs(populated, FARMBOY_OPENING_LINES);
       // Recurse into EnterLocation for the description.
-      return reduce(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId });
+      return reduceInner(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId });
     }
 
     case 'EnterLocation': {
@@ -103,7 +129,8 @@ export function reduce(state: GameState, event: GameEvent): GameState {
 
     case 'TriggerEncounter': {
       const enc = content.encounters[event.encounterId];
-      if (!enc || enc.kind !== 'combat') return state;
+      if (!enc) return state;
+      if (enc.kind === 'narrative') return startNarrativeEncounter(state, enc);
       return startCombat(state, enc);
     }
 
@@ -181,6 +208,9 @@ export function reduce(state: GameState, event: GameEvent): GameState {
       }
       return { ...state, character: { ...state.character, inventory: inv, equipment } };
     }
+
+    case 'ChooseNarrativeOption':
+      return chooseNarrativeOption(state, event.choiceIndex);
   }
 }
 

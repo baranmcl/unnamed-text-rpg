@@ -4,6 +4,7 @@ import { startCombat, playerAttack, monsterTurn, endCombat } from '../combat';
 import { createInitialState } from '../state';
 import { content } from '../../content';
 import { ClassId, ItemId, LocationId } from '../types';
+import type { CombatEncounter, TurnBasedCombatState } from '../types';
 
 const rng0 = { seed: 42, step: 0 };
 
@@ -115,25 +116,26 @@ function characterAtLocation() {
 describe('combat sub-reducer', () => {
   it('startCombat creates a combat state with the right combatants', () => {
     const s0 = characterAtLocation();
-    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]! as CombatEncounter;
     const s1 = startCombat(s0, enc);
     expect(s1.combat).not.toBeNull();
-    expect(s1.combat!.combatants).toHaveLength(2);
-    expect(s1.combat!.combatants.find((c) => c.kind === 'player')!.hp).toBe(50);
-    expect(s1.combat!.round).toBe(1);
+    const c1 = s1.combat as TurnBasedCombatState;
+    expect(c1.combatants).toHaveLength(2);
+    expect(c1.combatants.find((c) => c.kind === 'player')!.hp).toBe(50);
+    expect(c1.round).toBe(1);
   });
 
   it('playerAttack reduces monster hp on hit', () => {
     const s0 = characterAtLocation();
-    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]! as CombatEncounter;
     let s = startCombat(s0, enc);
-    const monBefore = s.combat!.combatants.find((c) => c.kind === 'monster')!.hp;
+    const monBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
 
     // Iterate up to 20 rounds — at least one should land for these stats.
     let landed = false;
     for (let i = 0; i < 20; i++) {
       const after = playerAttack(s);
-      const monAfter = after.combat?.combatants.find((c) => c.kind === 'monster')?.hp;
+      const monAfter = after.combat?.kind === 'turn-based' ? after.combat.combatants.find((c) => c.kind === 'monster')?.hp : undefined;
       if (monAfter !== undefined && monAfter < monBefore) {
         landed = true;
         break;
@@ -146,7 +148,7 @@ describe('combat sub-reducer', () => {
 
   it('endCombat clears combat state and grants xp on victory', () => {
     const s0 = characterAtLocation();
-    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]! as CombatEncounter;
     let s = startCombat(s0, enc);
     const xpBefore = s.character.xp;
     s = endCombat(s, 'victory', enc);
@@ -156,14 +158,14 @@ describe('combat sub-reducer', () => {
 
   it('monsterTurn applies damage to the player', () => {
     const s0 = characterAtLocation();
-    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]!;
+    const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]! as CombatEncounter;
     let s = startCombat(s0, enc);
-    const playerHpBefore = s.combat!.combatants.find((c) => c.kind === 'player')!.hp;
+    const playerHpBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'player')!.hp;
     // Force several monster turns to overcome variance.
     let lostHp = false;
     for (let i = 0; i < 30; i++) {
       const after = monsterTurn(s);
-      const after2 = after.combat?.combatants.find((c) => c.kind === 'player')?.hp;
+      const after2 = after.combat?.kind === 'turn-based' ? after.combat.combatants.find((c) => c.kind === 'player')?.hp : undefined;
       if (after2 !== undefined && after2 < playerHpBefore) { lostHp = true; break; }
       s = after;
       if (!s.combat) break;

@@ -110,7 +110,7 @@ export function reduce(state: GameState, event: GameEvent): GameState {
     case 'AttackTarget': {
       let s = playerAttack(state);
       // Resolve combat outcome.
-      const monster = s.combat?.combatants.find((c) => c.kind === 'monster');
+      const monster = s.combat?.kind === 'turn-based' ? s.combat.combatants.find((c) => c.kind === 'monster') : undefined;
       if (monster && monster.hp <= 0) {
         const enc = content.encounters[s.combat!.encounterId];
         return enc?.kind === 'combat' ? endCombat(s, 'victory', enc) : { ...s, combat: null };

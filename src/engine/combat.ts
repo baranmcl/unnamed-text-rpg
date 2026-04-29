@@ -1,5 +1,5 @@
 import { rng, type RngState, type RngResult } from './rng';
-import type { GameState, CombatState, MonsterId, ItemId, CombatEncounter } from './types';
+import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 
@@ -65,7 +65,8 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
   const playerInit = state.character.stats.bravado + playerInitRoll.value;
   const monsterInit = monster.bravado + monsterInitRoll.value;
 
-  const combat: CombatState = {
+  const combat: TurnBasedCombatState = {
+    kind: 'turn-based',
     encounterId: encounter.id,
     combatants: [
       { id: 'player', kind: 'player', hp: state.character.hp.current, initiative: playerInit },
@@ -82,7 +83,7 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
 }
 
 export function playerAttack(state: GameState): GameState {
-  if (!state.combat) return state;
+  if (!state.combat || state.combat.kind !== 'turn-based') return state;
   const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
   if (!monsterCombatant) return state;
 
@@ -110,11 +111,12 @@ export function playerAttack(state: GameState): GameState {
   s = { ...s, rng: critRoll.state };
   const finalDamage = critRoll.value ? Math.floor(dmgRoll.value * 2.2) : dmgRoll.value;
 
-  // Apply damage to monster
-  const newCombatants = s.combat!.combatants.map((c) =>
+  // Apply damage to monster (s.combat is TurnBasedCombatState — narrowed at function entry)
+  const sCombat = s.combat as TurnBasedCombatState;
+  const newCombatants = sCombat.combatants.map((c) =>
     c.kind === 'monster' ? { ...c, hp: Math.max(0, c.hp - finalDamage) } : c
   );
-  s = { ...s, combat: { ...s.combat!, combatants: newCombatants } };
+  s = { ...s, combat: { ...sCombat, combatants: newCombatants } };
   s = pushLog(s, {
     kind: 'combat',
     text: critRoll.value
@@ -126,7 +128,7 @@ export function playerAttack(state: GameState): GameState {
 }
 
 export function playerUseItem(state: GameState, itemId: ItemId): GameState {
-  if (!state.combat) return state;
+  if (!state.combat || state.combat.kind !== 'turn-based') return state;
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;
 
@@ -138,7 +140,7 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
       s = {
         ...s,
         character: { ...s.character, hp: { ...s.character.hp, current: newHp } },
-        combat: s.combat
+        combat: s.combat && s.combat.kind === 'turn-based'
           ? {
               ...s.combat,
               combatants: s.combat.combatants.map((c) =>
@@ -165,7 +167,7 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
 }
 
 export function playerFlee(state: GameState): GameState {
-  if (!state.combat) return state;
+  if (!state.combat || state.combat.kind !== 'turn-based') return state;
   const enc = content.encounters[state.combat.encounterId];
   if (enc?.kind === 'combat' && enc.noFlee) {
     return pushLog(state, { kind: 'combat', text: 'There is no fleeing this.' });
@@ -183,7 +185,7 @@ export function playerFlee(state: GameState): GameState {
 }
 
 export function monsterTurn(state: GameState): GameState {
-  if (!state.combat) return state;
+  if (!state.combat || state.combat.kind !== 'turn-based') return state;
   const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
   if (!monsterCombatant) return state;
   const monster = content.monsters[monsterCombatant.id as MonsterId];
@@ -213,14 +215,15 @@ export function monsterTurn(state: GameState): GameState {
   const playerArmor = armorItem?.armor ?? 0;
   const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, playerArmor);
   s = { ...s, rng: dmg.state };
-  // Apply to player
+  // Apply to player (s.combat is TurnBasedCombatState — narrowed at function entry)
   const newHp = Math.max(0, state.character.hp.current - dmg.value);
+  const sCombat = s.combat as TurnBasedCombatState;
   s = {
     ...s,
     character: { ...s.character, hp: { ...s.character.hp, current: newHp } },
     combat: {
-      ...s.combat!,
-      combatants: s.combat!.combatants.map((c) => (c.kind === 'player' ? { ...c, hp: newHp } : c))
+      ...sCombat,
+      combatants: sCombat.combatants.map((c) => (c.kind === 'player' ? { ...c, hp: newHp } : c))
     }
   };
   s = pushLog(s, { kind: 'combat', text: `${action.flavor} (-${dmg.value} HP)` });

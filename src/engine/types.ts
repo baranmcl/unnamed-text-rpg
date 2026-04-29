@@ -167,8 +167,33 @@ export type CombatEncounter = {
   repeatable?: boolean;
 };
 
-// Narrative encounters land in Plan 3.
-export type Encounter = CombatEncounter;
+// =====================================================================
+// Narrative encounters (Plan 3)
+// =====================================================================
+
+export type NarrativeResolverId = string;
+
+export type NarrativeChoice = {
+  label: string;
+  visible?: Predicate;
+  resolve: NarrativeResolverId;
+};
+
+export type NarrativeNode = {
+  id: NarrativeNodeId;
+  speaker?: string;          // small-caps speaker attribution above prose
+  prose: string;
+  choices: NarrativeChoice[];
+};
+
+export type NarrativeEncounter = {
+  id: EncounterId;
+  kind: 'narrative';
+  rootNodeId: NarrativeNodeId;
+  noFlee?: boolean;
+};
+
+export type Encounter = CombatEncounter | NarrativeEncounter;
 
 // =====================================================================
 // Combat helpers
@@ -200,16 +225,27 @@ export type LogEntry = {
   systemLabel?: string;  // system only (e.g. "EXP.", "OFFERED")
 };
 
-export type CombatState = {
+export type CombatState =
+  | TurnBasedCombatState
+  | NarrativeCombatState;
+
+export type TurnBasedCombatState = {
+  kind: 'turn-based';
   encounterId: EncounterId;
   combatants: Array<{
-    id: 'player' | string; // monster instance id
+    id: 'player' | string;
     kind: 'player' | 'monster';
     hp: number;
     initiative: number;
   }>;
   turnIndex: number;
   round: number;
+};
+
+export type NarrativeCombatState = {
+  kind: 'narrative';
+  encounterId: EncounterId;
+  currentNodeId: NarrativeNodeId;
 };
 
 export type GameState = {
@@ -249,3 +285,28 @@ export type GameState = {
 
 export const MAX_LOG_ENTRIES = 200;
 export const SAVE_VERSION = 1;
+
+// =====================================================================
+// Story beats (Plan 3)
+// =====================================================================
+
+export type Predicate =
+  | { kind: 'flag'; flag: string; equals?: boolean | number | string }
+  | { kind: 'visited'; locationId: LocationId }
+  | { kind: 'beat_completed'; beatId: BeatId }
+  | { kind: 'stage'; stage: ActId };
+
+export type BeatEffect =
+  | { kind: 'set_flag'; flag: string; value: boolean | number | string }
+  | { kind: 'grant_item'; itemId: ItemId; qty?: number }
+  | { kind: 'advance_stage'; stage: ActId }
+  | { kind: 'log'; entry: Omit<LogEntry, 'id'> }
+  | { kind: 'trigger_encounter'; encounterId: EncounterId };
+
+export type StoryBeat = {
+  id: BeatId;
+  stage: ActId;
+  preconditions: Predicate[];   // ALL must be true for the beat to fire
+  onTrigger: BeatEffect[];
+  transitionAnim?: 'actMarker' | 'giltUnfurl' | 'refusalRewind';
+};

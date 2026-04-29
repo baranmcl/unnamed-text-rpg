@@ -3,6 +3,7 @@ import { createInitialState, createDemoState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { reduce } from '../events';
 import { ClassId, ItemId, LocationId, EncounterId } from '../types';
+import type { TurnBasedCombatState } from '../types';
 
 describe('createInitialState', () => {
   it('returns a fresh state with no character', () => {
@@ -115,11 +116,11 @@ describe('reduce — game-flow events', () => {
     let s = createInitialState(2);
     s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
-    const monBefore = s.combat!.combatants.find((c) => c.kind === 'monster')!.hp;
+    const monBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
     let dropped = false;
     for (let i = 0; i < 20 && s.combat; i++) {
       s = reduce(s, { kind: 'AttackTarget' });
-      const monAfter = s.combat?.combatants.find((c) => c.kind === 'monster')?.hp ?? 0;
+      const monAfter = s.combat?.kind === 'turn-based' ? s.combat.combatants.find((c) => c.kind === 'monster')?.hp ?? 0 : 0;
       if (monAfter < monBefore) { dropped = true; break; }
     }
     expect(dropped).toBe(true);

@@ -96,3 +96,17 @@ describe('checkBeats', () => {
     expect(s.story.completedBeats.length).toBe(completedAfterFirst);
   });
 });
+
+describe('milestone bump on advance_stage', () => {
+  it('applies a free level-up when advance_stage fires', () => {
+    let s = freshState();
+    const before = s.character.level;
+
+    s = applyEffect(s, { kind: 'advance_stage', stage: 'act_ii' });
+
+    expect(s.story.stage).toBe('act_ii');
+    expect(s.character.level).toBe(before + 1);
+    const entry = s.log.find((e) => e.text.includes('Degree of Heroism') || e.text.includes('chapter turn'));
+    expect(entry).toBeDefined();
+  });
+});

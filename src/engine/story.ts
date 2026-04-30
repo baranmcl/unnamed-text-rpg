@@ -4,6 +4,7 @@ import type {
   Predicate, StoryBeat
 } from './types';
 import { MAX_LOG_ENTRIES } from './types';
+import { applyLevelUp } from './progression';
 
 // =====================================================================
 // Predicate evaluation
@@ -50,8 +51,15 @@ export function applyEffect(state: GameState, effect: BeatEffect): GameState {
         : [...state.character.inventory, { itemId: effect.itemId, qty }];
       return { ...state, character: { ...state.character, inventory: inv } };
     }
-    case 'advance_stage':
-      return { ...state, story: { ...state.story, stage: effect.stage } };
+    case 'advance_stage': {
+      const advanced = { ...state, story: { ...state.story, stage: effect.stage } };
+      const withMilestoneLog = appendLog(advanced, {
+        kind: 'system',
+        systemLabel: 'CHAPTER',
+        text: 'You feel the chapter turn beneath your feet.'
+      });
+      return applyLevelUp(withMilestoneLog);
+    }
     case 'log':
       return appendLog(state, effect.entry);
     case 'trigger_encounter':

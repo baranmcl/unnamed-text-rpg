@@ -15,5 +15,14 @@ export const skills: Record<SkillId, Skill> = {
     scalingStat: 'bluck',
     unlockLevel: 3,
     resolverId: 'tempt_fate'
+  },
+  [SkillId('brute_force')]: {
+    id: SkillId('brute_force'),
+    name: 'Brute Force',
+    description: 'A heaving overhead swing. ~1.8× damage but reduced accuracy.',
+    mpCost: 6,
+    scalingStat: 'brawn',
+    unlockLevel: 3,
+    resolverId: 'brute_force'
   }
 };

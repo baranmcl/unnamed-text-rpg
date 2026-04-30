@@ -66,6 +66,35 @@ export type StatBlock = {
 export type EquipSlot = 'weapon' | 'armor' | 'trinket';
 
 // =====================================================================
+// Status effects
+// =====================================================================
+
+export type StatusKind =
+  | 'weakness_revealed'      // monster: subsequent player attacks deal +50%
+  | 'intimidated'            // monster: skips turn(s)
+  | 'guaranteed_crit'        // player: next attack auto-crits, then expires
+  | 'next_attack_misses'     // player: next attack auto-misses, then expires
+  | 'skip_turn'              // player or monster: skips next turn(s)
+  | 'weapon_suspended'       // player: weapon damage = 0 while active
+  | 'armor_halved'           // player: armor halved while active
+  | 'free_retaliation';      // monster: takes a free attack now, then expires
+
+export type StatusDuration =
+  | { kind: 'turns'; remaining: number }
+  | { kind: 'until_end_of_fight' }
+  | { kind: 'one_shot' }
+  | { kind: 'fights_remaining'; n: number }
+  | { kind: 'permanent' };
+
+export type Status = {
+  id: number;
+  kind: StatusKind;
+  duration: StatusDuration;
+  source: string;
+  magnitude?: number;
+};
+
+// =====================================================================
 // Items, monsters, locations (content-side)
 // =====================================================================
 
@@ -155,6 +184,8 @@ export type CharacterClass = {
 // Skills
 // =====================================================================
 
+export type SkillResolverId = string;
+
 export type Skill = {
   id: SkillId;
   name: string;                  // "Tempt Fate"
@@ -162,7 +193,10 @@ export type Skill = {
   mpCost: number;
   scalingStat: keyof StatBlock;  // 'bluck'
   unlockLevel: number;           // 3 in v1
+  resolverId: SkillResolverId;
 };
+
+export type SkillResolver = (state: GameState) => GameState;
 
 // =====================================================================
 // Encounters
@@ -175,6 +209,7 @@ export type CombatEncounter = {
   noFlee?: boolean;
   xpReward: number;
   repeatable?: boolean;
+  endsByReasoning?: boolean;   // NEW: Out-Think It auto-resolves the fight as victory
 };
 
 // =====================================================================
@@ -251,6 +286,7 @@ export type TurnBasedCombatState = {
     kind: 'player' | 'monster';
     hp: number;
     initiative: number;
+    statuses: Status[];        // NEW
   }>;
   turnIndex: number;
   round: number;
@@ -277,6 +313,7 @@ export type GameState = {
     inventory: Array<{ itemId: ItemId; qty: number }>;
     knownSkills: SkillId[];
     currency: number;
+    statuses: Status[];        // NEW: world-scoped statuses only
   };
   world: {
     currentLocation: LocationId;
@@ -299,7 +336,7 @@ export type GameState = {
 };
 
 export const MAX_LOG_ENTRIES = 200;
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 // =====================================================================
 // Story beats (Plan 3)

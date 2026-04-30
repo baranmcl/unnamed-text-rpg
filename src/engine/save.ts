@@ -15,7 +15,7 @@ export function serialize(state: GameState): string {
 // version. Each entry transforms from key to key+1.
 const MIGRATIONS: Record<number, (s: any) => any> = {
   1: (s: any) => {
-    const character = { ...s.character, statuses: s.character.statuses ?? [] };
+    const character = s.character ? { ...s.character, statuses: s.character.statuses ?? [] } : s.character;
     let combat = s.combat;
     if (combat && combat.kind === 'turn-based' && Array.isArray(combat.combatants)) {
       combat = {
@@ -39,9 +39,6 @@ export function deserialize(json: string): GameState {
     throw new SaveLoadError('Save data is missing a version number.');
   }
 
-  // Validate shape before running migrations to prevent crashes in migration code
-  validateShape(parsed);
-
   let v = parsed.version as number;
   while (v < SAVE_VERSION) {
     const migrate = MIGRATIONS[v];
@@ -57,6 +54,8 @@ export function deserialize(json: string): GameState {
       `This tale is from a future edition (save version ${v}, app expects ${SAVE_VERSION}).`
     );
   }
+
+  validateShape(parsed);
   return parsed as GameState;
 }
 

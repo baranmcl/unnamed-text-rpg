@@ -32,3 +32,12 @@ export const bard_opening_short: NarrativeNode = {
     { label: 'Open with a dignity-restoration anthem.', resolve: 'open_with_heckler' }
   ]
 };
+
+// Plan 5 will replace this with the full bespoke ~5-minute opening scene.
+// For now this placeholder satisfies validateContent — events.ts's StartNewGame
+// already pushes hardcoded opening lines for Farmboy and never actually loads this node.
+export const farmboy_opening_short: NarrativeNode = {
+  id: NarrativeNodeId('farmboy_opening_short'),
+  prose: 'PLACEHOLDER — wired by Plan 5.',
+  choices: []
+};

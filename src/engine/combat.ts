@@ -118,9 +118,8 @@ export function playerAttack(state: GameState): GameState {
   const weaponId = s.character.equipment.weapon;
   const weapon = weaponId ? content.items[weaponId] : undefined;
   const weaponSuspended = hasStatus(playerCombatant, 'weapon_suspended');
-  // When weapon is suspended the player can barely scratch — zero both weapon and brawn contribution.
+  // When weapon is suspended, only weapon damage is zeroed (per spec). Brawn contribution remains.
   const weaponDamage = weaponSuspended ? 0 : (weapon?.damage ?? 1);
-  const effectiveBrawn = weaponSuspended ? 0 : s.character.stats.brawn;
 
   // 1. next_attack_misses forces miss (and also clears guaranteed_crit — wasted prophecy).
   if (hasStatus(playerCombatant, 'next_attack_misses')) {
@@ -152,7 +151,7 @@ export function playerAttack(state: GameState): GameState {
   }
 
   // 3. Damage roll.
-  const dmgRoll = rollDamage(s.rng, weaponDamage, effectiveBrawn, monster.armor);
+  const dmgRoll = rollDamage(s.rng, weaponDamage, s.character.stats.brawn, monster.armor);
   s = { ...s, rng: dmgRoll.state };
 
   // 4. Crit (forced if guaranteed_crit).

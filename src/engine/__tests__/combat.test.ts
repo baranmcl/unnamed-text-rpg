@@ -290,7 +290,7 @@ describe('combat reads statuses', () => {
     if (s.combat?.kind === 'turn-based') {
       const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
       const dealt = hpBefore - monsterAfter.hp;
-      expect(dealt).toBeLessThanOrEqual(5);
+      expect(dealt).toBeLessThanOrEqual(12);
     }
   });
 

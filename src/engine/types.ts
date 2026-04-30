@@ -145,6 +145,7 @@ export type Exit = {
   label: string;
   targetId: LocationId;
   visibleIfFlag?: string;
+  visibleIfVisited?: LocationId; // exit only renders if the player has visited this location
   enabledIfFlag?: string;       // if set and not satisfied, exit shows as disabled
   disabledTooltip?: string;     // tooltip text when disabled
 };
@@ -264,7 +265,8 @@ export type LogEntryKind =
   | 'system'
   | 'combat'
   | 'loot'
-  | 'scene-divider';
+  | 'scene-divider'
+  | 'act-banner';
 
 export type LogEntry = {
   id: number;            // monotonically increasing

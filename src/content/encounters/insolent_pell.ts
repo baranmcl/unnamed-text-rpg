@@ -4,6 +4,6 @@ export const insolent_pell: CombatEncounter = {
   id: EncounterId('combat_insolent_pell'),
   kind: 'combat',
   monsterId: MonsterId('insolent_pell'),
-  xpReward: 0,
-  repeatable: false
+  xpReward: 5,
+  repeatable: true
 };

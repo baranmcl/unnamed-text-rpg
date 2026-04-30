@@ -4,6 +4,8 @@
   type Props = { open: boolean; onClose: () => void };
   let { open, onClose }: Props = $props();
 
+  let confirmingConsign = $state(false);
+
   function setTheme(theme: 'parchment' | 'moonlit') {
     gameStore.dispatch({ kind: 'SetTheme', theme });
   }
@@ -21,10 +23,17 @@
   }
 
   function consignToFlames() {
-    if (confirm('Consign this tale to the flames? This cannot be undone.')) {
-      gameStore.resetSave();
-      onClose();
-    }
+    confirmingConsign = true;
+  }
+
+  function confirmConsign() {
+    gameStore.resetSave();
+    confirmingConsign = false;
+    onClose();
+  }
+
+  function cancelConsign() {
+    confirmingConsign = false;
   }
 
   function onBackdropClick(e: MouseEvent) {
@@ -32,7 +41,10 @@
   }
 
   function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') onClose();
+    if (e.key === 'Escape') {
+      if (confirmingConsign) confirmingConsign = false;
+      else onClose();
+    }
   }
 </script>
 
@@ -108,6 +120,21 @@
         </button>
       </div>
     </div>
+
+    {#if confirmingConsign}
+      <div class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <div class="confirm-dialog">
+          <h3 id="confirm-title">Consign this tale to the flames?</h3>
+          <p>The pages will not return. This cannot be undone.</p>
+          <div class="confirm-actions">
+            <button type="button" onclick={cancelConsign}>Never mind</button>
+            <button type="button" class="danger" onclick={confirmConsign}>
+              To the flames
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -191,6 +218,63 @@
     color: var(--crimson);
   }
   .actions button.danger:hover {
+    background: var(--crimson);
+    color: var(--paper);
+  }
+
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 110;
+  }
+  .confirm-dialog {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--crimson);
+    box-shadow: 4px 6px 24px rgba(0, 0, 0, 0.35);
+    padding: 24px 28px;
+    max-width: 380px;
+    font-family: var(--serif-body);
+  }
+  .confirm-dialog h3 {
+    font-family: var(--serif-display);
+    font-weight: normal;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  .confirm-dialog p {
+    color: var(--ink-muted);
+    font-style: italic;
+    margin: 0 0 18px;
+    font-size: 15px;
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .confirm-actions button {
+    border: 1px solid var(--ink);
+    padding: 8px 16px;
+    font-family: var(--serif-body);
+    font-size: 14px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .confirm-actions button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .confirm-actions button.danger {
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+  .confirm-actions button.danger:hover {
     background: var(--crimson);
     color: var(--paper);
   }

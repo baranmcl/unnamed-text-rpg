@@ -4,5 +4,5 @@ export const first_tax_rat: CombatEncounter = {
   id: EncounterId('first_tax_rat'),
   kind: 'combat',
   monsterId: MonsterId('officious_tax_rat'),
-  xpReward: 25
+  xpReward: 100
 };

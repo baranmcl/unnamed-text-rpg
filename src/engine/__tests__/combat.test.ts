@@ -148,14 +148,18 @@ describe('combat sub-reducer', () => {
     expect(landed).toBe(true);
   });
 
-  it('endCombat clears combat state and grants xp on victory', () => {
+  it('endCombat clears combat state and grants progression on victory', () => {
     const s0 = characterAtLocation();
     const enc = content.encounters[content.locations[s0.world.currentLocation]!.encounterIds![0]!]! as CombatEncounter;
     let s = startCombat(s0, enc);
+    const levelBefore = s.character.level;
     const xpBefore = s.character.xp;
     s = endCombat(s, 'victory', enc);
     expect(s.combat).toBeNull();
-    expect(s.character.xp).toBeGreaterThan(xpBefore);
+    // The encounter grants XP that may trigger level-up (consuming the XP);
+    // assert that either the level increased or XP increased, never both at zero.
+    const progressed = s.character.level > levelBefore || s.character.xp > xpBefore;
+    expect(progressed).toBe(true);
   });
 
   it('monsterTurn applies damage to the player', () => {

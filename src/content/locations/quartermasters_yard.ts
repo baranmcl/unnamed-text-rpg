@@ -11,7 +11,14 @@ export const quartermasters_yard: Location = {
     "vellum, addressed to you, beginning with the words 'Effective immediately.'",
   reEntryDescription: 'The yard is the yard. The pell, on closer inspection, has not improved.',
   exits: [
-    { label: "Walk to the King's Road", targetId: LocationId('dusty_crossroads') }
+    { label: "Walk to the King's Road", targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_kings_road' }
   ],
-  encounterIds: [EncounterId('combat_insolent_pell')]
+  encounterIds: [EncounterId('combat_insolent_pell'), EncounterId('grievance_bursar')],
+  restSpots: [
+    {
+      id: 'yard_bunk',
+      label: 'Crash on a barracks bunk',
+      flavor: 'You commandeer an unmade bunk. The mattress is regulation. The dreams are mostly about marching. After a while, you feel restored.'
+    }
+  ]
 };

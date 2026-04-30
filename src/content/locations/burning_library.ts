@@ -11,7 +11,14 @@ export const burning_library: Location = {
     'that the situation is fine.',
   reEntryDescription: 'The library has not improved its situation, but the smoke continues its contemplative work.',
   exits: [
-    { label: 'Take the Cobbled Walk', targetId: LocationId('dusty_crossroads') }
+    { label: 'Take the Cobbled Walk', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_cobbled_walk' }
   ],
-  encounterIds: [EncounterId('combat_feral_footnote')]
+  encounterIds: [EncounterId('combat_feral_footnote'), EncounterId('errant_examiner')],
+  restSpots: [
+    {
+      id: 'library_nook',
+      label: 'Doze in a reading nook',
+      flavor: 'You curl up behind a fire-screen with a primer on minor cantrips. The smoke describes lazy, supportive circles overhead. After a while, you feel restored.'
+    }
+  ]
 };

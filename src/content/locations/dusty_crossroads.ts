@@ -11,7 +11,26 @@ export const dusty_crossroads: Location = {
   reEntryDescription:
     'The crossroads remains crossed. The signpost remains drunken. Some things are forever.',
   exits: [
-    { label: 'Back to the family farm', targetId: LocationId('family_farm') },
+    {
+      label: 'Back to the family farm',
+      targetId: LocationId('family_farm'),
+      visibleIfVisited: LocationId('family_farm')
+    },
+    {
+      label: "Back to the Quartermaster's Yard",
+      targetId: LocationId('quartermasters_yard'),
+      visibleIfVisited: LocationId('quartermasters_yard')
+    },
+    {
+      label: 'Back to the library',
+      targetId: LocationId('burning_library'),
+      visibleIfVisited: LocationId('burning_library')
+    },
+    {
+      label: 'Back to the dressing room',
+      targetId: LocationId('tavern_dressing_room'),
+      visibleIfVisited: LocationId('tavern_dressing_room')
+    },
     // The threshold exit is gated behind accepted_call (visibleIfFlag); the
     // destination location is added in Plan 5.
     {

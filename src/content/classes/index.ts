@@ -11,7 +11,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     startingItems: [
       { itemId: ItemId('rusty_pitchfork'), equipped: true },
       { itemId: ItemId('itchy_wool_tunic'), equipped: true },
-      { itemId: ItemId('note_from_mother') }
+      { itemId: ItemId('note_from_mother') },
+      { itemId: ItemId('hardtack') }
     ],
     signatureMove: SkillId('tempt_fate'),
     openingLocationId: LocationId('family_farm'),
@@ -29,7 +30,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     startingItems: [
       { itemId: ItemId('nicked_longsword'), equipped: true },
       { itemId: ItemId('battered_half_plate'), equipped: true },
-      { itemId: ItemId('defaced_family_crest') }
+      { itemId: ItemId('defaced_family_crest') },
+      { itemId: ItemId('hardtack') }
     ],
     signatureMove: SkillId('brute_force'),
     openingLocationId: LocationId('quartermasters_yard'),
@@ -45,7 +47,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     startingItems: [
       { itemId: ItemId('cracked_staff'), equipped: true },
       { itemId: ItemId('long_robe'), equipped: true },
-      { itemId: ItemId('questionable_tome') }
+      { itemId: ItemId('questionable_tome') },
+      { itemId: ItemId('hardtack') }
     ],
     signatureMove: SkillId('out_think_it'),
     openingLocationId: LocationId('burning_library'),
@@ -61,7 +64,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     startingItems: [
       { itemId: ItemId('dented_lute'), equipped: true },
       { itemId: ItemId('dramatic_cloak'), equipped: true },
-      { itemId: ItemId('audience_expectation') }
+      { itemId: ItemId('audience_expectation') },
+      { itemId: ItemId('hardtack') }
     ],
     signatureMove: SkillId('swagger'),
     openingLocationId: LocationId('tavern_dressing_room'),

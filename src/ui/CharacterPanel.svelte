@@ -62,6 +62,15 @@
 
   let c = $derived(gameStore.state.character);
 
+  // During combat, prefer the player combatant's statuses array — that's where
+  // combat-scoped statuses (intimidated, weapon_suspended, guaranteed_crit, etc.)
+  // live. Out of combat, fall back to character.statuses (world-scoped only).
+  let displayedStatuses = $derived(
+    gameStore.state.combat?.kind === 'turn-based'
+      ? (gameStore.state.combat.combatants.find((cb) => cb.kind === 'player')?.statuses ?? c.statuses)
+      : c.statuses
+  );
+
   let inspectingItem = $state<ItemId | null>(null);
 
   function openInspect(itemId: ItemId) {
@@ -174,11 +183,11 @@
   </section>
 
   <!-- Afflictions & Boons -->
-  {#if c.statuses.length > 0}
+  {#if displayedStatuses.length > 0}
     <section class="afflictions">
       <h4 class="afflictions-heading">Afflictions &amp; Boons</h4>
       <ul class="status-list">
-        {#each c.statuses as st (st.id)}
+        {#each displayedStatuses as st (st.id)}
           <li class="status-pill" title={`${st.source} — ${formatDuration(st.duration)}`}>
             <span class="status-glyph">{glyphFor(st.kind)}</span>
             <span class="status-name">{labelFor(st.kind)}</span>

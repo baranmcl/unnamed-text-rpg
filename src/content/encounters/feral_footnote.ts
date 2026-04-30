@@ -4,6 +4,6 @@ export const feral_footnote: CombatEncounter = {
   id: EncounterId('combat_feral_footnote'),
   kind: 'combat',
   monsterId: MonsterId('feral_footnote'),
-  xpReward: 0,
-  repeatable: false
+  xpReward: 5,
+  repeatable: true
 };

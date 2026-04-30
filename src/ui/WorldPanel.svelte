@@ -52,9 +52,10 @@
     showItemPicker = false;
   }
 
-  function isExitVisible(visibleIfFlag?: string): boolean {
-    if (!visibleIfFlag) return true;
-    return Boolean(gameStore.state.world.flags[visibleIfFlag]);
+  function isExitVisible(exit: { visibleIfFlag?: string; visibleIfVisited?: LocationId }): boolean {
+    if (exit.visibleIfFlag && !gameStore.state.world.flags[exit.visibleIfFlag]) return false;
+    if (exit.visibleIfVisited && !gameStore.state.world.visited.includes(exit.visibleIfVisited)) return false;
+    return true;
   }
 
   function isExitEnabled(enabledIfFlag?: string): boolean {
@@ -142,6 +143,10 @@
           <p class="entry loot">{entry.text}</p>
         {:else if entry.kind === 'scene-divider'}
           <p class="entry scene-divider">· · ·</p>
+        {:else if entry.kind === 'act-banner'}
+          <div class="entry act-banner">
+            <span class="act-banner-text">{entry.text}</span>
+          </div>
         {/if}
       {/each}
     </div>
@@ -150,7 +155,7 @@
   <div class="button-bar">
     {#if !inCombat && currentLocation}
       {#each currentLocation.exits as exit (exit.targetId)}
-        {#if isExitVisible(exit.visibleIfFlag)}
+        {#if isExitVisible(exit)}
           {@const enabled = isExitEnabled(exit.enabledIfFlag)}
           <button
             class="btn"
@@ -346,6 +351,20 @@
     color: var(--ink-faint);
     letter-spacing: 0.8em;
     margin: 24px 0;
+  }
+  .act-banner {
+    text-align: center;
+    margin: 28px 0 24px;
+    padding: 18px 0;
+    border-top: 1px solid var(--gilt);
+    border-bottom: 1px solid var(--gilt);
+  }
+  .act-banner-text {
+    font-family: var(--serif-display);
+    font-size: 28px;
+    color: var(--gilt);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
   .button-bar {

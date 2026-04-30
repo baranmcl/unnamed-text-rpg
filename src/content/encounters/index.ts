@@ -5,6 +5,9 @@ import { the_call } from './the_call';
 import { insolent_pell } from './insolent_pell';
 import { feral_footnote } from './feral_footnote';
 import { pointed_heckler } from './pointed_heckler';
+import { grievance_bursar } from './grievance_bursar';
+import { errant_examiner } from './errant_examiner';
+import { critic_with_notes } from './critic_with_notes';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -12,5 +15,8 @@ export const encounters: Record<EncounterId, Encounter> = {
   [the_call.id]: the_call,
   [insolent_pell.id]: insolent_pell,
   [feral_footnote.id]: feral_footnote,
-  [pointed_heckler.id]: pointed_heckler
+  [pointed_heckler.id]: pointed_heckler,
+  [grievance_bursar.id]: grievance_bursar,
+  [errant_examiner.id]: errant_examiner,
+  [critic_with_notes.id]: critic_with_notes
 };

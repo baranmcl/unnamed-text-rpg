@@ -443,9 +443,22 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
       s = applyLevelUp(s);
     }
   } else if (result === 'defeat') {
-    s = pushLog(s, { kind: 'narration', text: 'The world goes dim. You wake some time later, with a headache and your dignity rumpled.' });
-    // Plan 4 will add proper defeat handling. For Plan 2, restore HP to 1.
-    s = { ...s, character: { ...s.character, hp: { ...s.character.hp, current: 1 } } };
+    const newHp = Math.max(1, Math.floor(s.character.hp.max * 0.5));
+    const newMp = Math.max(0, Math.floor(s.character.mp.max * 0.5));
+    const lostCurrency = Math.floor(s.character.currency * 0.3);
+    s = pushLog(s, { kind: 'narration', text: 'The world goes dim. You wake some time later, with a headache, a bruised ego, and the distinct sense that someone has been through your purse.' });
+    if (lostCurrency > 0) {
+      s = pushLog(s, { kind: 'loot', text: `You are lighter by ${lostCurrency} ${lostCurrency === 1 ? 'leaf' : 'leaves'}.` });
+    }
+    s = {
+      ...s,
+      character: {
+        ...s.character,
+        hp: { ...s.character.hp, current: newHp },
+        mp: { ...s.character.mp, current: newMp },
+        currency: s.character.currency - lostCurrency
+      }
+    };
   }
   return s;
 }

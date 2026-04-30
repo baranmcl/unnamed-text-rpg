@@ -4,6 +4,6 @@ export const practice_dummy: CombatEncounter = {
   id: EncounterId('practice_dummy'),
   kind: 'combat',
   monsterId: MonsterId('practice_hay_bale'),
-  xpReward: 0,
+  xpReward: 5,
   repeatable: true
 };

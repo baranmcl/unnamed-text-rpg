@@ -19,7 +19,11 @@ const ROOT = NarrativeNodeId('call_root');
 const call_accept: NarrativeResolver = (state) => {
   const s = appendLogs(state, [
     { kind: 'narration', text: 'You accept. The hermit nods, satisfied. Somewhere far off, a destiny adjusts its tie.' },
-    { kind: 'system', systemLabel: 'STAGE', text: 'Act II — Tests, Allies, and Enemies begins.' }
+    { kind: 'scene-divider', text: '' },
+    { kind: 'act-banner', text: 'Act II' },
+    { kind: 'narration', text: 'Tests, Allies, and Enemies.' },
+    { kind: 'narration', text: 'The page turns. The script thickens.' },
+    { kind: 'scene-divider', text: '' }
   ]);
   return {
     state: {

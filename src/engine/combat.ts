@@ -2,6 +2,7 @@ import { rng, type RngState, type RngResult } from './rng';
 import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
+import { applyLevelUp } from './progression';
 import {
   tickStatuses,
   hasStatus,
@@ -48,11 +49,6 @@ export function rollFlee(state: RngState, bluck: number, bravado: number): RngRe
 // =====================================================================
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
-
-function ordinal(n: number): string {
-  const titles = ['Untested', 'First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
-  return titles[Math.min(n, titles.length - 1)] ?? `${n}th`;
-}
 
 function pushLog(state: GameState, entry: { kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }): GameState {
   const id = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
@@ -443,22 +439,8 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
     // Fix 4a: Level-up check (loop in case multiple levels gained at once).
     const xpThreshold = (level: number) => level * 100;
     while (s.character.xp >= xpThreshold(s.character.level)) {
-      s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level), level: s.character.level + 1 } };
-      const newHpMax = s.character.hp.max + Math.floor(s.character.stats.brawn * 1.5);
-      const newMpMax = s.character.mp.max + s.character.stats.brains;
-      s = {
-        ...s,
-        character: {
-          ...s.character,
-          hp: { current: newHpMax, max: newHpMax },
-          mp: { current: newMpMax, max: newMpMax }
-        }
-      };
-      s = pushLog(s, {
-        kind: 'system',
-        systemLabel: 'LEVEL',
-        text: `You attain the ${ordinal(s.character.level)} Degree of Heroism. (Healed to full.)`
-      });
+      s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level) } };
+      s = applyLevelUp(s);
     }
   } else if (result === 'defeat') {
     s = pushLog(s, { kind: 'narration', text: 'The world goes dim. You wake some time later, with a headache and your dignity rumpled.' });

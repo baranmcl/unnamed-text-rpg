@@ -18,10 +18,17 @@
 
   const classCards: CardEntry[] = [
     { id: farmboy.id, name: farmboy.name, epithet: farmboy.epithet, enabled: true },
-    { id: ClassId('disgraced_knight'), name: 'Disgraced Knight', epithet: 'the Disgraced Knight', enabled: false },
-    { id: ClassId('accidental_wizard'), name: 'Accidental Wizard', epithet: 'the Accidental Wizard', enabled: false },
-    { id: ClassId('bard_who_didnt_ask_for_this'), name: "Bard Who Didn't Ask For This", epithet: "the Bard Who Didn't Ask For This", enabled: false }
+    { id: ClassId('disgraced_knight'), name: 'Disgraced Knight', epithet: 'the Disgraced Knight', enabled: true },
+    { id: ClassId('accidental_wizard'), name: 'Accidental Wizard', epithet: 'the Accidental Wizard', enabled: true },
+    { id: ClassId('bard_who_didnt_ask_for_this'), name: "Bard Who Didn't Ask For This", epithet: "the Bard Who Didn't Ask For This", enabled: true }
   ];
+
+  const CLASS_TEASERS: Record<string, string> = {
+    reluctant_farmboy: 'You were going to weed the back field. Destiny had other plans.',
+    disgraced_knight: 'The yard at dawn. Your dismissal still pinned to the board.',
+    accidental_wizard: 'The library is on fire. The library is, however, only slightly on fire.',
+    bard_who_didnt_ask_for_this: 'Ten minutes to showtime. The audience is already heckling the curtain.'
+  };
 
   let canBegin = $derived(name.trim().length > 0 && selectedClass !== null);
 
@@ -57,7 +64,7 @@
           <span class="card-body">
             <span class="card-name">{cls.name}</span>
             <span class="card-epithet">{cls.epithet}</span>
-            {#if !cls.enabled}<span class="card-locked">— Coming in Plan 4 —</span>{/if}
+            <p class="class-teaser">{CLASS_TEASERS[cls.id] ?? ''}</p>
           </span>
         </label>
       {/each}
@@ -137,7 +144,7 @@
   .card-body { display: flex; flex-direction: column; }
   .card-name { font-family: var(--serif-display); font-size: 18px; }
   .card-epithet { font-style: italic; color: var(--ink-muted); font-size: 14px; }
-  .card-locked { font-size: 11px; color: var(--ink-faint); margin-top: 4px; }
+  .class-teaser { font-size: 12px; color: var(--ink-muted); font-style: italic; margin: 6px 0 0; padding: 0; }
   .begin {
     border: 1px solid var(--ink);
     padding: 12px 24px;

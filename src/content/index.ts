@@ -22,6 +22,7 @@ import { skills } from './skills';
 import { beats } from './story/beats';
 import { narrativeNodes } from './narrative/nodes';
 import { narrativeResolvers } from './narrative/resolvers';
+import { skillResolvers } from './skills/resolvers';
 
 export const content = {
   items: items as Record<ItemId, Item>,
@@ -82,10 +83,20 @@ export function validateContent(): void {
     if (!(cls.signatureMove in content.skills)) {
       errors.push(`Class ${cls.id} signatureMove references unknown skill ${cls.signatureMove}.`);
     }
+    if (!(cls.openingNarrativeNodeId in content.narrativeNodes)) {
+      errors.push(`Class ${cls.id} openingNarrativeNodeId references unknown ${cls.openingNarrativeNodeId}.`);
+    }
     for (const startItem of cls.startingItems) {
       if (!(startItem.itemId in content.items)) {
         errors.push(`Class ${cls.id} startingItems references unknown ${startItem.itemId}.`);
       }
+    }
+  }
+
+  // Every Skill's resolverId must be registered.
+  for (const skill of Object.values(content.skills)) {
+    if (!(skill.resolverId in skillResolvers)) {
+      errors.push(`Skill ${skill.id} resolverId ${skill.resolverId} is not registered.`);
     }
   }
 

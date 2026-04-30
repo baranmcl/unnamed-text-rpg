@@ -2,6 +2,13 @@ import { rng, type RngState, type RngResult } from './rng';
 import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
+import {
+  tickStatuses,
+  hasStatus,
+  expireStatusByKind,
+  copyWorldStatusesToPlayer,
+  persistPlayerStatusesToCharacter
+} from './status';
 
 // Spec §7 combat math.
 // Hit: 1d20 + floor(bravado/2) ≥ targetDodge
@@ -58,8 +65,6 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
   if (!monster) {
     return pushLog(state, { kind: 'system', systemLabel: 'ERROR', text: `Unknown monster ${encounter.monsterId}.` });
   }
-
-  // Initiative: bravado + d6 for each (deterministic via state.rng).
   const playerInitRoll = rng.d6(state.rng);
   const monsterInitRoll = rng.d6(playerInitRoll.state);
   const playerInit = state.character.stats.bravado + playerInitRoll.value;
@@ -69,49 +74,111 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
     kind: 'turn-based',
     encounterId: encounter.id,
     combatants: [
-      { id: 'player', kind: 'player', hp: state.character.hp.current, initiative: playerInit },
-      { id: encounter.monsterId, kind: 'monster', hp: monster.hp, initiative: monsterInit }
+      { id: 'player', kind: 'player', hp: state.character.hp.current, initiative: playerInit, statuses: [] },
+      { id: encounter.monsterId, kind: 'monster', hp: monster.hp, initiative: monsterInit, statuses: [] }
     ],
     turnIndex: 0,
     round: 1
   };
 
   let s: GameState = { ...state, rng: monsterInitRoll.state, combat };
+  s = copyWorldStatusesToPlayer(s);
   s = pushLog(s, { kind: 'combat', text: `${monster.name} appears.` });
   s = pushLog(s, { kind: 'combat', text: monster.flavor });
   return s;
 }
 
+function tickPlayerCombatant(state: GameState): GameState {
+  if (state.combat?.kind !== 'turn-based') return state;
+  const combat = state.combat;
+  const combatants = combat.combatants.map((c) => (c.kind === 'player' ? tickStatuses(c) : c));
+  return { ...state, combat: { ...combat, combatants } };
+}
+
+function tickMonsterCombatant(state: GameState, monsterId: string): GameState {
+  if (state.combat?.kind !== 'turn-based') return state;
+  const combat = state.combat;
+  const combatants = combat.combatants.map((c) => (c.id === monsterId ? tickStatuses(c) : c));
+  return { ...state, combat: { ...combat, combatants } };
+}
+
 export function playerAttack(state: GameState): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
-  const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
-  if (!monsterCombatant) return state;
 
+  let s: GameState = tickPlayerCombatant(state);
+  if (s.combat?.kind !== 'turn-based') return s;
+
+  const monsterCombatant = s.combat.combatants.find((c) => c.kind === 'monster');
+  if (!monsterCombatant) return s;
+  const playerCombatant = s.combat.combatants.find((c) => c.kind === 'player');
+  if (!playerCombatant) return s;
   const monster = content.monsters[monsterCombatant.id as MonsterId];
-  if (!monster) return state;
+  if (!monster) return s;
 
-  const weaponId = state.character.equipment.weapon;
+  const weaponId = s.character.equipment.weapon;
   const weapon = weaponId ? content.items[weaponId] : undefined;
-  const weaponDamage = weapon?.damage ?? 1;
+  const weaponSuspended = hasStatus(playerCombatant, 'weapon_suspended');
+  // When weapon is suspended the player can barely scratch — zero both weapon and brawn contribution.
+  const weaponDamage = weaponSuspended ? 0 : (weapon?.damage ?? 1);
+  const effectiveBrawn = weaponSuspended ? 0 : s.character.stats.brawn;
 
-  // Hit check
-  const hitRoll = rollHit(state.rng, state.character.stats.bravado, monster.dodge);
-  let s: GameState = { ...state, rng: hitRoll.state };
-  if (!hitRoll.value) {
-    s = pushLog(s, { kind: 'combat', text: `Your swing goes wide.` });
+  // 1. next_attack_misses forces miss (and also clears guaranteed_crit — wasted prophecy).
+  if (hasStatus(playerCombatant, 'next_attack_misses')) {
+    const sCombat = s.combat;
+    const combatants = sCombat.combatants.map((c) => {
+      if (c.kind !== 'player') return c;
+      let cleared = expireStatusByKind(c, 'next_attack_misses');
+      cleared = expireStatusByKind(cleared, 'guaranteed_crit');
+      return cleared;
+    });
+    s = { ...s, combat: { ...sCombat, combatants } };
+    s = pushLog(s, { kind: 'combat', text: 'Your strike goes wide — exactly as foretold.' });
     return s;
   }
 
-  // Damage
-  const dmgRoll = rollDamage(s.rng, weaponDamage, s.character.stats.brawn, monster.armor);
+  // 2. Hit roll (or guaranteed_crit forces hit).
+  const guaranteedCrit = hasStatus(playerCombatant, 'guaranteed_crit');
+  let hit: boolean;
+  if (guaranteedCrit) {
+    hit = true;
+  } else {
+    const hitRoll = rollHit(s.rng, s.character.stats.bravado, monster.dodge);
+    s = { ...s, rng: hitRoll.state };
+    hit = hitRoll.value;
+  }
+  if (!hit) {
+    s = pushLog(s, { kind: 'combat', text: 'Your swing goes wide.' });
+    return s;
+  }
+
+  // 3. Damage roll.
+  const dmgRoll = rollDamage(s.rng, weaponDamage, effectiveBrawn, monster.armor);
   s = { ...s, rng: dmgRoll.state };
 
-  // Crit
-  const critRoll = rollCrit(s.rng, s.character.stats.bluck);
-  s = { ...s, rng: critRoll.state };
-  const finalDamage = critRoll.value ? Math.floor(dmgRoll.value * 2.2) : dmgRoll.value;
+  // 4. Crit (forced if guaranteed_crit).
+  let isCrit: boolean;
+  if (guaranteedCrit) {
+    isCrit = true;
+    // Only expire one_shot guaranteed_crit; permanent/fights_remaining variants stay.
+    const sCombat = s.combat as TurnBasedCombatState;
+    const combatants = sCombat.combatants.map((c) => {
+      if (c.kind !== 'player') return c;
+      return { ...c, statuses: c.statuses.filter((st) => !(st.kind === 'guaranteed_crit' && st.duration.kind === 'one_shot')) };
+    });
+    s = { ...s, combat: { ...sCombat, combatants } };
+  } else {
+    const critRoll = rollCrit(s.rng, s.character.stats.bluck);
+    s = { ...s, rng: critRoll.state };
+    isCrit = critRoll.value;
+  }
+  let finalDamage = isCrit ? Math.floor(dmgRoll.value * 2.2) : dmgRoll.value;
 
-  // Apply damage to monster (s.combat is TurnBasedCombatState — narrowed at function entry)
+  // 5. weakness_revealed on monster: +50% damage.
+  if (hasStatus(monsterCombatant, 'weakness_revealed')) {
+    finalDamage = Math.floor(finalDamage * 1.5);
+  }
+
+  // 6. Apply damage.
   const sCombat = s.combat as TurnBasedCombatState;
   const newCombatants = sCombat.combatants.map((c) =>
     c.kind === 'monster' ? { ...c, hp: Math.max(0, c.hp - finalDamage) } : c
@@ -119,9 +186,7 @@ export function playerAttack(state: GameState): GameState {
   s = { ...s, combat: { ...sCombat, combatants: newCombatants } };
   s = pushLog(s, {
     kind: 'combat',
-    text: critRoll.value
-      ? `Critical hit! You strike for ${finalDamage}.`
-      : `You hit for ${finalDamage}.`
+    text: isCrit ? `Critical hit! You strike for ${finalDamage}.` : `You hit for ${finalDamage}.`
   });
 
   return s;
@@ -129,6 +194,8 @@ export function playerAttack(state: GameState): GameState {
 
 export function playerUseItem(state: GameState, itemId: ItemId): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
+  state = tickPlayerCombatant(state);
+  if (state.combat?.kind !== 'turn-based') return state;
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;
 
@@ -168,6 +235,8 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
 
 export function playerFlee(state: GameState): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
+  state = tickPlayerCombatant(state);
+  if (state.combat?.kind !== 'turn-based') return state;
   const enc = content.encounters[state.combat.encounterId];
   if (enc?.kind === 'combat' && enc.noFlee) {
     return pushLog(state, { kind: 'combat', text: 'There is no fleeing this.' });
@@ -191,18 +260,32 @@ export function monsterTurn(state: GameState): GameState {
   const monster = content.monsters[monsterCombatant.id as MonsterId];
   if (!monster) return state;
 
-  // Pick action by weight.
-  const actionRoll = rng.weighted(state.rng, monster.actions.map((a) => ({ value: a, weight: a.weight })));
-  let s: GameState = { ...state, rng: actionRoll.state };
+  // Check skip effects on the PRE-TICK combatant so that remaining:1 means "active this turn, then expires".
+  const shouldSkip = hasStatus(monsterCombatant, 'intimidated') || hasStatus(monsterCombatant, 'skip_turn');
+  const skipText = hasStatus(monsterCombatant, 'intimidated')
+    ? `${monster.name} is too rattled to act.`
+    : `${monster.name} skips a beat.`;
+
+  let s = tickMonsterCombatant(state, monsterCombatant.id);
+  if (s.combat?.kind !== 'turn-based') return s;
+
+  if (shouldSkip) {
+    s = pushLog(s, { kind: 'combat', text: skipText });
+    return s;
+  }
+
+  const tickedMonster = s.combat.combatants.find((c) => c.id === monsterCombatant.id)!;
+
+  const actionRoll = rng.weighted(s.rng, monster.actions.map((a) => ({ value: a, weight: a.weight })));
+  s = { ...s, rng: actionRoll.state };
   const action = actionRoll.value;
 
-  if (action.kind === 'flee_if_low_hp' && monsterCombatant.hp <= Math.floor(monster.hp / 4)) {
+  if (action.kind === 'flee_if_low_hp' && tickedMonster.hp <= Math.floor(monster.hp / 4)) {
     s = pushLog(s, { kind: 'combat', text: action.flavor });
     s = { ...s, combat: null };
     return s;
   }
 
-  // Attack-style action (regular or special)
   const damageBonus = action.kind === 'special' ? action.damageBonus : 0;
   const hit = rollHit(s.rng, monster.bravado, /*player dodge*/ 10 + Math.floor(state.character.stats.bravado / 2));
   s = { ...s, rng: hit.state };
@@ -210,12 +293,16 @@ export function monsterTurn(state: GameState): GameState {
     s = pushLog(s, { kind: 'combat', text: `${action.flavor} (You dodge.)` });
     return s;
   }
+
+  // armor_halved on player halves effective armor.
+  const playerCombatant = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'player')!;
   const armorId = state.character.equipment.armor;
   const armorItem = armorId ? content.items[armorId] : undefined;
-  const playerArmor = armorItem?.armor ?? 0;
+  const baseArmor = armorItem?.armor ?? 0;
+  const playerArmor = hasStatus(playerCombatant, 'armor_halved') ? Math.floor(baseArmor / 2) : baseArmor;
+
   const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, playerArmor);
   s = { ...s, rng: dmg.state };
-  // Apply to player (s.combat is TurnBasedCombatState — narrowed at function entry)
   const newHp = Math.max(0, state.character.hp.current - dmg.value);
   const sCombat = s.combat as TurnBasedCombatState;
   s = {
@@ -231,8 +318,63 @@ export function monsterTurn(state: GameState): GameState {
   return s;
 }
 
+// Triggers a one-off monster attack outside the normal turn cycle. The monster's
+// `free_retaliation` status is cleared after the attack regardless of outcome.
+export function monsterFreeRetaliation(state: GameState): GameState {
+  if (!state.combat || state.combat.kind !== 'turn-based') return state;
+  const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
+  if (!monsterCombatant) return state;
+  if (!hasStatus(monsterCombatant, 'free_retaliation')) return state;
+  const monster = content.monsters[monsterCombatant.id as MonsterId];
+  if (!monster) return state;
+
+  const action = monster.actions.find((a) => a.kind !== 'flee_if_low_hp') ?? monster.actions[0];
+  if (!action) return state;
+  const damageBonus = action.kind === 'special' ? action.damageBonus : 0;
+
+  const playerCombatant = state.combat.combatants.find((c) => c.kind === 'player')!;
+  let s: GameState = state;
+  const hit = rollHit(s.rng, monster.bravado, 10 + Math.floor(s.character.stats.bravado / 2));
+  s = { ...s, rng: hit.state };
+  if (!hit.value) {
+    s = pushLog(s, { kind: 'combat', text: `${action.flavor} (You dodge — barely.)` });
+  } else {
+    const armorId = s.character.equipment.armor;
+    const armorItem = armorId ? content.items[armorId] : undefined;
+    const baseArmor = armorItem?.armor ?? 0;
+    const playerArmor = hasStatus(playerCombatant, 'armor_halved') ? Math.floor(baseArmor / 2) : baseArmor;
+    const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, playerArmor);
+    s = { ...s, rng: dmg.state };
+    const newHp = Math.max(0, s.character.hp.current - dmg.value);
+    const sCombat = s.combat as TurnBasedCombatState;
+    s = {
+      ...s,
+      character: { ...s.character, hp: { ...s.character.hp, current: newHp } },
+      combat: {
+        ...sCombat,
+        combatants: sCombat.combatants.map((c) => (c.kind === 'player' ? { ...c, hp: newHp } : c))
+      }
+    };
+    s = pushLog(s, { kind: 'combat', text: `${action.flavor} (-${dmg.value} HP)` });
+  }
+
+  // Clear the one-shot.
+  const sCombat = s.combat as TurnBasedCombatState;
+  s = {
+    ...s,
+    combat: {
+      ...sCombat,
+      combatants: sCombat.combatants.map((c) =>
+        c.id === monsterCombatant.id ? expireStatusByKind(c, 'free_retaliation') : c
+      )
+    }
+  };
+  return s;
+}
+
 export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee', encounter: CombatEncounter): GameState {
-  let s: GameState = { ...state, combat: null };
+  let s: GameState = persistPlayerStatusesToCharacter(state);
+  s = { ...s, combat: null };
   if (result === 'victory') {
     // Push the monster's defeated-flavor line before XP/loot, so the player
     // gets a closure beat before the mechanical readouts.

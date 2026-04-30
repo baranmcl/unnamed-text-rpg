@@ -96,7 +96,8 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           equipment,
           inventory,
           knownSkills: [],
-          currency: 0
+          currency: 0,
+          statuses: []
         },
         world: {
           currentLocation: state.world.currentLocation,

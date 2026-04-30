@@ -3,8 +3,10 @@ import { rollHit, rollDamage, rollCrit, rollFlee } from '../combat';
 import { startCombat, playerAttack, monsterTurn, endCombat } from '../combat';
 import { createInitialState } from '../state';
 import { content } from '../../content';
-import { ClassId, ItemId, LocationId } from '../types';
-import type { CombatEncounter, TurnBasedCombatState } from '../types';
+import { ClassId, EncounterId, ItemId, LocationId } from '../types';
+import type { CombatEncounter, GameState, TurnBasedCombatState } from '../types';
+import { applyStatus } from '../status';
+import { reduce } from '../events';
 
 const rng0 = { seed: 42, step: 0 };
 
@@ -171,5 +173,164 @@ describe('combat sub-reducer', () => {
       if (!s.combat) break;
     }
     expect(lostHp).toBe(true);
+  });
+});
+
+function buildCombatState(): GameState {
+  let s = createInitialState(123);
+  s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+  return s;
+}
+
+describe('combat reads statuses', () => {
+  it('weakness_revealed on monster makes the next player attack deal +50% damage', () => {
+    let s = buildCombatState();
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+
+    s = applyStatus(s, { kind: 'combatant', combatantId: monsterId }, {
+      kind: 'weakness_revealed',
+      duration: { kind: 'until_end_of_fight' },
+      source: 'test'
+    });
+
+    const monsterBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
+    const hpBefore = monsterBefore.hp;
+
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    if (s.combat?.kind === 'turn-based') {
+      const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
+      const damageDealt = hpBefore - monsterAfter.hp;
+      expect(damageDealt).toBeGreaterThanOrEqual(1);
+      const monsterStatuses = monsterAfter.statuses;
+      expect(monsterStatuses.some((st) => st.kind === 'weakness_revealed')).toBe(true);
+    }
+  });
+
+  it('guaranteed_crit on player forces a crit, then clears', () => {
+    let s = buildCombatState();
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'guaranteed_crit',
+      duration: { kind: 'one_shot' },
+      source: 'test'
+    });
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    const critEntry = s.log.find((e) => e.text.includes('Critical hit!'));
+    expect(critEntry).toBeDefined();
+
+    if (s.combat?.kind === 'turn-based') {
+      const player = s.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(player.statuses.some((st) => st.kind === 'guaranteed_crit')).toBe(false);
+    }
+  });
+
+  it('next_attack_misses forces miss and also clears guaranteed_crit (wasted prophecy)', () => {
+    let s = buildCombatState();
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'guaranteed_crit',
+      duration: { kind: 'one_shot' },
+      source: 'tempt-fate'
+    });
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'next_attack_misses',
+      duration: { kind: 'one_shot' },
+      source: 'tempt-fate-backfire'
+    });
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    const critEntry = s.log.find((e) => e.text.includes('Critical hit!'));
+    expect(critEntry).toBeUndefined();
+
+    if (s.combat?.kind === 'turn-based') {
+      const player = s.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(player.statuses.some((st) => st.kind === 'guaranteed_crit')).toBe(false);
+      expect(player.statuses.some((st) => st.kind === 'next_attack_misses')).toBe(false);
+    }
+  });
+
+  it('intimidated on monster causes its next turn to be skipped', () => {
+    let s = createInitialState(123);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+    s = applyStatus(s, { kind: 'combatant', combatantId: monsterId }, {
+      kind: 'intimidated',
+      duration: { kind: 'turns', remaining: 1 },
+      source: 'swagger'
+    });
+
+    const logLenBefore = s.log.length;
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    const skipEntry = s.log.slice(logLenBefore).find((e) =>
+      e.text.toLowerCase().includes('rattled') ||
+      e.text.toLowerCase().includes('reconsider') ||
+      e.text.toLowerCase().includes('skip')
+    );
+    expect(skipEntry).toBeDefined();
+  });
+
+  it('weapon_suspended treats weapon damage as 0', () => {
+    let s = buildCombatState();
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'weapon_suspended',
+      duration: { kind: 'turns', remaining: 3 },
+      source: 'tempt-fate-backfire'
+    });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterBefore = s.combat.combatants.find((c) => c.kind === 'monster')!;
+    const hpBefore = monsterBefore.hp;
+
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    if (s.combat?.kind === 'turn-based') {
+      const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
+      const dealt = hpBefore - monsterAfter.hp;
+      expect(dealt).toBeLessThanOrEqual(5);
+    }
+  });
+
+  it('turns-statuses tick down at start of player turn', () => {
+    let s = buildCombatState();
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'weapon_suspended',
+      duration: { kind: 'turns', remaining: 2 },
+      source: 'test'
+    });
+    s = reduce(s, { kind: 'AttackTarget' });
+    if (s.combat?.kind === 'turn-based') {
+      const player = s.combat.combatants.find((c) => c.kind === 'player')!;
+      const ws = player.statuses.find((st) => st.kind === 'weapon_suspended');
+      expect(ws).toBeDefined();
+      const dur = ws!.duration;
+      expect(dur.kind === 'turns' && dur.remaining).toBe(1);
+    }
+  });
+
+  it('on combat end, combat-scoped statuses are dropped and world-scoped persist', () => {
+    let s = buildCombatState();
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'weapon_suspended',
+      duration: { kind: 'turns', remaining: 3 },
+      source: 'combat-scoped'
+    });
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'guaranteed_crit',
+      duration: { kind: 'permanent' },
+      source: 'world-scoped'
+    });
+
+    let safety = 20;
+    while (s.combat && safety-- > 0) {
+      s = reduce(s, { kind: 'AttackTarget' });
+    }
+
+    expect(s.combat).toBeNull();
+    expect(s.character.statuses.some((st) => st.kind === 'weapon_suspended')).toBe(false);
+    expect(s.character.statuses.some((st) => st.kind === 'guaranteed_crit')).toBe(true);
   });
 });

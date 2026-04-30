@@ -74,5 +74,27 @@ export const items: Record<ItemId, Item> = {
     name: 'a Tome of Questionable Translations',
     flavor: "Half a margin reads 'Beware the Lich-King'; the other half reads 'Beware the Itch-King.' Both are alarming.",
     kind: 'quest'
+  },
+  [ItemId('dented_lute')]: {
+    id: ItemId('dented_lute'),
+    name: 'a Dented Lute',
+    flavor: 'Three of six strings. The fourth is, generously, implied.',
+    kind: 'weapon',
+    slot: 'weapon',
+    damage: 4
+  },
+  [ItemId('dramatic_cloak')]: {
+    id: ItemId('dramatic_cloak'),
+    name: 'a Dramatic Cloak',
+    flavor: "Bills itself as 'theatrical-grade.' This is a category neither armor nor textile recognize.",
+    kind: 'armor',
+    slot: 'armor',
+    armor: 2
+  },
+  [ItemId('audience_expectation')]: {
+    id: ItemId('audience_expectation'),
+    name: 'an Audience Expectation',
+    flavor: 'An invisible weight, surprisingly portable. Heaviest in the chest.',
+    kind: 'quest'
   }
 };

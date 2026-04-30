@@ -69,5 +69,21 @@ export const monsters: Record<MonsterId, Monster> = {
       { kind: 'attack', weight: 1, flavor: 'The footnote nips at the punctuation around your sentences.' }
     ],
     loot: []
+  },
+  [MonsterId('pointed_heckler')]: {
+    id: MonsterId('pointed_heckler'),
+    name: 'a Pointed Heckler',
+    flavor: 'An early arrival exercising her vowels.',
+    defeatedFlavor: 'The heckler loses interest and starts heckling someone else.',
+    hp: 7,
+    brawn: 4,
+    bravado: 4,
+    dodge: 1,
+    armor: 0,
+    weaponDamage: 3,
+    actions: [
+      { kind: 'attack', weight: 1, flavor: 'The heckler delivers a precisely-timed sigh.' }
+    ],
+    loot: []
   }
 };

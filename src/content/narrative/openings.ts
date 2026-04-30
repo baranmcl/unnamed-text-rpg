@@ -24,6 +24,11 @@ export const wizard_opening_short: NarrativeNode = {
 
 export const bard_opening_short: NarrativeNode = {
   id: NarrativeNodeId('bard_opening_short'),
-  prose: 'PLACEHOLDER — wired by Task 14.',
-  choices: []
+  prose:
+    'Five minutes to the curtain. Your lute is missing strings; your cloak is being ironic again. ' +
+    'A heckler in the third row has been warming up since dawn and has, by now, achieved a kind of vowel-yoga ' +
+    'that bodes badly for your opening number.',
+  choices: [
+    { label: 'Open with a dignity-restoration anthem.', resolve: 'open_with_heckler' }
+  ]
 };

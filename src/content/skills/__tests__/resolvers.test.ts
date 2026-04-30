@@ -165,3 +165,12 @@ describe('Accidental Wizard playable', () => {
     expect(s.character.equipment.weapon).toBe('cracked_staff');
   });
 });
+
+describe('Bard playable', () => {
+  it('starts in tavern_dressing_room with dented_lute equipped', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Maestro T', classId: 'bard' as ClassId });
+    expect(s.world.currentLocation).toBe('tavern_dressing_room');
+    expect(s.character.equipment.weapon).toBe('dented_lute');
+  });
+});

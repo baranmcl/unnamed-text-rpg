@@ -116,11 +116,23 @@ const open_with_footnote: NarrativeResolver = (state) => {
   return { state: next, next: null };
 };
 
+const open_with_heckler: NarrativeResolver = (state) => {
+  const next = {
+    ...state,
+    world: {
+      ...state.world,
+      flags: { ...state.world.flags, __pending_encounter: 'combat_pointed_heckler' }
+    }
+  };
+  return { state: next, next: null };
+};
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
   call_insult,
   call_cry,
   open_with_pell,
-  open_with_footnote
+  open_with_footnote,
+  open_with_heckler
 };

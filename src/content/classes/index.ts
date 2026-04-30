@@ -50,5 +50,21 @@ export const classes: Record<ClassId, CharacterClass> = {
     signatureMove: SkillId('out_think_it'),
     openingLocationId: LocationId('burning_library'),
     openingNarrativeNodeId: NarrativeNodeId('wizard_opening_short')
+  },
+  [ClassId('bard')]: {
+    id: ClassId('bard'),
+    name: "Bard Who Didn't Ask For This",
+    epithet: "the Bard Who Didn't Ask For This",
+    startingStats: { brawn: 5, brains: 7, bravado: 9, bluck: 4 },
+    baseHp: 28,
+    baseMp: 14,
+    startingItems: [
+      { itemId: ItemId('dented_lute'), equipped: true },
+      { itemId: ItemId('dramatic_cloak'), equipped: true },
+      { itemId: ItemId('audience_expectation') }
+    ],
+    signatureMove: SkillId('swagger'),
+    openingLocationId: LocationId('tavern_dressing_room'),
+    openingNarrativeNodeId: NarrativeNodeId('bard_opening_short')
   }
 };

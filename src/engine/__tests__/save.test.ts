@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { serialize, deserialize, SaveLoadError } from '../save';
-import { createDemoState } from '../state';
+import { createDemoState, createInitialState } from '../state';
 
 describe('serialize/deserialize', () => {
   it('round-trips a demo state losslessly', () => {
@@ -28,5 +28,97 @@ describe('serialize/deserialize', () => {
 
   it('throws SaveLoadError when shape is missing required fields', () => {
     expect(() => deserialize('{"version":1}')).toThrow(SaveLoadError);
+  });
+});
+
+describe('save migration v1 → v2', () => {
+  it('backfills empty statuses arrays on character and combatants', () => {
+    const v1Save = {
+      version: 1,
+      rng: { seed: 1, step: 0 },
+      character: {
+        name: 'Test',
+        classId: 'reluctant_farmboy',
+        level: 1,
+        xp: 0,
+        hp: { current: 30, max: 30 },
+        mp: { current: 10, max: 10 },
+        stats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
+        equipment: {},
+        inventory: [],
+        knownSkills: [],
+        currency: 0
+        // no statuses field — must be backfilled
+      },
+      world: {
+        currentLocation: 'family_farm',
+        visited: [],
+        flags: {}
+      },
+      story: {
+        stage: 'act_i',
+        currentBeat: null,
+        completedBeats: [],
+        activeQuests: []
+      },
+      combat: null,
+      log: [],
+      settings: { theme: 'parchment', textSize: 'medium', autoSave: true }
+    };
+
+    const loaded = deserialize(JSON.stringify(v1Save));
+    expect(loaded.version).toBe(2);
+    expect(loaded.character.statuses).toEqual([]);
+  });
+
+  it('backfills statuses on combatants if combat is in progress', () => {
+    const v1SaveWithCombat = {
+      version: 1,
+      rng: { seed: 1, step: 0 },
+      character: {
+        name: 'Test',
+        classId: 'reluctant_farmboy',
+        level: 1,
+        xp: 0,
+        hp: { current: 25, max: 30 },
+        mp: { current: 10, max: 10 },
+        stats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
+        equipment: {},
+        inventory: [],
+        knownSkills: [],
+        currency: 0
+      },
+      world: { currentLocation: 'family_farm', visited: [], flags: {} },
+      story: { stage: 'act_i', currentBeat: null, completedBeats: [], activeQuests: [] },
+      combat: {
+        kind: 'turn-based',
+        encounterId: 'first_tax_rat',
+        combatants: [
+          { id: 'player', kind: 'player', hp: 25, initiative: 10 },
+          { id: 'tax_rat', kind: 'monster', hp: 8, initiative: 8 }
+        ],
+        turnIndex: 0,
+        round: 1
+      },
+      log: [],
+      settings: { theme: 'parchment', textSize: 'medium', autoSave: true }
+    };
+
+    const loaded = deserialize(JSON.stringify(v1SaveWithCombat));
+    expect(loaded.version).toBe(2);
+    expect(loaded.combat?.kind).toBe('turn-based');
+    if (loaded.combat?.kind === 'turn-based') {
+      for (const c of loaded.combat.combatants) {
+        expect(c.statuses).toEqual([]);
+      }
+    }
+  });
+
+  it('serializes a v2 state and round-trips it cleanly', () => {
+    const s = createInitialState(42);
+    const json = serialize(s);
+    const loaded = deserialize(json);
+    expect(loaded.version).toBe(2);
+    expect(loaded.character.statuses).toEqual([]);
   });
 });

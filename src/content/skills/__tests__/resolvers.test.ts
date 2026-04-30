@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { reduce } from '../../../engine/events';
 import { createInitialState } from '../../../engine/state';
-import { registerSkillResolver } from '../resolvers';
-import type { ClassId, EncounterId, SkillId } from '../../../engine/types';
+import { registerSkillResolver, skillResolvers } from '../resolvers';
+import type { ClassId, EncounterId, SkillId, SkillResolverId } from '../../../engine/types';
 import { content } from '../../../content';
 
 describe('UseSkill MP gating', () => {
@@ -21,6 +21,7 @@ describe('UseSkill MP gating', () => {
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
 
+    const realResolver = skillResolvers['tempt_fate' as SkillResolverId];
     let resolverCalled = false;
     registerSkillResolver('tempt_fate', (state) => {
       resolverCalled = true;
@@ -31,6 +32,9 @@ describe('UseSkill MP gating', () => {
     s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
     expect(resolverCalled).toBe(true);
     expect(s.character.mp.current).toBe(mpBefore - 6);
+
+    // Restore the real resolver so subsequent tests are not affected.
+    if (realResolver) registerSkillResolver('tempt_fate', realResolver);
   });
 });
 
@@ -99,5 +103,47 @@ describe('Swagger resolver', () => {
 
     const skipEntry = s.log.find((e) => e.text.toLowerCase().includes('rattled') || e.text.toLowerCase().includes('reconsider'));
     expect(skipEntry).toBeDefined();
+  });
+});
+
+describe('Tempt Fate resolver', () => {
+  it('applies guaranteed_crit (one_shot) to the player', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
+
+    s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
+
+    if (s.combat?.kind === 'turn-based') {
+      const player = s.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(player.statuses.some((st) => st.kind === 'guaranteed_crit')).toBe(true);
+    }
+  });
+
+  it('with seed forcing backfire, applies one of the six self-effects', () => {
+    // Seed 1859 is a known-good seed where the 15% backfire gate fires.
+    // (The LCG RNG produces d100=8 at rng.step=2 for seed 1859.)
+    let backfireFired = false;
+    for (let seed = 1859; seed <= 1870 && !backfireFired; seed++) {
+      let s = createInitialState(seed);
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+      s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+      s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
+      s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
+      const backfire = s.log.find((e) =>
+        e.text.includes('Skip next turn') ||
+        e.text.includes('crit yourself') ||
+        e.text.includes('Weapon suspended') ||
+        e.text.includes('Armor halved') ||
+        e.text.includes('takes the cue') ||
+        e.text.includes('destined to miss')
+      );
+      if (backfire) {
+        backfireFired = true;
+        break;
+      }
+    }
+    expect(backfireFired).toBe(true);
   });
 });

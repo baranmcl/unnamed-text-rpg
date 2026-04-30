@@ -1,7 +1,8 @@
 import type { GameState, MonsterId, SkillResolver, SkillResolverId, TurnBasedCombatState, LogEntry } from '../../engine/types';
 import { MAX_LOG_ENTRIES } from '../../engine/types';
 import { content } from '..';
-import { rollHit, rollDamage, rollCrit } from '../../engine/combat';
+import { rollHit, rollDamage, rollCrit, monsterFreeRetaliation } from '../../engine/combat';
+import { rng } from '../../engine/rng';
 import { applyStatus } from '../../engine/status';
 
 export const skillResolvers: Record<SkillResolverId, SkillResolver> = {};
@@ -125,5 +126,119 @@ registerSkillResolver('swagger', (state) => {
     kind: 'combat',
     text: `You roll your shoulders. The ${monster?.name ?? 'foe'} reconsiders its life choices. **Intimidated.**`
   });
+  return s;
+});
+
+// =====================================================================
+// Tempt Fate — (B)Luck. Guaranteed crit on next attack + 15% backfire.
+// =====================================================================
+
+type BackfireKind =
+  | 'trip'
+  | 'crit_yourself'
+  | 'weapon_mute'
+  | 'drop_shield'
+  | 'free_retaliation'
+  | 'wasted_prophecy';
+
+const BACKFIRES: BackfireKind[] = [
+  'trip', 'crit_yourself', 'weapon_mute', 'drop_shield', 'free_retaliation', 'wasted_prophecy'
+];
+
+registerSkillResolver('tempt_fate', (state) => {
+  if (state.combat?.kind !== 'turn-based') return state;
+
+  // Apply guaranteed_crit (one-shot) to the player.
+  let s = applyStatus(state, { kind: 'combatant', combatantId: 'player' }, {
+    kind: 'guaranteed_crit',
+    duration: { kind: 'one_shot' },
+    source: 'Tempt Fate'
+  });
+
+  // Roll d100 for backfire (15% gate).
+  const gate = rng.d100(s.rng);
+  s = { ...s, rng: gate.state };
+  const fired = gate.value <= 15;
+
+  if (!fired) {
+    s = pushLog(s, { kind: 'combat', text: 'You wink at the universe. A crit awaits your next swing.' });
+    return s;
+  }
+
+  s = pushLog(s, { kind: 'combat', text: 'You wink at the universe. The universe winks back. Awkwardly.' });
+
+  // Pick a backfire uniformly via seeded RNG.
+  const pick = rng.pick(s.rng, BACKFIRES);
+  s = { ...s, rng: pick.state };
+
+  switch (pick.value) {
+    case 'trip':
+      s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+        kind: 'skip_turn',
+        duration: { kind: 'turns', remaining: 1 },
+        source: 'Tempt Fate backfire'
+      });
+      s = pushLog(s, { kind: 'combat', text: 'You step on your own cloak. **Skip next turn.**' });
+      break;
+
+    case 'crit_yourself': {
+      const dmgRoll = rng.d6(s.rng);
+      s = { ...s, rng: dmgRoll.state };
+      const dmg = ((dmgRoll.value - 1) % 4) + 1;
+      const newHp = Math.max(0, s.character.hp.current - dmg);
+      const sCombat = s.combat as TurnBasedCombatState;
+      s = {
+        ...s,
+        character: { ...s.character, hp: { ...s.character.hp, current: newHp } },
+        combat: {
+          ...sCombat,
+          combatants: sCombat.combatants.map((c) => (c.kind === 'player' ? { ...c, hp: newHp } : c))
+        }
+      };
+      s = pushLog(s, { kind: 'combat', text: `The universe accepts your wink. You crit yourself for ${dmg}.` });
+      break;
+    }
+
+    case 'weapon_mute':
+      s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+        kind: 'weapon_suspended',
+        duration: { kind: 'turns', remaining: 3 },
+        source: 'Tempt Fate backfire'
+      });
+      s = pushLog(s, { kind: 'combat', text: 'Your weapon takes a vow of silence for the next three turns. **Weapon suspended.**' });
+      break;
+
+    case 'drop_shield':
+      s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+        kind: 'armor_halved',
+        duration: { kind: 'turns', remaining: 2 },
+        source: 'Tempt Fate backfire'
+      });
+      s = pushLog(s, { kind: 'combat', text: 'You catch a draft and forget how armor works. **Armor halved (2 turns).**' });
+      break;
+
+    case 'free_retaliation': {
+      const monsterCombatant = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster');
+      if (monsterCombatant) {
+        s = applyStatus(s, { kind: 'combatant', combatantId: monsterCombatant.id }, {
+          kind: 'free_retaliation',
+          duration: { kind: 'one_shot' },
+          source: 'Tempt Fate backfire'
+        });
+        s = pushLog(s, { kind: 'combat', text: 'You laugh nervously. The foe takes the cue.' });
+        s = monsterFreeRetaliation(s);
+      }
+      break;
+    }
+
+    case 'wasted_prophecy':
+      s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+        kind: 'next_attack_misses',
+        duration: { kind: 'one_shot' },
+        source: 'Tempt Fate backfire'
+      });
+      s = pushLog(s, { kind: 'combat', text: 'A faint cosmic chuckle. **Your next strike is destined to miss.**' });
+      break;
+  }
   return s;
 });

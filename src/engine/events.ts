@@ -1,7 +1,8 @@
-import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, LogEntry } from './types';
+import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, LogEntry, SkillId } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endCombat } from './combat';
+import { skillResolvers } from '../content/skills/resolvers';
 import { checkBeats } from './story';
 import { startNarrativeEncounter, chooseNarrativeOption } from './narrative';
 
@@ -27,6 +28,7 @@ export type GameEvent =
   | { kind: 'AttackTarget' }
   | { kind: 'UseItem'; itemId: ItemId }
   | { kind: 'Flee' }
+  | { kind: 'UseSkill'; skillId: SkillId }
   | { kind: 'EquipItem'; itemId: ItemId }
   | { kind: 'UnequipSlot'; slot: EquipSlot }
   | { kind: 'DropItem'; itemId: ItemId }
@@ -177,6 +179,46 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
       let s = playerFlee(state);
       if (state.combat && s.combat) {
         // Failed flee — monster gets a turn.
+        s = monsterTurn(s);
+        if (s.character.hp.current <= 0) {
+          const enc = content.encounters[s.combat!.encounterId];
+          return enc?.kind === 'combat' ? endCombat(s, 'defeat', enc) : { ...s, combat: null };
+        }
+      }
+      return s;
+    }
+
+    case 'UseSkill': {
+      if (!state.combat || state.combat.kind !== 'turn-based') return state;
+      const skill = content.skills[event.skillId];
+      if (!skill) return state;
+      if (!state.character.knownSkills.includes(event.skillId)) return state;
+      if (state.character.mp.current < skill.mpCost) return state;
+
+      // Deduct MP.
+      let s: GameState = {
+        ...state,
+        character: {
+          ...state.character,
+          mp: { ...state.character.mp, current: state.character.mp.current - skill.mpCost }
+        }
+      };
+
+      // Run resolver.
+      const resolver = skillResolvers[skill.resolverId];
+      if (!resolver) {
+        return appendLogs(s, [{ kind: 'system', systemLabel: 'ERROR', text: `Unknown skill resolver ${skill.resolverId}.` }]);
+      }
+      s = resolver(s);
+
+      // Check for monster KO from the skill.
+      if (s.combat?.kind === 'turn-based') {
+        const monster = s.combat.combatants.find((c) => c.kind === 'monster');
+        if (monster && monster.hp <= 0) {
+          const enc = content.encounters[s.combat.encounterId];
+          return enc?.kind === 'combat' ? endCombat(s, 'victory', enc) : { ...s, combat: null };
+        }
+        // Monster turn (unless the skill ended combat directly).
         s = monsterTurn(s);
         if (s.character.hp.current <= 0) {
           const enc = content.encounters[s.combat!.encounterId];

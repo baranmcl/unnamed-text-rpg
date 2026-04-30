@@ -302,7 +302,7 @@ export function monsterTurn(state: GameState): GameState {
 
   const dmg = rollDamage(s.rng, monster.weaponDamage + damageBonus, monster.brawn, playerArmor);
   s = { ...s, rng: dmg.state };
-  const newHp = Math.max(0, state.character.hp.current - dmg.value);
+  const newHp = Math.max(0, s.character.hp.current - dmg.value);
   const sCombat = s.combat as TurnBasedCombatState;
   s = {
     ...s,

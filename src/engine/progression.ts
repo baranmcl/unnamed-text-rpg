@@ -14,6 +14,7 @@ export const STAT_ROTATIONS: Record<ClassId, (keyof StatBlock)[]> = {
   ['reluctant_farmboy' as ClassId]: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
   // Other classes (Knight, Wizard, Bard) added in their respective content tasks.
   ['disgraced_knight' as ClassId]: ['brawn', 'bravado', 'brawn', 'brains', 'brawn', 'bluck', 'brawn', 'bravado', 'brawn'],
+  ['accidental_wizard' as ClassId]: ['brains', 'bluck', 'brains', 'bravado', 'brains', 'brawn', 'brains', 'bluck', 'brains'],
 };
 
 function appendLog(state: GameState, entry: Omit<LogEntry, 'id'>): GameState {

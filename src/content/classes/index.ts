@@ -34,5 +34,21 @@ export const classes: Record<ClassId, CharacterClass> = {
     signatureMove: SkillId('brute_force'),
     openingLocationId: LocationId('quartermasters_yard'),
     openingNarrativeNodeId: NarrativeNodeId('knight_opening_short')
+  },
+  [ClassId('accidental_wizard')]: {
+    id: ClassId('accidental_wizard'),
+    name: 'Accidental Wizard',
+    epithet: 'the Accidental Wizard',
+    startingStats: { brawn: 4, brains: 10, bravado: 5, bluck: 6 },
+    baseHp: 22,
+    baseMp: 20,
+    startingItems: [
+      { itemId: ItemId('cracked_staff'), equipped: true },
+      { itemId: ItemId('long_robe'), equipped: true },
+      { itemId: ItemId('questionable_tome') }
+    ],
+    signatureMove: SkillId('out_think_it'),
+    openingLocationId: LocationId('burning_library'),
+    openingNarrativeNodeId: NarrativeNodeId('wizard_opening_short')
   }
 };

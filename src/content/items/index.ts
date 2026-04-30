@@ -51,5 +51,28 @@ export const items: Record<ItemId, Item> = {
     name: 'a Defaced Family Crest',
     flavor: 'Someone has scratched out the motto and replaced it with a single, very judgmental adjective.',
     kind: 'quest'
+  },
+  [ItemId('cracked_staff')]: {
+    id: ItemId('cracked_staff'),
+    name: 'a Cracked Staff',
+    flavor: 'The crack hums faintly. Its rune is theoretically Wisdom; pronunciation may have intervened.',
+    kind: 'weapon',
+    slot: 'weapon',
+    damage: 3,
+    statBonuses: { brains: 1 }
+  },
+  [ItemId('long_robe')]: {
+    id: ItemId('long_robe'),
+    name: 'A Robe That Is Far Too Long',
+    flavor: 'Trips you on stairs. Probably enchanted to do exactly that.',
+    kind: 'armor',
+    slot: 'armor',
+    armor: 1
+  },
+  [ItemId('questionable_tome')]: {
+    id: ItemId('questionable_tome'),
+    name: 'a Tome of Questionable Translations',
+    flavor: "Half a margin reads 'Beware the Lich-King'; the other half reads 'Beware the Itch-King.' Both are alarming.",
+    kind: 'quest'
   }
 };

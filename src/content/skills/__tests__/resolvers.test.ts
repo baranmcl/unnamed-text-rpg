@@ -156,3 +156,12 @@ describe('Disgraced Knight playable', () => {
     expect(s.character.equipment.weapon).toBe('nicked_longsword');
   });
 });
+
+describe('Accidental Wizard playable', () => {
+  it('starts in burning_library with cracked_staff equipped', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Magus T', classId: 'accidental_wizard' as ClassId });
+    expect(s.world.currentLocation).toBe('burning_library');
+    expect(s.character.equipment.weapon).toBe('cracked_staff');
+  });
+});

@@ -53,5 +53,21 @@ export const monsters: Record<MonsterId, Monster> = {
       { kind: 'attack', weight: 1, flavor: 'The pell sways meaningfully in your direction.' }
     ],
     loot: []
+  },
+  [MonsterId('feral_footnote')]: {
+    id: MonsterId('feral_footnote'),
+    name: 'a Feral Footnote',
+    flavor: 'A small superscript that has detached from its citation and is now circling.',
+    defeatedFlavor: 'The footnote sniffs, returns to its citation, and begins behaving like a footnote.',
+    hp: 6,
+    brawn: 3,
+    bravado: 0,
+    dodge: 2,
+    armor: 0,
+    weaponDamage: 2,
+    actions: [
+      { kind: 'attack', weight: 1, flavor: 'The footnote nips at the punctuation around your sentences.' }
+    ],
+    loot: []
   }
 };

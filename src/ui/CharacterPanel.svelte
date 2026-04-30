@@ -2,7 +2,34 @@
   import { gameStore } from './store.svelte';
   import InspectModal from './InspectModal.svelte';
   import { content } from '../content';
-  import type { ItemId } from '../engine/types';
+  import type { ItemId, StatusKind, StatusDuration } from '../engine/types';
+
+  function glyphFor(kind: StatusKind): string {
+    switch (kind) {
+      case 'guaranteed_crit': return '✦';
+      case 'next_attack_misses': return '✗';
+      case 'weakness_revealed': return '◎';
+      case 'intimidated': return '⌇';
+      case 'skip_turn': return '⊘';
+      case 'weapon_suspended': return '⌀';
+      case 'armor_halved': return '½';
+      case 'free_retaliation': return '↻';
+    }
+  }
+
+  function labelFor(kind: StatusKind): string {
+    return kind.replace(/_/g, ' ');
+  }
+
+  function formatDuration(d: StatusDuration): string {
+    switch (d.kind) {
+      case 'turns': return `${d.remaining} turn${d.remaining === 1 ? '' : 's'} remaining`;
+      case 'until_end_of_fight': return 'until end of fight';
+      case 'one_shot': return 'fires once';
+      case 'fights_remaining': return `${d.n} fight${d.n === 1 ? '' : 's'} remaining`;
+      case 'permanent': return 'permanent';
+    }
+  }
 
   const SECTION_KEY = 'heroicchronicle.ui.sectionsCollapsed';
 
@@ -145,6 +172,21 @@
       </div>
     {/if}
   </section>
+
+  <!-- Afflictions & Boons -->
+  {#if c.statuses.length > 0}
+    <section class="afflictions">
+      <h4 class="afflictions-heading">Afflictions &amp; Boons</h4>
+      <ul class="status-list">
+        {#each c.statuses as st (st.id)}
+          <li class="status-pill" title={`${st.source} — ${formatDuration(st.duration)}`}>
+            <span class="status-glyph">{glyphFor(st.kind)}</span>
+            <span class="status-name">{labelFor(st.kind)}</span>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <!-- Qualities (the four B's) -->
   <section class="section">
@@ -391,5 +433,44 @@
     font-style: italic;
     color: var(--ink-faint);
     text-align: center;
+  }
+  .afflictions { margin-bottom: 22px; }
+  .afflictions-heading {
+    font-family: var(--serif-body);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 10px;
+    font-weight: normal;
+  }
+  .status-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--hairline);
+    padding: 2px 8px;
+    font-size: 12px;
+    cursor: default;
+  }
+  .status-glyph {
+    font-family: var(--serif-display);
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .status-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    text-transform: lowercase;
   }
 </style>

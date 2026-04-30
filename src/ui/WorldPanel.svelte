@@ -173,6 +173,16 @@
         <p class="placeholder">There seems nothing immediate to do here.</p>
       {/if}
     {:else if inTurnCombat}
+      {#if gameStore.state.combat?.kind === 'turn-based'}
+        {@const monsterCombatant = gameStore.state.combat.combatants.find((c) => c.kind === 'monster')}
+        {#if monsterCombatant && monsterCombatant.statuses.length > 0}
+          <div class="monster-status-tags">
+            {#each monsterCombatant.statuses as st (st.id)}
+              <span class="monster-status-tag">· {st.kind.replace(/_/g, ' ')}</span>
+            {/each}
+          </div>
+        {/if}
+      {/if}
       {@const knownSkillId = gameStore.state.character.knownSkills[0]}
       {@const skill = knownSkillId ? content.skills[knownSkillId] : undefined}
       {@const noSkill = !skill}
@@ -397,4 +407,16 @@
   }
   .picker-row:hover { background: rgba(166, 131, 56, 0.12); }
   .picker-row .qty { color: var(--ink-muted); font-size: 12px; }
+  .monster-status-tags {
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .monster-status-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+  }
 </style>

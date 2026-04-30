@@ -53,3 +53,37 @@ describe('Brute Force resolver', () => {
     expect(hadAttackLog).toBe(true);
   });
 });
+
+describe('Out-Think It resolver', () => {
+  it('applies weakness_revealed to the monster (until_end_of_fight)', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId] } };
+
+    s = reduce(s, { kind: 'UseSkill', skillId: 'out_think_it' as SkillId });
+
+    if (s.combat?.kind === 'turn-based') {
+      const monster = s.combat.combatants.find((c) => c.kind === 'monster')!;
+      const wr = monster.statuses.find((st) => st.kind === 'weakness_revealed');
+      expect(wr).toBeDefined();
+      expect(wr!.duration.kind).toBe('until_end_of_fight');
+    }
+  });
+
+  it('replaces existing weakness_revealed (no stacking)', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId], mp: { current: 100, max: 100 } } };
+
+    s = reduce(s, { kind: 'UseSkill', skillId: 'out_think_it' as SkillId });
+    s = reduce(s, { kind: 'UseSkill', skillId: 'out_think_it' as SkillId });
+
+    if (s.combat?.kind === 'turn-based') {
+      const monster = s.combat.combatants.find((c) => c.kind === 'monster')!;
+      const count = monster.statuses.filter((st) => st.kind === 'weakness_revealed').length;
+      expect(count).toBe(1);
+    }
+  });
+});

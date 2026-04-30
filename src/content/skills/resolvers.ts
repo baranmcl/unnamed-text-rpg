@@ -2,6 +2,7 @@ import type { GameState, MonsterId, SkillResolver, SkillResolverId, TurnBasedCom
 import { MAX_LOG_ENTRIES } from '../../engine/types';
 import { content } from '..';
 import { rollHit, rollDamage, rollCrit } from '../../engine/combat';
+import { applyStatus } from '../../engine/status';
 
 export const skillResolvers: Record<SkillResolverId, SkillResolver> = {};
 
@@ -63,4 +64,44 @@ registerSkillResolver('brute_force', (state) => {
       ? `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. **Critical!** Damage: ${finalDamage}.`
       : `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. Damage: ${finalDamage}.`
   });
+});
+
+// =====================================================================
+// Out-Think It — Brains. Applies weakness_revealed (until end of fight).
+// If encounter has endsByReasoning, the fight resolves as victory.
+// =====================================================================
+
+registerSkillResolver('out_think_it', (state) => {
+  if (state.combat?.kind !== 'turn-based') return state;
+  const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
+  if (!monsterCombatant) return state;
+
+  let s = applyStatus(state, { kind: 'combatant', combatantId: monsterCombatant.id }, {
+    kind: 'weakness_revealed',
+    duration: { kind: 'until_end_of_fight' },
+    source: 'Out-Think It'
+  });
+  s = pushLog(s, {
+    kind: 'combat',
+    text: `You expose the contradiction at the heart of its grievance. **${content.monsters[monsterCombatant.id as MonsterId]?.name ?? 'It'} — weakness revealed.**`
+  });
+
+  // endsByReasoning encounter opt-in: KO the monster.
+  const enc = content.encounters[state.combat.encounterId];
+  if (enc?.kind === 'combat' && enc.endsByReasoning) {
+    if (s.combat?.kind === 'turn-based') {
+      const sCombat = s.combat;
+      s = {
+        ...s,
+        combat: {
+          ...sCombat,
+          combatants: sCombat.combatants.map((c) =>
+            c.kind === 'monster' ? { ...c, hp: 0 } : c
+          )
+        }
+      };
+      s = pushLog(s, { kind: 'combat', text: 'They sit down. The argument is over.' });
+    }
+  }
+  return s;
 });

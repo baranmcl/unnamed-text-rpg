@@ -24,5 +24,14 @@ export const skills: Record<SkillId, Skill> = {
     scalingStat: 'brawn',
     unlockLevel: 3,
     resolverId: 'brute_force'
+  },
+  [SkillId('out_think_it')]: {
+    id: SkillId('out_think_it'),
+    name: 'Out-Think It',
+    description: 'Reveal the contradiction. Subsequent attacks deal +50% damage for the rest of the fight.',
+    mpCost: 8,
+    scalingStat: 'brains',
+    unlockLevel: 3,
+    resolverId: 'out_think_it'
   }
 };

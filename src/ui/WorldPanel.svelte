@@ -41,18 +41,6 @@
       .filter(({ item }) => item?.kind === 'consumable')
   );
 
-  let signatureSkill = $derived.by(() => {
-    const cls = content.classes[gameStore.state.character.classId];
-    if (!cls) return null;
-    return content.skills[cls.signatureMove] ?? null;
-  });
-
-  let signatureSkillTooltip = $derived.by(() => {
-    const skill = signatureSkill;
-    if (!skill) return 'No skills available.';
-    return `${skill.name} — ${skill.description} (Unlocks at level ${skill.unlockLevel}.)`;
-  });
-
   function attack() {
     gameStore.dispatch({ kind: 'AttackTarget' });
   }
@@ -185,10 +173,26 @@
         <p class="placeholder">There seems nothing immediate to do here.</p>
       {/if}
     {:else if inTurnCombat}
+      {@const knownSkillId = gameStore.state.character.knownSkills[0]}
+      {@const skill = knownSkillId ? content.skills[knownSkillId] : undefined}
+      {@const noSkill = !skill}
+      {@const insufficientMp = !!skill && gameStore.state.character.mp.current < skill.mpCost}
+      {@const skillDisabled = noSkill || insufficientMp}
+      {@const skillTooltip = noSkill
+        ? 'Locked until Level 3'
+        : insufficientMp
+          ? `Not enough mana — need ${skill!.mpCost} MP`
+          : skill!.description}
       <button class="btn" type="button" onclick={attack}>Attack</button>
 
       <span class="skill-wrap">
-        <button class="btn" type="button" disabled title={signatureSkillTooltip}>Skill</button>
+        <button
+          class="btn"
+          type="button"
+          disabled={skillDisabled}
+          title={skillTooltip}
+          onclick={() => skill && gameStore.dispatch({ kind: 'UseSkill', skillId: skill.id })}
+        >Skill</button>
       </span>
 
       <span class="item-wrap">

@@ -105,3 +105,25 @@ registerSkillResolver('out_think_it', (state) => {
   }
   return s;
 });
+
+// =====================================================================
+// Swagger — Bravado. Applies intimidated (turns: 1) to monster.
+// =====================================================================
+
+registerSkillResolver('swagger', (state) => {
+  if (state.combat?.kind !== 'turn-based') return state;
+  const monsterCombatant = state.combat.combatants.find((c) => c.kind === 'monster');
+  if (!monsterCombatant) return state;
+  const monster = content.monsters[monsterCombatant.id as MonsterId];
+
+  let s = applyStatus(state, { kind: 'combatant', combatantId: monsterCombatant.id }, {
+    kind: 'intimidated',
+    duration: { kind: 'turns', remaining: 1 },
+    source: 'Swagger'
+  });
+  s = pushLog(s, {
+    kind: 'combat',
+    text: `You roll your shoulders. The ${monster?.name ?? 'foe'} reconsiders its life choices. **Intimidated.**`
+  });
+  return s;
+});

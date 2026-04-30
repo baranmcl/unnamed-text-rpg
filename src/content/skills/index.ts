@@ -33,5 +33,14 @@ export const skills: Record<SkillId, Skill> = {
     scalingStat: 'brains',
     unlockLevel: 3,
     resolverId: 'out_think_it'
+  },
+  [SkillId('swagger')]: {
+    id: SkillId('swagger'),
+    name: 'Swagger',
+    description: 'Roll your shoulders and let the silence work. Target skips its next turn.',
+    mpCost: 6,
+    scalingStat: 'bravado',
+    unlockLevel: 3,
+    resolverId: 'swagger'
   }
 };

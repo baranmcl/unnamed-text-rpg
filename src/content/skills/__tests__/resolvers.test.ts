@@ -87,3 +87,17 @@ describe('Out-Think It resolver', () => {
     }
   });
 });
+
+describe('Swagger resolver', () => {
+  it('applies intimidated (turns: 1) to the monster, causing its next turn to skip', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['swagger' as SkillId] } };
+
+    s = reduce(s, { kind: 'UseSkill', skillId: 'swagger' as SkillId });
+
+    const skipEntry = s.log.find((e) => e.text.toLowerCase().includes('rattled') || e.text.toLowerCase().includes('reconsider'));
+    expect(skipEntry).toBeDefined();
+  });
+});

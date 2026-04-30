@@ -18,5 +18,21 @@ export const classes: Record<ClassId, CharacterClass> = {
     // Plan 5 wires this to a real narrative node for the full opening scene.
     // For Plan 2 the StartNewGame reducer emits a short opener directly.
     openingNarrativeNodeId: NarrativeNodeId('farmboy_opening_short')
+  },
+  [ClassId('disgraced_knight')]: {
+    id: ClassId('disgraced_knight'),
+    name: 'Disgraced Knight',
+    epithet: 'the Disgraced Knight',
+    startingStats: { brawn: 9, brains: 4, bravado: 7, bluck: 5 },
+    baseHp: 40,
+    baseMp: 8,
+    startingItems: [
+      { itemId: ItemId('nicked_longsword'), equipped: true },
+      { itemId: ItemId('battered_half_plate'), equipped: true },
+      { itemId: ItemId('defaced_family_crest') }
+    ],
+    signatureMove: SkillId('brute_force'),
+    openingLocationId: LocationId('quartermasters_yard'),
+    openingNarrativeNodeId: NarrativeNodeId('knight_opening_short')
   }
 };

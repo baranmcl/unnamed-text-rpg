@@ -94,9 +94,21 @@ const call_cry: NarrativeResolver = (state) => {
   };
 };
 
+const open_with_pell: NarrativeResolver = (state) => {
+  const next = {
+    ...state,
+    world: {
+      ...state.world,
+      flags: { ...state.world.flags, __pending_encounter: 'combat_insolent_pell' }
+    }
+  };
+  return { state: next, next: null };
+};
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
   call_insult,
-  call_cry
+  call_cry,
+  open_with_pell
 };

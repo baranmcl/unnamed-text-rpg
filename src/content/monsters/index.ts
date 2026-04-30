@@ -37,5 +37,21 @@ export const monsters: Record<MonsterId, Monster> = {
       { itemId: ItemId('hardtack'), chance: 0.5 }
     ],
     currencyDrop: { min: 3, max: 8 }
+  },
+  [MonsterId('insolent_pell')]: {
+    id: MonsterId('insolent_pell'),
+    name: 'an Insolent Training Pell',
+    flavor: 'A battered training post that has, through long association, developed opinions.',
+    defeatedFlavor: 'The pell loses the argument and resumes leaning to starboard.',
+    hp: 8,
+    brawn: 4,
+    bravado: 0,
+    dodge: 0,
+    armor: 0,
+    weaponDamage: 3,
+    actions: [
+      { kind: 'attack', weight: 1, flavor: 'The pell sways meaningfully in your direction.' }
+    ],
+    loot: []
   }
 };

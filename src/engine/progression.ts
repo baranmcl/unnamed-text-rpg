@@ -13,6 +13,7 @@ function ordinal(n: number): string {
 export const STAT_ROTATIONS: Record<ClassId, (keyof StatBlock)[]> = {
   ['reluctant_farmboy' as ClassId]: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
   // Other classes (Knight, Wizard, Bard) added in their respective content tasks.
+  ['disgraced_knight' as ClassId]: ['brawn', 'bravado', 'brawn', 'brains', 'brawn', 'bluck', 'brawn', 'bravado', 'brawn'],
 };
 
 function appendLog(state: GameState, entry: Omit<LogEntry, 'id'>): GameState {

@@ -147,3 +147,12 @@ describe('Tempt Fate resolver', () => {
     expect(backfireFired).toBe(true);
   });
 });
+
+describe('Disgraced Knight playable', () => {
+  it("starts in Quartermaster's Yard with Nicked Longsword equipped", () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Sir T', classId: 'disgraced_knight' as ClassId });
+    expect(s.world.currentLocation).toBe('quartermasters_yard');
+    expect(s.character.equipment.weapon).toBe('nicked_longsword');
+  });
+});

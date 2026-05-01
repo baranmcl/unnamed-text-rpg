@@ -18,7 +18,8 @@ A user-facing journal of what the player needs to do next. Three goals:
 ## 2. Non-goals
 
 - **Side quests as content.** v1 ships infrastructure for `kind: 'side'` but authors zero side quests. Plan 5+ adds them.
-- **Quest rewards.** Quests have no XP/loot/flag side-effects. They observe; they do not mutate.
+- **Per-objective rewards.** Rewards apply only on quest finalization in v1. Plan 5+ may add per-objective trickle-rewards.
+- **Item rewards.** v1 supports `currency`, `xp`, and `grant_skill` reward kinds only. Item rewards are forward work.
 - **Quest dependencies.** No "Quest X requires Quest Y to be completed first" beyond what their `activatePredicate`s naturally express.
 - **Branching objectives within a quest.** Objectives are an ordered list. The four "Decide" outcomes (accept / refuse / insult / cry) all complete the same single objective via an `any_flag` predicate; the log does not branch.
 - **Per-objective rewards or sub-rewards.** No.
@@ -56,6 +57,11 @@ export type QuestObjective = {
   completePredicate: Predicate[];   // ALL must be true for objective to complete
 };
 
+export type QuestReward =
+  | { kind: 'currency'; amount: number }
+  | { kind: 'xp'; amount: number }
+  | { kind: 'grant_skill'; skillId: SkillId };
+
 export type Quest = {
   id: QuestId;
   title: string;
@@ -63,6 +69,7 @@ export type Quest = {
   kind: 'main' | 'side';
   activatePredicate: Predicate[];   // ALL must be true for quest to activate
   objectives: QuestObjective[];     // ordered; objective N+1 is hidden until N is done
+  rewards?: QuestReward[];          // applied in order on quest finalization; optional
 };
 ```
 
@@ -117,7 +124,7 @@ Existing v2 saves load with empty quest state. On the first `dispatch` after loa
 
 New file `src/content/quests/index.ts` aggregates the quest definitions, mirroring per-type registries. Aggregated in `src/content/index.ts` as `content.quests`.
 
-`validateContent` extends to verify each quest's predicates and objective predicates reference known flags / beats / locations / stages where statically determinable. Predicates referencing flags that no current code sets are intentionally allowed (Plan 5+ may set them).
+`validateContent` extends to verify each quest's predicates and objective predicates reference known flags / beats / locations / stages where statically determinable, AND that any `grant_skill` rewards reference known skill ids in `content.skills`. Predicates referencing flags that no current code sets are intentionally allowed (Plan 5+ may set them).
 
 ---
 
@@ -192,6 +199,15 @@ function checkQuests(state) {
               completedQuests: [...s.story.completedQuests, quest.id]
             }
           };
+          // Apply rewards in order, then log completion + reward summary.
+          for (const reward of quest.rewards ?? []) {
+            s = applyQuestReward(s, reward);
+          }
+          s = appendLog(s, { kind: 'system', systemLabel: 'QUEST', text: `Quest complete: ${quest.title}.` });
+          if (quest.rewards && quest.rewards.length > 0) {
+            const summary = quest.rewards.map(formatReward).join(', ');
+            s = appendLog(s, { kind: 'system', systemLabel: 'REWARD', text: summary });
+          }
           changed = true;
         }
       }
@@ -257,6 +273,62 @@ let questLogBadge = $derived(
 
 - **Consign this tale to the flames** wipes `state.story` with the rest of the save. Quests are per-run, so this is correct.
 - **Forget thy deeds** does NOT touch `state.story`. Quests are not achievements; the achievement-only key clears, and quest state survives. (No code change needed; `forgetAchievements` already only touches the achievements localStorage key.)
+
+### 5.6 Reward application
+
+`applyQuestReward` and `formatReward` live in `src/engine/quests.ts`:
+
+```ts
+function applyQuestReward(state: GameState, reward: QuestReward): GameState {
+  switch (reward.kind) {
+    case 'currency':
+      return {
+        ...state,
+        character: { ...state.character, currency: state.character.currency + reward.amount }
+      };
+    case 'xp':
+      return awardXp(state, reward.amount);
+    case 'grant_skill':
+      if (state.character.knownSkills.includes(reward.skillId)) return state;
+      return {
+        ...state,
+        character: { ...state.character, knownSkills: [...state.character.knownSkills, reward.skillId] }
+      };
+  }
+}
+
+function formatReward(reward: QuestReward): string {
+  switch (reward.kind) {
+    case 'currency': return `+${reward.amount} ${reward.amount === 1 ? 'leaf' : 'leaves'}`;
+    case 'xp':       return `+${reward.amount} experience`;
+    case 'grant_skill': return `learned a new skill`;
+  }
+}
+```
+
+**`awardXp` is a new shared helper extracted from the existing inline level-up loop in `src/engine/combat.ts`'s `endCombat` victory branch.** It moves to `src/engine/progression.ts`:
+
+```ts
+export function awardXp(state: GameState, amount: number): GameState {
+  let s: GameState = {
+    ...state,
+    character: { ...state.character, xp: state.character.xp + amount }
+  };
+  const xpThreshold = (level: number) => level * 100;
+  while (s.character.xp >= xpThreshold(s.character.level)) {
+    s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level) } };
+    s = applyLevelUp(s);
+  }
+  return s;
+}
+```
+
+`combat.ts`'s `endCombat` is updated to call `awardXp(s, encounter.xpReward)` instead of duplicating the loop. Net effect: combat behavior is unchanged; the loop now has one home and quests reuse it.
+
+**Edge cases:**
+- `currency` with `amount: 0` is a no-op (no log clutter; the `formatReward` summary still prints "+0 leaves" — content authors should omit the reward entirely if they don't want a payoff).
+- `grant_skill` with a skill the character already knows is a no-op (the `includes` guard preserves idempotence).
+- `xp` triggering multiple level-ups loops the same way `endCombat` does — handled by `awardXp`.
 
 ---
 
@@ -398,6 +470,10 @@ const answer_the_call: Quest = {
         }
       ]
     }
+  ],
+  rewards: [
+    { kind: 'currency', amount: 50 },
+    { kind: 'xp', amount: 100 },
   ]
 };
 
@@ -428,7 +504,9 @@ All four class paths complete the quest cleanly via current Act I flow.
 ### 8.1 Engine tests
 
 - **`evalPredicate` `any_flag`** — true on at-least-one-truthy; false on all-falsy or missing flags.
-- **`checkQuests`** — activates a matching quest; doesn't re-activate an active quest; doesn't activate a completed quest; completes objectives in order; doesn't complete an objective whose predicate is unmet; finalizes a quest when all objectives done; doesn't mutate input.
+- **`checkQuests`** — activates a matching quest; doesn't re-activate an active quest; doesn't activate a completed quest; completes objectives in order; doesn't complete an objective whose predicate is unmet; finalizes a quest when all objectives done; applies rewards in order on finalization; emits QUEST and REWARD log entries; doesn't mutate input.
+- **`applyQuestReward`** — currency adds to character.currency; xp routes through awardXp (level-up loop intact); grant_skill is idempotent if the skill is already known.
+- **`awardXp` helper** — round-trips correctly with multi-level threshold loops; existing combat.ts behavior is preserved (one regression test asserting first_tax_rat victory still grants the same level/xp outcome it did pre-extraction).
 - **Save migration v2 → v3** — backfills three new fields on legacy saves; existing v3 saves round-trip cleanly; corrupted `story` substructures default-empty without throwing.
 - **The `answer_the_call` quest** — one test per objective verifying its trigger flag/visit; one full-flow test that the quest finalizes for at least one class path.
 
@@ -449,20 +527,22 @@ All four class paths complete the quest cleanly via current Act I flow.
 
 ### 8.4 Integration smoke (`src/__tests__/quests.e2e.test.ts`)
 
-- Farmboy run from `StartNewGame` → wound first_tax_rat to 1 HP → AttackTarget → enter crossroads → trigger `the_call` encounter → choose Accept → assert quest is in `completedQuests` and all four objectives are in `completedObjectives.answer_the_call`.
+- Farmboy run from `StartNewGame` → wound first_tax_rat to 1 HP → AttackTarget → enter crossroads → trigger `the_call` encounter → choose Accept → assert: quest is in `completedQuests`, all four objectives are in `completedObjectives.answer_the_call`, character has +50 leaves and the +100 xp's level-up effect (which combined with the act_ii milestone bump means level should be at least 3 by the time the quest resolves), QUEST and REWARD log entries are present.
 
 ### 8.5 Acceptance criteria
 
 The plan is shippable when:
 
-1. The single v1 quest exists in the registry; `validateContent` passes.
+1. The single v1 quest exists in the registry; `validateContent` passes (including `grant_skill` reward references resolve to known skill ids).
 2. The quest activates at game start (after StartNewGame), all four objectives complete in order through normal Act I play, and the quest finalizes on Accept (or on any of the three sticky resolution flags).
 3. Future objectives are never visible in the modal DOM.
 4. Completed objectives are collapsible per quest (component-local state; resets on modal close).
 5. Badge appears on new activation/completion; clears on open.
-6. "Consign this tale to the flames" wipes quest state along with the save; "Forget thy deeds" leaves quest state alone.
-7. Save v2 → v3 migration loads existing in-progress saves cleanly.
-8. All tests pass; tsc clean; build clean.
+6. On quest finalization, rewards apply (currency added, xp routed through `awardXp` with level-up loop) and QUEST + REWARD log entries appear.
+7. "Consign this tale to the flames" wipes quest state along with the save; "Forget thy deeds" leaves quest state alone.
+8. Save v2 → v3 migration loads existing in-progress saves cleanly.
+9. `combat.ts` regression: existing combat-victory XP/level-up behavior is unchanged after `awardXp` is extracted.
+10. All tests pass; tsc clean; build clean.
 
 ---
 
@@ -492,9 +572,11 @@ Achievements are account-level (own localStorage key); quests are per-run (in `s
 ## 10. Summary of net-new code
 
 ### Engine
-- `src/engine/types.ts`: add `QuestObjective`, `Quest` types; extend `Predicate` with `any_flag`; extend `GameState['story']` with three new fields.
+- `src/engine/types.ts`: add `QuestObjective`, `QuestReward`, `Quest` types; extend `Predicate` with `any_flag`; extend `GameState['story']` with four new fields.
 - `src/engine/story.ts`: add `any_flag` branch to `evalPredicate`.
-- `src/engine/quests.ts` (new): export `checkQuests(state)`.
+- `src/engine/quests.ts` (new): export `checkQuests(state)`; private helpers `applyQuestReward` and `formatReward`.
+- `src/engine/progression.ts`: extract `awardXp(state, amount)` from the inline loop currently in `combat.ts`.
+- `src/engine/combat.ts`: call `awardXp` instead of duplicating the level-up loop in `endCombat`.
 - `src/engine/events.ts`: call `checkQuests` after `checkBeats` in `reduce` and in `drainPendingEncounter`.
 - `src/engine/save.ts`: bump `SAVE_VERSION` to 3; add v2→v3 migration.
 - `src/engine/narrative.ts`: set `started_call_encounter` flag when `the_call` narrative encounter starts.
@@ -511,9 +593,11 @@ Achievements are account-level (own localStorage key); quests are per-run (in `s
 - `src/ui/WorldPanel.svelte`: add scroll button (third icon in `.header-actions`); mount modal; derive badge.
 
 ### Tests
-- `src/engine/__tests__/quests.test.ts` (new).
+- `src/engine/__tests__/quests.test.ts` (new): checkQuests, applyQuestReward, reward log entries.
 - `src/engine/__tests__/save.test.ts`: extend for v3 migration.
 - `src/engine/__tests__/story.test.ts`: extend for `any_flag` predicate.
+- `src/engine/__tests__/progression.test.ts`: extend for `awardXp` helper round-trip.
+- `src/engine/__tests__/combat.test.ts`: regression test asserting first_tax_rat victory grants the same outcome as before the `awardXp` extraction.
 - `src/ui/__tests__/QuestLogModal.test.ts` (new).
 - `src/ui/__tests__/WorldPanel.questlog.test.ts` (new): scroll button + badge.
-- `src/__tests__/quests.e2e.test.ts` (new): full Act I flow integration.
+- `src/__tests__/quests.e2e.test.ts` (new): full Act I flow integration including reward verification.

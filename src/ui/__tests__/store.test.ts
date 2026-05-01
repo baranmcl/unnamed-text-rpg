@@ -79,3 +79,29 @@ describe('store achievements integration', () => {
     expect(gameStore.achievements.unlockedCountAtLastOpen).toBe(gameStore.achievements.unlocked.length);
   });
 });
+
+describe('store quest log integration', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    gameStore.resetSave();
+    gameStore.forgetAchievements();
+  });
+
+  it('markQuestLogOpened snapshots questLogActivityCount into questLogActivityAtLastOpen', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    // After StartNewGame, the quest activates and increments the counter to 1.
+    expect(gameStore.state.story.questLogActivityCount).toBeGreaterThanOrEqual(1);
+    expect(gameStore.state.story.questLogActivityAtLastOpen).toBe(0);
+    gameStore.markQuestLogOpened();
+    expect(gameStore.state.story.questLogActivityAtLastOpen).toBe(gameStore.state.story.questLogActivityCount);
+  });
+
+  it('badge derivation: count > snapshot reflects unseen activity', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    // Quest activated; snapshot is 0; badge should show.
+    expect(gameStore.state.story.questLogActivityCount > gameStore.state.story.questLogActivityAtLastOpen).toBe(true);
+    gameStore.markQuestLogOpened();
+    // After open, count === snapshot; badge clears.
+    expect(gameStore.state.story.questLogActivityCount > gameStore.state.story.questLogActivityAtLastOpen).toBe(false);
+  });
+});

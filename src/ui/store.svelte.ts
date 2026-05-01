@@ -168,6 +168,20 @@ class GameStore {
     this.achievements = next;
   }
 
+  markQuestLogOpened(): void {
+    const next: GameState = {
+      ...this.state,
+      story: {
+        ...this.state.story,
+        questLogActivityAtLastOpen: this.state.story.questLogActivityCount
+      }
+    };
+    this.state = next;
+    if (this.state.settings.autoSave) {
+      this.scheduleAutosave();
+    }
+  }
+
   dismissToast(ach: Achievement): void {
     this.pendingToasts = this.pendingToasts.filter((a) => a.id !== ach.id);
   }

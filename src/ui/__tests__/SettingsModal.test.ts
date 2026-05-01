@@ -41,14 +41,14 @@ describe('SettingsModal', () => {
   });
 
   it('renders a "Forget thy deeds" button', () => {
-    const { getByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
-    expect(getByText(/forget thy deeds/i)).toBeInTheDocument();
+    const { getByRole } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    expect(getByRole('button', { name: /forget thy deeds/i })).toBeInTheDocument();
   });
 
   it('opens the crimson confirm overlay when "Forget thy deeds" is clicked', async () => {
-    const { getByText, queryByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    const { getByRole, getByText, queryByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
     expect(queryByText(/Forget thy deeds\?/)).toBeNull();
-    await fireEvent.click(getByText(/forget thy deeds/i));
+    await fireEvent.click(getByRole('button', { name: /forget thy deeds/i }));
     expect(getByText(/Forget thy deeds\?/)).toBeInTheDocument();
   });
 
@@ -57,13 +57,10 @@ describe('SettingsModal', () => {
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
 
-    const { getByText, getAllByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
-    await fireEvent.click(getByText(/forget thy deeds/i));
-    // The crimson confirmation has a "To the flames" button; the Consign confirmation
-    // also uses that text — pick the last one (which belongs to the Forget overlay
-    // since that's the one currently open).
-    const flamesButtons = getAllByText(/to the flames/i);
-    await fireEvent.click(flamesButtons[flamesButtons.length - 1]!);
+    const { getByRole } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    await fireEvent.click(getByRole('button', { name: /forget thy deeds/i }));
+    // Only the Forget overlay is open, so there is exactly one "To the flames" button.
+    await fireEvent.click(getByRole('button', { name: /^to the flames$/i }));
     expect(gameStore.achievements.unlocked.length).toBe(0);
   });
 });

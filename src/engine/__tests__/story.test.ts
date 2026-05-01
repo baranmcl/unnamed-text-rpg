@@ -41,6 +41,36 @@ describe('evalPredicate', () => {
     expect(evalPredicate(s, { kind: 'stage', stage: 'act_i' })).toBe(true);
     expect(evalPredicate(s, { kind: 'stage', stage: 'act_ii' })).toBe(false);
   });
+
+  it('flag_at_least returns true when numeric flag >= min', () => {
+    const s = freshState();
+    const base = { ...s, world: { ...s.world, flags: { count: 6 } } };
+    expect(evalPredicate(base, { kind: 'flag_at_least', flag: 'count', min: 6 })).toBe(true);
+    expect(evalPredicate(base, { kind: 'flag_at_least', flag: 'count', min: 7 })).toBe(false);
+  });
+
+  it('flag_at_least returns false when flag is missing or non-numeric', () => {
+    const s = freshState();
+    expect(evalPredicate(s, { kind: 'flag_at_least', flag: 'absent', min: 1 })).toBe(false);
+    const sStr = { ...s, world: { ...s.world, flags: { count: 'three' } } };
+    expect(evalPredicate(sStr, { kind: 'flag_at_least', flag: 'count', min: 1 })).toBe(false);
+  });
+
+  it('level_at_least returns true when character.level >= level', () => {
+    const s = freshState();
+    const at2 = { ...s, character: { ...s.character, level: 2 } };
+    expect(evalPredicate(s, { kind: 'level_at_least', level: 2 })).toBe(false);
+    expect(evalPredicate(at2, { kind: 'level_at_least', level: 2 })).toBe(true);
+    expect(evalPredicate(at2, { kind: 'level_at_least', level: 3 })).toBe(false);
+  });
+
+  it('currency_at_least returns true when character.currency >= n', () => {
+    const s = freshState();
+    const rich = { ...s, character: { ...s.character, currency: 100 } };
+    expect(evalPredicate(s, { kind: 'currency_at_least', n: 100 })).toBe(false);
+    expect(evalPredicate(rich, { kind: 'currency_at_least', n: 100 })).toBe(true);
+    expect(evalPredicate(rich, { kind: 'currency_at_least', n: 101 })).toBe(false);
+  });
 });
 
 describe('applyEffect', () => {

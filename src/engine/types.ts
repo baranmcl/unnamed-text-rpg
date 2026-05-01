@@ -357,7 +357,10 @@ export type Predicate =
   | { kind: 'flag'; flag: string; equals?: boolean | number | string }
   | { kind: 'visited'; locationId: LocationId }
   | { kind: 'beat_completed'; beatId: BeatId }
-  | { kind: 'stage'; stage: ActId };
+  | { kind: 'stage'; stage: ActId }
+  | { kind: 'flag_at_least'; flag: string; min: number }
+  | { kind: 'level_at_least'; level: number }
+  | { kind: 'currency_at_least'; n: number };
 
 export type BeatEffect =
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }

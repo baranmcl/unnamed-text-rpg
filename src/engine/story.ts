@@ -23,6 +23,14 @@ export function evalPredicate(state: GameState, p: Predicate): boolean {
       return state.story.completedBeats.includes(p.beatId);
     case 'stage':
       return state.story.stage === p.stage;
+    case 'flag_at_least': {
+      const v = state.world.flags[p.flag];
+      return typeof v === 'number' && v >= p.min;
+    }
+    case 'level_at_least':
+      return state.character.level >= p.level;
+    case 'currency_at_least':
+      return state.character.currency >= p.n;
   }
 }
 

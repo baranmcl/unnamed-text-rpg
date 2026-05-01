@@ -148,7 +148,7 @@ const BACKFIRES: BackfireKind[] = [
 registerSkillResolver('tempt_fate', (state) => {
   if (state.combat?.kind !== 'turn-based') return state;
 
-  state = {
+  let s: GameState = {
     ...state,
     world: {
       ...state.world,
@@ -157,7 +157,7 @@ registerSkillResolver('tempt_fate', (state) => {
   };
 
   // Apply guaranteed_crit (one-shot) to the player.
-  let s = applyStatus(state, { kind: 'combatant', combatantId: 'player' }, {
+  s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
     kind: 'guaranteed_crit',
     duration: { kind: 'one_shot' },
     source: 'Tempt Fate'

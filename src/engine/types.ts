@@ -360,7 +360,8 @@ export type Predicate =
   | { kind: 'stage'; stage: ActId }
   | { kind: 'flag_at_least'; flag: string; min: number }
   | { kind: 'level_at_least'; level: number }
-  | { kind: 'currency_at_least'; n: number };
+  | { kind: 'currency_at_least'; n: number }
+  | { kind: 'any_flag'; flags: string[] };
 
 export type BeatEffect =
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }

@@ -31,6 +31,8 @@ export function evalPredicate(state: GameState, p: Predicate): boolean {
       return state.character.level >= p.level;
     case 'currency_at_least':
       return state.character.currency >= p.n;
+    case 'any_flag':
+      return p.flags.some((f) => Boolean(state.world.flags[f]));
   }
 }
 

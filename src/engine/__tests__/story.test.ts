@@ -71,6 +71,31 @@ describe('evalPredicate', () => {
     expect(evalPredicate(rich, { kind: 'currency_at_least', n: 100 })).toBe(true);
     expect(evalPredicate(rich, { kind: 'currency_at_least', n: 101 })).toBe(false);
   });
+
+  it('any_flag returns true when at least one listed flag is truthy', () => {
+    const s = freshState();
+    const base = { ...s, world: { ...s.world, flags: { a: true, b: false } } };
+    expect(evalPredicate(base, { kind: 'any_flag', flags: ['a', 'b'] })).toBe(true);
+    expect(evalPredicate(base, { kind: 'any_flag', flags: ['b', 'c'] })).toBe(false);
+  });
+
+  it('any_flag returns false when all listed flags are missing', () => {
+    const s = freshState();
+    expect(evalPredicate(s, { kind: 'any_flag', flags: ['x', 'y', 'z'] })).toBe(false);
+  });
+
+  it('any_flag returns false when given an empty list', () => {
+    const s = freshState();
+    expect(evalPredicate(s, { kind: 'any_flag', flags: [] })).toBe(false);
+  });
+
+  it('any_flag accepts non-boolean truthy values (number > 0, non-empty string)', () => {
+    const s = freshState();
+    const flagsTrue = { ...s, world: { ...s.world, flags: { count: 1 } } };
+    expect(evalPredicate(flagsTrue, { kind: 'any_flag', flags: ['count'] })).toBe(true);
+    const flagsZero = { ...s, world: { ...s.world, flags: { count: 0 } } };
+    expect(evalPredicate(flagsZero, { kind: 'any_flag', flags: ['count'] })).toBe(false);
+  });
 });
 
 describe('applyEffect', () => {

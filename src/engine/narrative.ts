@@ -29,7 +29,7 @@ function pushNode(state: GameState, nodeId: NarrativeNodeId): GameState {
 export function startNarrativeEncounter(state: GameState, encounter: NarrativeEncounter): GameState {
   const node = content.narrativeNodes[encounter.rootNodeId];
   if (!node) return state;
-  const s: GameState = {
+  let s: GameState = {
     ...state,
     combat: {
       kind: 'narrative',
@@ -37,6 +37,13 @@ export function startNarrativeEncounter(state: GameState, encounter: NarrativeEn
       currentNodeId: encounter.rootNodeId
     }
   };
+  // Set the flag the answer_the_call quest's "Hear the Hermit out" objective listens for.
+  if (encounter.id === 'the_call') {
+    s = {
+      ...s,
+      world: { ...s.world, flags: { ...s.world.flags, started_call_encounter: true } }
+    };
+  }
   return pushNode(s, encounter.rootNodeId);
 }
 

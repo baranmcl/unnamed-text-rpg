@@ -4,6 +4,7 @@ import { content } from '../content';
 import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endCombat } from './combat';
 import { skillResolvers } from '../content/skills/resolvers';
 import { checkBeats } from './story';
+import { checkQuests } from './quests';
 import { startNarrativeEncounter, chooseNarrativeOption } from './narrative';
 import { rng } from './rng';
 
@@ -66,6 +67,7 @@ const CLASS_OPENING_LINES: Record<string, OpeningLine[]> = {
 export function reduce(state: GameState, event: GameEvent): GameState {
   let next = reduceInner(state, event);
   next = checkBeats(next);
+  next = checkQuests(next);
   // Handle any pending encounter trigger that beats may have queued.
   next = drainPendingEncounter(next);
   return next;
@@ -80,9 +82,9 @@ function drainPendingEncounter(state: GameState): GameState {
   let s: GameState = { ...state, world: { ...state.world, flags: cleared } };
   // Dispatch the encounter via reduceInner (NOT reduce — avoids infinite recursion).
   s = reduceInner(s, { kind: 'TriggerEncounter', encounterId: pending as EncounterId });
-  // Re-check beats in case the encounter starting unlocked other beats.
+  // Re-check beats and quests in case the encounter starting unlocked anything.
   s = checkBeats(s);
-  // (Don't re-drain — the encounter just started; another pending shouldn't queue from a single trigger.)
+  s = checkQuests(s);
   return s;
 }
 

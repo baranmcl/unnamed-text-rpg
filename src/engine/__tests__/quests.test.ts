@@ -2,25 +2,24 @@ import { describe, it, expect } from 'vitest';
 import { checkQuests } from '../quests';
 import { createInitialState } from '../state';
 import { reduce } from '../events';
-import { ClassId, LocationId, QuestId } from '../types';
+import { ClassId, EncounterId, LocationId, QuestId } from '../types';
 import { content } from '../../content';
 
 describe('checkQuests baseline', () => {
-  function withCharacter() {
-    let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    return s;
-  }
-
   it('returns a different state reference after activating quests', () => {
-    const s = withCharacter();
+    // Use createInitialState directly so no quests have been activated yet.
+    // (reduce(StartNewGame) now calls checkQuests internally, so using
+    //  withCharacter() here would give a state where quests are already active
+    //  and checkQuests would correctly return the same reference.)
+    const s = createInitialState(1);
     const out = checkQuests(s);
     // The registry is now populated; at least one quest activates for act_i characters.
     expect(out).not.toBe(s);
   });
 
   it('does not mutate the input state', () => {
-    const s = withCharacter();
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
     const before = JSON.stringify(s);
     checkQuests(s);
     expect(JSON.stringify(s)).toBe(before);
@@ -152,5 +151,49 @@ describe('checkQuests with the live registry', () => {
     };
     s = checkQuests(s);
     expect(s.story.completedQuests).toContain('answer_the_call');
+  });
+});
+
+describe('checkQuests integration via reduce', () => {
+  function withCharacter() {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    return s;
+  }
+
+  it('reduce activates answer_the_call after StartNewGame', () => {
+    const s = withCharacter();
+    expect(s.story.activeQuests).toContain('answer_the_call');
+  });
+
+  it('starting the_call encounter sets started_call_encounter flag', () => {
+    let s = withCharacter();
+    // Manually inject the unlock flag and visit so the encounter is reachable.
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, unlocked_crossroads: true },
+        visited: [...s.world.visited, LocationId('dusty_crossroads')]
+      }
+    };
+    // Trigger the call encounter directly.
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'the_call' as EncounterId });
+    expect(s.world.flags['started_call_encounter']).toBe(true);
+  });
+
+  it('hear_the_hermit objective completes via reduce after the encounter starts', () => {
+    let s = withCharacter();
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, unlocked_crossroads: true },
+        visited: [...s.world.visited, LocationId('dusty_crossroads')]
+      }
+    };
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'the_call' as EncounterId });
+    const done = s.story.completedObjectives[QuestId('answer_the_call')] ?? [];
+    expect(done).toContain('hear_the_hermit');
   });
 });

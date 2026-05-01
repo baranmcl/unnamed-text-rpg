@@ -4,20 +4,12 @@ import {
   saveAchievements,
   clearAchievements,
   isUnlocked,
+  defaultRecord,
   type AchievementsRecord
 } from '../achievements';
 import { AchievementId } from '../types';
 
 const KEY = 'heroicchronicle.achievements.v1';
-
-function fresh(): AchievementsRecord {
-  return {
-    unlocked: [],
-    played_classes: [],
-    tempt_fate_backfires_seen: [],
-    unlockedCountAtLastOpen: 0
-  };
-}
 
 describe('achievements persistence', () => {
   beforeEach(() => {
@@ -25,7 +17,7 @@ describe('achievements persistence', () => {
   });
 
   it('loadAchievements returns a default record when no key is set', () => {
-    expect(loadAchievements()).toEqual(fresh());
+    expect(loadAchievements()).toEqual(defaultRecord());
   });
 
   it('saveAchievements + loadAchievements round-trip', () => {
@@ -41,12 +33,12 @@ describe('achievements persistence', () => {
 
   it('loadAchievements returns default when stored value is corrupted', () => {
     localStorage.setItem(KEY, 'not-json{');
-    expect(loadAchievements()).toEqual(fresh());
+    expect(loadAchievements()).toEqual(defaultRecord());
   });
 
   it('loadAchievements returns default when stored value is missing required fields', () => {
     localStorage.setItem(KEY, JSON.stringify({ unlocked: [] }));
-    expect(loadAchievements()).toEqual(fresh());
+    expect(loadAchievements()).toEqual(defaultRecord());
   });
 
   it('clearAchievements removes the localStorage key', () => {
@@ -58,7 +50,7 @@ describe('achievements persistence', () => {
     });
     clearAchievements();
     expect(localStorage.getItem(KEY)).toBeNull();
-    expect(loadAchievements()).toEqual(fresh());
+    expect(loadAchievements()).toEqual(defaultRecord());
   });
 
   it('isUnlocked returns true iff id is in unlocked list', () => {

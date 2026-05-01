@@ -174,3 +174,30 @@ describe('Bard playable', () => {
     expect(s.character.equipment.weapon).toBe('dented_lute');
   });
 });
+
+describe('Tempt Fate achievement seeds', () => {
+  it('sets achievements.tempted_fate on use', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
+    s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
+    expect(s.world.flags['achievements.tempted_fate']).toBe(true);
+  });
+
+  it('sets __just_tempted_backfire to a known kind on backfire', () => {
+    const KNOWN = new Set(['trip', 'crit_yourself', 'weapon_mute', 'drop_shield', 'free_retaliation', 'wasted_prophecy']);
+    let observed: string | null = null;
+    for (let seed = 1; seed <= 2000 && observed === null; seed++) {
+      let s = createInitialState(seed);
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+      s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+      s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
+      s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
+      const v = s.world.flags['__just_tempted_backfire'];
+      if (typeof v === 'string') observed = v;
+    }
+    expect(observed).not.toBeNull();
+    expect(KNOWN.has(observed!)).toBe(true);
+  });
+});

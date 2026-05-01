@@ -148,6 +148,14 @@ const BACKFIRES: BackfireKind[] = [
 registerSkillResolver('tempt_fate', (state) => {
   if (state.combat?.kind !== 'turn-based') return state;
 
+  state = {
+    ...state,
+    world: {
+      ...state.world,
+      flags: { ...state.world.flags, 'achievements.tempted_fate': true }
+    }
+  };
+
   // Apply guaranteed_crit (one-shot) to the player.
   let s = applyStatus(state, { kind: 'combatant', combatantId: 'player' }, {
     kind: 'guaranteed_crit',
@@ -170,6 +178,14 @@ registerSkillResolver('tempt_fate', (state) => {
   // Pick a backfire uniformly via seeded RNG.
   const pick = rng.pick(s.rng, BACKFIRES);
   s = { ...s, rng: pick.state };
+
+  s = {
+    ...s,
+    world: {
+      ...s.world,
+      flags: { ...s.world.flags, __just_tempted_backfire: pick.value }
+    }
+  };
 
   switch (pick.value) {
     case 'trip':

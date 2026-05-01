@@ -35,10 +35,6 @@
       }
     }
 
-    return () => {
-      for (const t of timers.values()) clearTimeout(t);
-      timers.clear();
-    };
   });
 </script>
 

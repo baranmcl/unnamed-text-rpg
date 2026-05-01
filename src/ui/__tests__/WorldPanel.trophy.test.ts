@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import WorldPanel from '../WorldPanel.svelte';
 import { gameStore } from '../store.svelte';
 import { ClassId, AchievementId } from '../../engine/types';
@@ -51,5 +52,14 @@ describe('WorldPanel trophy chrome', () => {
     expect(queryByRole('dialog')).toBeNull();
     await fireEvent.click(getByLabelText(/view achievements/i));
     expect(queryByRole('dialog')).not.toBeNull();
+  });
+
+  it('clears the badge after the modal is opened', async () => {
+    gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
+    const { getByLabelText, container } = render(WorldPanel);
+    expect(container.querySelector('.trophy-badge')).not.toBeNull();
+    await fireEvent.click(getByLabelText(/view achievements/i));
+    await tick();
+    expect(container.querySelector('.trophy-badge')).toBeNull();
   });
 });

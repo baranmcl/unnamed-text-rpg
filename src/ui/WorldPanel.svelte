@@ -138,11 +138,11 @@
             <path d="M7 3 H17 V8 a5 5 0 0 1 -10 0 Z" />
             <path d="M7 5 H4 a3 3 0 0 0 3 4" />
             <path d="M17 5 H20 a3 3 0 0 1 -3 4" />
-            <path d="M12 13 V17" />
+            <path d="M12 8 V17" />
             <path d="M9 17 H15 V20 H9 Z" />
           </svg>
           {#if newSinceLastOpen > 0}
-            <span class="trophy-badge" aria-label="{newSinceLastOpen} new">●</span>
+            <span class="trophy-badge" aria-label="{newSinceLastOpen} new"></span>
           {/if}
         </button>
       <button
@@ -521,11 +521,12 @@
   }
   .trophy-badge {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    color: var(--gilt);
-    font-size: 14px;
-    line-height: 1;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gilt);
     pointer-events: none;
   }
 </style>

@@ -1,5 +1,5 @@
 import type {
-  GameState, LogEntry, Quest, QuestId, QuestReward
+  GameState, LogEntry, QuestReward
 } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
@@ -40,16 +40,12 @@ function formatReward(reward: QuestReward): string {
 
 export function checkQuests(state: GameState): GameState {
   let s = state;
-  // Guard: registry may be empty if the content/quests/index.ts file isn't yet
-  // wired up (Task 6 lands the registry; this module is also independently
-  // testable in Task 5 without the registry).
-  const registry = (content as { quests?: Record<QuestId, Quest> }).quests ?? {};
   let changed = true;
   let iters = 0;
   while (changed && iters < 8) {
     changed = false;
     iters++;
-    for (const quest of Object.values(registry) as Quest[]) {
+    for (const quest of Object.values(content.quests)) {
       const isActive = s.story.activeQuests.includes(quest.id);
       const isCompleted = s.story.completedQuests.includes(quest.id);
 

@@ -8,7 +8,8 @@ import type {
   NarrativeNode, NarrativeNodeId,
   NarrativeResolver, NarrativeResolverId,
   Skill, SkillId,
-  StoryBeat, BeatId
+  StoryBeat, BeatId,
+  Quest, QuestId
 } from '../engine/types';
 
 // Each per-type file exports a single object literal keyed by id.
@@ -25,6 +26,7 @@ import { narrativeNodes } from './narrative/nodes';
 import { narrativeResolvers } from './narrative/resolvers';
 import { skillResolvers } from './skills/resolvers';
 import { achievements } from './achievements';
+import { quests } from './quests';
 
 export const content = {
   items: items as Record<ItemId, Item>,
@@ -36,7 +38,8 @@ export const content = {
   beats: beats as Record<BeatId, StoryBeat>,
   narrativeNodes: narrativeNodes as Record<NarrativeNodeId, NarrativeNode>,
   narrativeResolvers: narrativeResolvers as Record<NarrativeResolverId, NarrativeResolver>,
-  achievements: achievements as Record<AchievementId, Achievement>
+  achievements: achievements as Record<AchievementId, Achievement>,
+  quests: quests as Record<QuestId, Quest>
 };
 
 export class ContentValidationError extends Error {}
@@ -110,6 +113,26 @@ export function validateContent(): void {
     for (const p of ach.preconditions) {
       if (p.kind === 'beat_completed' && !(p.beatId in content.beats)) {
         errors.push(`Achievement ${ach.id} references unknown beat ${p.beatId}.`);
+      }
+    }
+  }
+
+  // Quest preconditions / objective predicates / grant_skill rewards
+  // reference known beats / skills where statically determinable. Predicates
+  // referencing flags that no current code sets are intentionally allowed.
+  for (const quest of Object.values(content.quests)) {
+    const allPreds = [
+      ...quest.activatePredicate,
+      ...quest.objectives.flatMap((o) => o.completePredicate)
+    ];
+    for (const p of allPreds) {
+      if (p.kind === 'beat_completed' && !(p.beatId in content.beats)) {
+        errors.push(`Quest ${quest.id} references unknown beat ${p.beatId}.`);
+      }
+    }
+    for (const reward of quest.rewards ?? []) {
+      if (reward.kind === 'grant_skill' && !(reward.skillId in content.skills)) {
+        errors.push(`Quest ${quest.id} grant_skill references unknown skill ${reward.skillId}.`);
       }
     }
   }

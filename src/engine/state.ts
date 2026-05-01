@@ -34,7 +34,11 @@ export function createInitialState(seed: number): GameState {
       stage: 'act_i',
       currentBeat: null,
       completedBeats: [],
-      activeQuests: []
+      activeQuests: [],
+      completedQuests: [],
+      completedObjectives: {},
+      questLogActivityCount: 0,
+      questLogActivityAtLastOpen: 0
     },
     combat: null,
     log: [],
@@ -108,7 +112,11 @@ export function createDemoState(): GameState {
       stage: 'act_i',
       currentBeat: null,
       completedBeats: [],
-      activeQuests: []
+      activeQuests: [],
+      completedQuests: [],
+      completedObjectives: {},
+      questLogActivityCount: 0,
+      questLogActivityAtLastOpen: 0
     },
     combat: null,
     log,

@@ -336,6 +336,10 @@ export type GameState = {
     currentBeat: BeatId | null;
     completedBeats: BeatId[];
     activeQuests: QuestId[];
+    completedQuests: QuestId[];
+    completedObjectives: Record<QuestId, string[]>;
+    questLogActivityCount: number;
+    questLogActivityAtLastOpen: number;
   };
   combat: CombatState | null;
   log: LogEntry[]; // capped at MAX_LOG_ENTRIES
@@ -347,7 +351,7 @@ export type GameState = {
 };
 
 export const MAX_LOG_ENTRIES = 200;
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 // =====================================================================
 // Story beats (Plan 3)
@@ -392,4 +396,29 @@ export type Achievement = {
   preconditions: Predicate[];   // ALL must be true
   hidden?: boolean;             // entry invisible in panel until earned
   descriptionHidden?: boolean;  // name visible but description = "?" until earned
+};
+
+// =====================================================================
+// Quests (Plan 4.6)
+// =====================================================================
+
+export type QuestObjective = {
+  id: string;                       // unique within the quest
+  label: string;                    // imperative copy ("Travel to the Crossroads.")
+  completePredicate: Predicate[];   // ALL must be true for objective to complete
+};
+
+export type QuestReward =
+  | { kind: 'currency'; amount: number }
+  | { kind: 'xp'; amount: number }
+  | { kind: 'grant_skill'; skillId: SkillId };
+
+export type Quest = {
+  id: QuestId;
+  title: string;
+  description: string;              // short tagline shown under the title
+  kind: 'main' | 'side';
+  activatePredicate: Predicate[];   // ALL must be true for quest to activate
+  objectives: QuestObjective[];     // ordered; objective N+1 is hidden until N is done
+  rewards?: QuestReward[];          // applied in order on quest finalization; optional
 };

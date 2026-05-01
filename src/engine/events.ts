@@ -143,7 +143,11 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           stage: 'act_i',
           currentBeat: null,
           completedBeats: [],
-          activeQuests: []
+          activeQuests: [],
+          completedQuests: [],
+          completedObjectives: {},
+          questLogActivityCount: 0,
+          questLogActivityAtLastOpen: 0
         },
         combat: null,
         log: []

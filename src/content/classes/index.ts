@@ -18,7 +18,9 @@ export const classes: Record<ClassId, CharacterClass> = {
     openingLocationId: LocationId('family_farm'),
     // Plan 5 wires this to a real narrative node for the full opening scene.
     // For Plan 2 the StartNewGame reducer emits a short opener directly.
-    openingNarrativeNodeId: NarrativeNodeId('farmboy_opening_short')
+    openingNarrativeNodeId: NarrativeNodeId('farmboy_opening_short'),
+    hpLabel: 'Pluck',
+    mpLabel: 'Wits'
   },
   [ClassId('disgraced_knight')]: {
     id: ClassId('disgraced_knight'),
@@ -35,7 +37,9 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('brute_force'),
     openingLocationId: LocationId('quartermasters_yard'),
-    openingNarrativeNodeId: NarrativeNodeId('knight_opening_short')
+    openingNarrativeNodeId: NarrativeNodeId('knight_opening_short'),
+    hpLabel: 'Honor',
+    mpLabel: 'Discipline'
   },
   [ClassId('accidental_wizard')]: {
     id: ClassId('accidental_wizard'),
@@ -52,7 +56,9 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('out_think_it'),
     openingLocationId: LocationId('burning_library'),
-    openingNarrativeNodeId: NarrativeNodeId('wizard_opening_short')
+    openingNarrativeNodeId: NarrativeNodeId('wizard_opening_short'),
+    hpLabel: 'Composure',
+    mpLabel: 'Mana'
   },
   [ClassId('bard')]: {
     id: ClassId('bard'),
@@ -69,6 +75,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('swagger'),
     openingLocationId: LocationId('tavern_dressing_room'),
-    openingNarrativeNodeId: NarrativeNodeId('bard_opening_short')
+    openingNarrativeNodeId: NarrativeNodeId('bard_opening_short'),
+    hpLabel: 'Confidence',
+    mpLabel: 'Vibes'
   }
 };

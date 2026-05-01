@@ -23,8 +23,21 @@ const callRoot: NarrativeNode = {
   ]
 };
 
+const hermitLingering: NarrativeNode = {
+  id: NarrativeNodeId('hermit_lingering'),
+  speaker: 'Old Hermit',
+  prose:
+    '"Still here? I would have thought heroes ran toward their fates, not paced about. ' +
+    "Off you go, then. The road won't cross itself.\""
+,
+  choices: [
+    { label: '("Off I go, then.")', resolve: 'hermit_dismiss' }
+  ]
+};
+
 export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [callRoot.id]: callRoot,
+  [hermitLingering.id]: hermitLingering,
   [farmboy_opening_short.id]: farmboy_opening_short,
   [knight_opening_short.id]: knight_opening_short,
   [wizard_opening_short.id]: wizard_opening_short,

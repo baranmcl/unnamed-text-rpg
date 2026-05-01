@@ -131,6 +131,8 @@ const open_with_heckler: NarrativeResolver = (state) => {
   return { state: next, next: null };
 };
 
+const hermit_dismiss: NarrativeResolver = (state) => ({ state, next: null });
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -138,5 +140,6 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   call_cry,
   open_with_pell,
   open_with_footnote,
-  open_with_heckler
+  open_with_heckler,
+  hermit_dismiss
 };

@@ -162,6 +162,7 @@ export type Location = {
   act: ActId;
   description: string;
   reEntryDescription?: string;
+  ambientLines?: string[];      // pool of re-entry alternates; uniformly picked alongside reEntryDescription
   exits: Exit[];
   encounterIds?: EncounterId[];
   npcIds?: NpcId[];
@@ -179,6 +180,8 @@ export type CharacterClass = {
   signatureMove: SkillId;
   openingLocationId: LocationId;
   openingNarrativeNodeId: NarrativeNodeId;
+  hpLabel?: string;       // class-flavored synonym for HP (e.g. Bard "Confidence"); defaults to "HP"
+  mpLabel?: string;       // class-flavored synonym for MP (e.g. Bard "Vibes"); defaults to "MP"
 };
 
 // =====================================================================
@@ -211,6 +214,7 @@ export type CombatEncounter = {
   xpReward: number;
   repeatable?: boolean;
   endsByReasoning?: boolean;   // NEW: Out-Think It auto-resolves the fight as victory
+  visibleIfFlag?: string;      // if set, encounter button only appears when flag is truthy
 };
 
 // =====================================================================
@@ -239,6 +243,8 @@ export type NarrativeEncounter = {
   kind: 'narrative';
   rootNodeId: NarrativeNodeId;
   noFlee?: boolean;
+  label?: string;               // optional button label; defaults to "Investigate"
+  visibleIfFlag?: string;       // if set, encounter button only appears when flag is truthy
 };
 
 export type NarrativeResolver = (state: GameState) => { state: GameState; next: NarrativeNodeId | null };
@@ -266,14 +272,17 @@ export type LogEntryKind =
   | 'combat'
   | 'loot'
   | 'scene-divider'
-  | 'act-banner';
+  | 'act-banner'
+  | 'image';
 
 export type LogEntry = {
   id: number;            // monotonically increasing
   kind: LogEntryKind;
-  text: string;
+  text: string;          // image: alt-text for accessibility
   speaker?: string;      // dialogue only
   systemLabel?: string;  // system only (e.g. "EXP.", "OFFERED")
+  src?: string;          // image only — URL/path resolved by Vite asset import
+  caption?: string;      // image only — optional caption rendered below the figure
 };
 
 export type CombatState =

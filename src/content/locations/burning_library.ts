@@ -10,6 +10,12 @@ export const burning_library: Location = {
     'is also being polite, for now. Your robes drag. Your staff hums. Your tome insists, in three margins simultaneously, ' +
     'that the situation is fine.',
   reEntryDescription: 'The library has not improved its situation, but the smoke continues its contemplative work.',
+  ambientLines: [
+    'The smoke describes a polite figure-eight and continues.',
+    'A page corner curls. The book in question pretends not to notice.',
+    'A cantrip you forgot you cast politely apologizes from a high shelf.',
+    'Three margins simultaneously suggest a fourth interpretation.'
+  ],
   exits: [
     { label: 'Take the Cobbled Walk', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_cobbled_walk' }
   ],

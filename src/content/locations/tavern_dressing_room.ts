@@ -9,6 +9,12 @@ export const tavern_dressing_room: Location = {
     'Ten minutes to curtain. Through the curtain, the audience is already exercising its vowels. ' +
     'One of those vowels is yours.',
   reEntryDescription: 'The dressing room is the dressing room. The candles are slightly more melted.',
+  ambientLines: [
+    'The candle gutters. The candle re-gutters.',
+    'Through the curtain, a single audience member coughs in a key not quite chosen.',
+    'Your reflection adjusts something only it can see.',
+    'A stagehand passes the door at speed and does not knock, on principle.'
+  ],
   exits: [
     { label: 'Slip out the back-alley', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_back_alley' }
   ],

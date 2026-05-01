@@ -77,13 +77,21 @@
 
   function encounterLabel(encounterId: EncounterId): string {
     const enc = content.encounters[encounterId];
-    if (!enc || enc.kind !== 'combat') return 'Investigate';
+    if (!enc) return 'Investigate';
+    if (enc.kind === 'narrative') return enc.label ?? 'Investigate';
     const monster = content.monsters[enc.monsterId];
     return monster ? `Confront ${monster.name}` : 'Investigate';
   }
 
   function isEncounterDefeated(encId: EncounterId): boolean {
     return Boolean(gameStore.state.world.flags[`defeated:${encId}`]);
+  }
+
+  function isEncounterVisible(encId: EncounterId): boolean {
+    const enc = content.encounters[encId];
+    if (!enc) return false;
+    if (enc.visibleIfFlag && !gameStore.state.world.flags[enc.visibleIfFlag]) return false;
+    return true;
   }
 
   // Fix 5: Auto-scroll log to bottom on new entries.
@@ -147,6 +155,11 @@
           <div class="entry act-banner">
             <span class="act-banner-text">{entry.text}</span>
           </div>
+        {:else if entry.kind === 'image' && entry.src}
+          <figure class="entry image">
+            <img src={entry.src} alt={entry.text} />
+            {#if entry.caption}<figcaption>{entry.caption}</figcaption>{/if}
+          </figure>
         {/if}
       {/each}
     </div>
@@ -168,7 +181,7 @@
           </button>
         {/if}
       {/each}
-      {#each (currentLocation.encounterIds ?? []).filter((id) => !isEncounterDefeated(id)) as encId (encId)}
+      {#each (currentLocation.encounterIds ?? []).filter((id) => !isEncounterDefeated(id) && isEncounterVisible(id)) as encId (encId)}
         <button class="btn" type="button" onclick={() => confront(encId)}>{encounterLabel(encId)}</button>
       {/each}
       {#each currentLocation.restSpots ?? [] as spot (spot.id)}
@@ -358,6 +371,23 @@
     padding: 18px 0;
     border-top: 1px solid var(--gilt);
     border-bottom: 1px solid var(--gilt);
+  }
+  .image {
+    margin: 24px auto;
+    text-align: center;
+  }
+  .image img {
+    max-width: min(100%, 360px);
+    height: auto;
+    display: inline-block;
+  }
+  .image figcaption {
+    margin-top: 8px;
+    font-family: var(--serif-display);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
   }
   .act-banner-text {
     font-family: var(--serif-display);

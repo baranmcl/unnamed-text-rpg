@@ -62,6 +62,11 @@
 
   let c = $derived(gameStore.state.character);
 
+  // Class-flavored synonyms for HP/MP (e.g. Bard "Confidence" / "Vibes").
+  // Default to "HP"/"MP" for any class that doesn't supply one.
+  let hpLabel = $derived(content.classes[c.classId]?.hpLabel ?? 'HP');
+  let mpLabel = $derived(content.classes[c.classId]?.mpLabel ?? 'MP');
+
   // During combat, prefer the player combatant's statuses array — that's where
   // combat-scoped statuses (intimidated, weapon_suspended, guaranteed_crit, etc.)
   // live. Out of combat, fall back to character.statuses (world-scoped only).
@@ -164,11 +169,11 @@
     </button>
     {#if !collapsed.vitals}
       <div class="vitals">
-        <span class="label">HP</span>
+        <span class="label" title="Hit points">{hpLabel}</span>
         <div class="bar"><div class="fill hp" style:width="{pct(c.hp.current, c.hp.max)}%"></div></div>
         <span class="value">{c.hp.current} / {c.hp.max}</span>
 
-        <span class="label">MP</span>
+        <span class="label" title="Mana points">{mpLabel}</span>
         <div class="bar"><div class="fill mp" style:width="{pct(c.mp.current, c.mp.max)}%"></div></div>
         <span class="value">{c.mp.current} / {c.mp.max}</span>
 

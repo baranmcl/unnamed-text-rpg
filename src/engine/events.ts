@@ -5,6 +5,7 @@ import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endC
 import { skillResolvers } from '../content/skills/resolvers';
 import { checkBeats } from './story';
 import { startNarrativeEncounter, chooseNarrativeOption } from './narrative';
+import { rng } from './rng';
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
@@ -147,15 +148,34 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
       const loc = content.locations[event.locationId];
       if (!loc) return state;
       const isReentry = state.world.visited.includes(event.locationId);
-      const text = isReentry ? loc.reEntryDescription ?? loc.description : loc.description;
+
+      // Re-entry text picks uniformly from [reEntryDescription, ...ambientLines]
+      // via the seeded RNG, so each return to a location has a chance of fresh
+      // texture without losing the canonical re-entry line.
+      let text: string;
+      let nextRng = state.rng;
+      if (isReentry) {
+        const canonical = loc.reEntryDescription ?? loc.description;
+        const candidates = [canonical, ...(loc.ambientLines ?? [])];
+        if (candidates.length > 1) {
+          const pick = rng.pick(nextRng, candidates);
+          nextRng = pick.state;
+          text = pick.value;
+        } else {
+          text = canonical;
+        }
+      } else {
+        text = loc.description;
+      }
+
       const visited = isReentry ? state.world.visited : [...state.world.visited, event.locationId].sort();
       // Clear log on actual location transition, unless the caller requests we preserve it.
       const isLocationChange = state.world.currentLocation !== event.locationId;
       const shouldClear = isLocationChange && !event.preserveLog;
       const worldUpdate = { ...state.world, currentLocation: event.locationId, visited };
       const baseState = shouldClear
-        ? { ...state, log: [], world: worldUpdate }
-        : { ...state, world: worldUpdate };
+        ? { ...state, log: [], world: worldUpdate, rng: nextRng }
+        : { ...state, world: worldUpdate, rng: nextRng };
       return appendLogs(baseState, [{ kind: 'narration', text }]);
     }
 

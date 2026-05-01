@@ -10,6 +10,12 @@ export const family_farm: Location = {
     'unmistakable sound of someone *filing*.',
   reEntryDescription:
     'The farm continues to be the farm. The chickens have moved on to a more polished list of grievances.',
+  ambientLines: [
+    'A chicken passes you carrying what may be a grievance.',
+    'The wind brings the smell of distant onions.',
+    'From the barn comes a single, unhurried snort.',
+    'Somewhere, a fence post leans into the labour movement.'
+  ],
   exits: [
     // Crossroads exit unlocks via the hermit_beckons beat.
     { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' }

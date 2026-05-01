@@ -1,4 +1,4 @@
-import { LocationId, type Location } from '../../engine/types';
+import { LocationId, EncounterId, type Location } from '../../engine/types';
 
 export const dusty_crossroads: Location = {
   id: LocationId('dusty_crossroads'),
@@ -10,6 +10,12 @@ export const dusty_crossroads: Location = {
     'Wind carries the faint smell of onions and minor prophecy.',
   reEntryDescription:
     'The crossroads remains crossed. The signpost remains drunken. Some things are forever.',
+  ambientLines: [
+    'A leaf crosses the road and visibly reconsiders.',
+    'The signpost creaks once, meaningfully, then settles.',
+    'Far off, a cow lows. The cow has not, you note, been informed.',
+    'A small cloud passes overhead at exactly the speed of foreshadowing.'
+  ],
   exits: [
     {
       label: 'Back to the family farm',
@@ -41,5 +47,5 @@ export const dusty_crossroads: Location = {
       disabledTooltip: 'The road is yet unwritten.'
     }
   ],
-  encounterIds: []
+  encounterIds: [EncounterId('hermit_lingering')]
 };

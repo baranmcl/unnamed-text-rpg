@@ -95,6 +95,10 @@ describe('evalPredicate', () => {
     expect(evalPredicate(flagsTrue, { kind: 'any_flag', flags: ['count'] })).toBe(true);
     const flagsZero = { ...s, world: { ...s.world, flags: { count: 0 } } };
     expect(evalPredicate(flagsZero, { kind: 'any_flag', flags: ['count'] })).toBe(false);
+    const flagsStr = { ...s, world: { ...s.world, flags: { label: 'hero' } } };
+    expect(evalPredicate(flagsStr, { kind: 'any_flag', flags: ['label'] })).toBe(true);
+    const flagsEmpty = { ...s, world: { ...s.world, flags: { label: '' } } };
+    expect(evalPredicate(flagsEmpty, { kind: 'any_flag', flags: ['label'] })).toBe(false);
   });
 });
 

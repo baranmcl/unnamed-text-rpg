@@ -5,9 +5,12 @@ import {
   clearAchievements,
   isUnlocked,
   defaultRecord,
+  checkAchievements,
   type AchievementsRecord
 } from '../achievements';
 import { AchievementId } from '../types';
+import { createInitialState } from '../state';
+import { ClassId } from '../types';
 
 const KEY = 'heroicchronicle.achievements.v1';
 
@@ -62,5 +65,31 @@ describe('achievements persistence', () => {
     };
     expect(isUnlocked(r, AchievementId('a'))).toBe(true);
     expect(isUnlocked(r, AchievementId('c'))).toBe(false);
+  });
+});
+
+describe('checkAchievements', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  function withCharacter() {
+    let s = createInitialState(1);
+    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmboy'), level: 1 } };
+    return s;
+  }
+
+  it('returns no newlyUnlocked when registry is empty', () => {
+    const s = withCharacter();
+    const out = checkAchievements(s, defaultRecord());
+    expect(out.newlyUnlocked).toEqual([]);
+  });
+
+  it('does not mutate the input record', () => {
+    const s = withCharacter();
+    const r = defaultRecord();
+    const before = JSON.stringify(r);
+    checkAchievements(s, r);
+    expect(JSON.stringify(r)).toBe(before);
   });
 });

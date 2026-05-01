@@ -1,4 +1,6 @@
-import type { AchievementId, GameState } from './types';
+import { content } from '../content';
+import { evalPredicate } from './story';
+import type { AchievementId, GameState, Achievement } from './types';
 
 const STORAGE_KEY = 'heroicchronicle.achievements.v1';
 
@@ -61,10 +63,40 @@ export function isUnlocked(record: AchievementsRecord, id: AchievementId): boole
   return record.unlocked.includes(id);
 }
 
-// checkAchievements is added in Task 3.
 export function checkAchievements(
-  _state: GameState,
+  state: GameState,
   record: AchievementsRecord
 ): { record: AchievementsRecord; newlyUnlocked: AchievementId[] } {
-  return { record, newlyUnlocked: [] };
+  // Synthesize account-level counters as virtual flags so the existing
+  // predicate evaluator can reach them via flag_at_least.
+  const virtualState: GameState = {
+    ...state,
+    world: {
+      ...state.world,
+      flags: {
+        ...state.world.flags,
+        '__account.played_classes.count': record.played_classes.length,
+        '__account.backfires_seen.count': record.tempt_fate_backfires_seen.length
+      }
+    }
+  };
+
+  const newlyUnlocked: AchievementId[] = [];
+  const already = new Set(record.unlocked);
+
+  // Guard: registry is wired up in Task 4. Until then, gracefully no-op.
+  const registry = (content as { achievements?: Record<string, Achievement> }).achievements ?? {};
+  for (const ach of Object.values(registry) as Achievement[]) {
+    if (already.has(ach.id)) continue;
+    const allMet = ach.preconditions.every((p) => evalPredicate(virtualState, p));
+    if (allMet) newlyUnlocked.push(ach.id);
+  }
+
+  if (newlyUnlocked.length === 0) return { record, newlyUnlocked: [] };
+
+  const nextRecord: AchievementsRecord = {
+    ...record,
+    unlocked: [...record.unlocked, ...newlyUnlocked]
+  };
+  return { record: nextRecord, newlyUnlocked };
 }

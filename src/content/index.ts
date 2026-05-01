@@ -1,4 +1,5 @@
 import type {
+  Achievement, AchievementId,
   CharacterClass, ClassId,
   Encounter, EncounterId,
   Item, ItemId,
@@ -23,6 +24,7 @@ import { beats } from './story/beats';
 import { narrativeNodes } from './narrative/nodes';
 import { narrativeResolvers } from './narrative/resolvers';
 import { skillResolvers } from './skills/resolvers';
+import { achievements } from './achievements';
 
 export const content = {
   items: items as Record<ItemId, Item>,
@@ -33,7 +35,8 @@ export const content = {
   skills: skills as Record<SkillId, Skill>,
   beats: beats as Record<BeatId, StoryBeat>,
   narrativeNodes: narrativeNodes as Record<NarrativeNodeId, NarrativeNode>,
-  narrativeResolvers: narrativeResolvers as Record<NarrativeResolverId, NarrativeResolver>
+  narrativeResolvers: narrativeResolvers as Record<NarrativeResolverId, NarrativeResolver>,
+  achievements: achievements as Record<AchievementId, Achievement>
 };
 
 export class ContentValidationError extends Error {}
@@ -97,6 +100,17 @@ export function validateContent(): void {
   for (const skill of Object.values(content.skills)) {
     if (!(skill.resolverId in skillResolvers)) {
       errors.push(`Skill ${skill.id} resolverId ${skill.resolverId} is not registered.`);
+    }
+  }
+
+  // Achievement preconditions reference known beats/stages where statically
+  // determinable. Flag predicates are not validated (achievement_seed.* flags
+  // are intentionally unset by current code; Plan 5+ owns them).
+  for (const ach of Object.values(content.achievements)) {
+    for (const p of ach.preconditions) {
+      if (p.kind === 'beat_completed' && !(p.beatId in content.beats)) {
+        errors.push(`Achievement ${ach.id} references unknown beat ${p.beatId}.`);
+      }
     }
   }
 

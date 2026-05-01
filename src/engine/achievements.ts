@@ -1,6 +1,6 @@
 import { content } from '../content';
 import { evalPredicate } from './story';
-import type { AchievementId, GameState, Achievement } from './types';
+import type { AchievementId, GameState } from './types';
 
 const STORAGE_KEY = 'heroicchronicle.achievements.v1';
 
@@ -84,9 +84,7 @@ export function checkAchievements(
   const newlyUnlocked: AchievementId[] = [];
   const already = new Set(record.unlocked);
 
-  // Guard: registry is wired up in Task 4. Until then, gracefully no-op.
-  const registry = (content as { achievements?: Record<string, Achievement> }).achievements ?? {};
-  for (const ach of Object.values(registry) as Achievement[]) {
+  for (const ach of Object.values(content.achievements)) {
     if (already.has(ach.id)) continue;
     const allMet = ach.preconditions.every((p) => evalPredicate(virtualState, p));
     if (allMet) newlyUnlocked.push(ach.id);

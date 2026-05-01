@@ -2,7 +2,7 @@ import { content } from '../content';
 import { evalPredicate } from './story';
 import type { AchievementId, GameState } from './types';
 
-const STORAGE_KEY = 'heroicchronicle.achievements.v1';
+export const ACHIEVEMENTS_STORAGE_KEY = 'heroicchronicle.achievements.v1';
 
 export type AchievementsRecord = {
   unlocked: AchievementId[];
@@ -33,7 +33,7 @@ function isValidShape(v: unknown): v is AchievementsRecord {
 
 export function loadAchievements(): AchievementsRecord {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY);
     if (!raw) return defaultRecord();
     const parsed = JSON.parse(raw);
     if (!isValidShape(parsed)) return defaultRecord();
@@ -45,7 +45,7 @@ export function loadAchievements(): AchievementsRecord {
 
 export function saveAchievements(record: AchievementsRecord): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(record));
   } catch {
     /* quota exceeded / private mode — ignore */
   }
@@ -53,7 +53,7 @@ export function saveAchievements(record: AchievementsRecord): void {
 
 export function clearAchievements(): void {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(ACHIEVEMENTS_STORAGE_KEY);
   } catch {
     /* ignore */
   }

@@ -9,7 +9,7 @@ import {
 import { content } from '../content';
 import type { GameState, Achievement } from '../engine/types';
 
-const SAVE_KEY = 'heroicchronicle.save.v1';
+export const SAVE_KEY = 'heroicchronicle.save.v1';
 const AUTOSAVE_DEBOUNCE_MS = 500;
 
 function loadOrCreate(): GameState {

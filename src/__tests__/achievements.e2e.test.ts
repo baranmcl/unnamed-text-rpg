@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { gameStore } from '../ui/store.svelte';
+import { gameStore, SAVE_KEY } from '../ui/store.svelte';
 import { ClassId, EncounterId, AchievementId, type GameState } from '../engine/types';
-import { loadAchievements } from '../engine/achievements';
+import { loadAchievements, ACHIEVEMENTS_STORAGE_KEY } from '../engine/achievements';
 
 describe('achievements e2e', () => {
   beforeEach(() => {
@@ -22,6 +22,9 @@ describe('achievements e2e', () => {
         combatants: gameStore.state.combat.combatants.map((c) => (c.id === monsterId ? { ...c, hp: 1 } : c))
       }
     };
+    // Cheat: drop the monster to 1 HP so the next attack resolves as a kill.
+    // The dispatch path is NOT bypassed — AttackTarget below runs through the
+    // full reducer and achievement check.
     gameStore.state = woundedState;
     gameStore.dispatch({ kind: 'AttackTarget' });
 
@@ -51,9 +54,9 @@ describe('achievements e2e', () => {
 
     gameStore.forgetAchievements();
     expect(gameStore.achievements.unlocked).toEqual([]);
-    expect(localStorage.getItem('heroicchronicle.achievements.v1')).toBeNull();
+    expect(localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY)).toBeNull();
     expect(gameStore.state.character.name).toBe(beforeName);
-    expect(localStorage.getItem('heroicchronicle.save.v1')).not.toBeNull();
+    expect(localStorage.getItem(SAVE_KEY)).not.toBeNull();
   });
 
   it('moonlit toast is queued and a system log entry appears in the same tick', () => {

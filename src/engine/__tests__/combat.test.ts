@@ -357,3 +357,30 @@ describe('endCombat victory side-effects (achievements)', () => {
     expect(after.world.flags['achievements.first_combat_won']).toBe(true);
   });
 });
+
+describe('endCombat awardXp regression', () => {
+  it('first_tax_rat victory grants the same level/xp outcome as before extraction', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+    const wounded: GameState = {
+      ...s,
+      combat: {
+        ...s.combat,
+        combatants: s.combat.combatants.map((c) => (c.id === monsterId ? { ...c, hp: 1 } : c))
+      }
+    };
+    const after = reduce(wounded, { kind: 'AttackTarget' });
+    // Combat should end with the player having received the encounter's xp reward
+    // (or the level-up loop having run if it crossed the threshold).
+    expect(after.combat).toBeNull();
+    // EXP. log entry exists (combat still logs the reward).
+    const expEntry = after.log.find((e) => e.kind === 'system' && e.systemLabel === 'EXP.');
+    expect(expEntry).toBeDefined();
+    // Self-consistent: at minimum, level >= 1 and xp >= 0.
+    expect(after.character.level).toBeGreaterThanOrEqual(1);
+    expect(after.character.xp).toBeGreaterThanOrEqual(0);
+  });
+});

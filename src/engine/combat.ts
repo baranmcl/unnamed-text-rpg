@@ -2,7 +2,7 @@ import { rng, type RngState, type RngResult } from './rng';
 import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
-import { applyLevelUp } from './progression';
+import { awardXp } from './progression';
 import {
   tickStatuses,
   hasStatus,
@@ -386,7 +386,6 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
     }
 
     if (encounter.xpReward > 0) {
-      s = { ...s, character: { ...s.character, xp: s.character.xp + encounter.xpReward } };
       s = pushLog(s, { kind: 'system', systemLabel: 'EXP.', text: `+${encounter.xpReward} experience.` });
     }
 
@@ -443,12 +442,7 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
       };
     }
 
-    // Fix 4a: Level-up check (loop in case multiple levels gained at once).
-    const xpThreshold = (level: number) => level * 100;
-    while (s.character.xp >= xpThreshold(s.character.level)) {
-      s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level) } };
-      s = applyLevelUp(s);
-    }
+    s = awardXp(s, encounter.xpReward);
   } else if (result === 'defeat') {
     const newHp = Math.max(1, Math.floor(s.character.hp.max * 0.5));
     const newMp = Math.max(0, Math.floor(s.character.mp.max * 0.5));

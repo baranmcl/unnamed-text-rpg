@@ -80,3 +80,15 @@ export function applyLevelUp(state: GameState): GameState {
 
   return s;
 }
+
+export function awardXp(state: GameState, amount: number): GameState {
+  let s: GameState = amount > 0
+    ? { ...state, character: { ...state.character, xp: state.character.xp + amount } }
+    : state;
+  const xpThreshold = (level: number) => level * 100;
+  while (s.character.xp >= xpThreshold(s.character.level)) {
+    s = { ...s, character: { ...s.character, xp: s.character.xp - xpThreshold(s.character.level) } };
+    s = applyLevelUp(s);
+  }
+  return s;
+}

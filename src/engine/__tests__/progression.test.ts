@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyLevelUp, STAT_ROTATIONS } from '../progression';
+import { applyLevelUp, awardXp, STAT_ROTATIONS } from '../progression';
 import { createInitialState } from '../state';
 import { ClassId, SkillId, type GameState } from '../types';
 import { reduce } from '../events';
@@ -63,5 +63,46 @@ describe('applyLevelUp signature_unlocked side-effect', () => {
     s = applyLevelUp(s); // 2 -> 3 — signature unlocks
     expect(s.character.knownSkills.length).toBeGreaterThan(0);
     expect(s.world.flags['achievements.signature_unlocked']).toBe(true);
+  });
+});
+
+describe('awardXp helper', () => {
+  it('adds the amount to character.xp without leveling up below threshold', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    const startXp = s.character.xp;
+    const startLevel = s.character.level;
+    s = awardXp(s, 50);
+    expect(s.character.xp).toBe(startXp + 50);
+    expect(s.character.level).toBe(startLevel);
+  });
+
+  it('triggers a single level-up when amount crosses the threshold', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    const startLevel = s.character.level;
+    // Threshold for level 1 → 2 is 100. Award 100 XP.
+    s = awardXp(s, 100);
+    expect(s.character.level).toBe(startLevel + 1);
+    // After level-up the leftover XP is below the new threshold (200), so xp = 0.
+    expect(s.character.xp).toBe(0);
+  });
+
+  it('triggers multiple level-ups when amount crosses several thresholds', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    const startLevel = s.character.level;
+    // Award enough XP for at least two level-ups (level 1→2 needs 100, 2→3 needs 200).
+    s = awardXp(s, 350);
+    expect(s.character.level).toBeGreaterThanOrEqual(startLevel + 2);
+  });
+
+  it('handles amount = 0 as a no-op when below threshold', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    const before = s;
+    s = awardXp(s, 0);
+    expect(s.character.xp).toBe(before.character.xp);
+    expect(s.character.level).toBe(before.character.level);
   });
 });

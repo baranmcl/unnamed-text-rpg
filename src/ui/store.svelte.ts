@@ -37,6 +37,8 @@ function dedupedAppend<T>(arr: T[], v: T): T[] {
 }
 
 class GameStore {
+  // $state.raw because GameState is replaced wholesale by the reducer; we
+  // never deep-mutate it. Raw avoids Proxy overhead.
   state = $state.raw<GameState>(loadOrCreate());
   achievements = $state.raw<AchievementsRecord>(loadAchievements());
   pendingToasts = $state<Achievement[]>([]);
@@ -44,6 +46,7 @@ class GameStore {
   private autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    // Theme is persisted independently of save data so it survives reset.
     const stored = loadStoredTheme();
     if (stored && stored !== this.state.settings.theme) {
       this.state = reduce(this.state, { kind: 'SetTheme', theme: stored });
@@ -58,7 +61,7 @@ class GameStore {
 
     // 1. StartNewGame side-effect: track played class.
     if (event.kind === 'StartNewGame') {
-      record = { ...record, played_classes: dedupedAppend(record.played_classes, event.classId as string) };
+      record = { ...record, played_classes: dedupedAppend(record.played_classes, event.classId) };
     }
 
     // 2. Drain transient backfire flag.
@@ -135,6 +138,10 @@ class GameStore {
   }
 
   resetSave(): void {
+    if (this.autosaveTimer) {
+      clearTimeout(this.autosaveTimer);
+      this.autosaveTimer = null;
+    }
     try { localStorage.removeItem(SAVE_KEY); } catch { /* ignore */ }
     this.state = createInitialState(Date.now());
     applyTheme(this.state.settings.theme);

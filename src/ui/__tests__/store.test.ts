@@ -45,6 +45,9 @@ describe('store achievements integration', () => {
     gameStore.state = { ...gameStore.state, character: { ...gameStore.state.character, knownSkills: ['tempt_fate' as SkillId], mp: { current: 999, max: 999 } } };
 
     let firedKind: string | null = null;
+    // Loop bound is high (2000) because the backfire gate is 15% and we
+    // also need to refight after each KO; mp is patched to 999 so MP doesn't
+    // gate cast frequency.
     for (let i = 0; i < 2000 && firedKind === null; i++) {
       gameStore.dispatch({ kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
       // After the dispatch, the transient flag must already be drained from state.

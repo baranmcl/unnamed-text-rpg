@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import SettingsModal from '../SettingsModal.svelte';
 import { gameStore } from '../store.svelte';
+import { ClassId } from '../../engine/types';
 
 describe('SettingsModal', () => {
   beforeEach(() => {
@@ -37,5 +38,32 @@ describe('SettingsModal', () => {
     const closeBtn = getByRole('button', { name: /close/i });
     await fireEvent.click(closeBtn);
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('renders a "Forget thy deeds" button', () => {
+    const { getByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    expect(getByText(/forget thy deeds/i)).toBeInTheDocument();
+  });
+
+  it('opens the crimson confirm overlay when "Forget thy deeds" is clicked', async () => {
+    const { getByText, queryByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    expect(queryByText(/Forget thy deeds\?/)).toBeNull();
+    await fireEvent.click(getByText(/forget thy deeds/i));
+    expect(getByText(/Forget thy deeds\?/)).toBeInTheDocument();
+  });
+
+  it('forgetAchievements is called on confirm', async () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
+    expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
+
+    const { getByText, getAllByText } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    await fireEvent.click(getByText(/forget thy deeds/i));
+    // The crimson confirmation has a "To the flames" button; the Consign confirmation
+    // also uses that text — pick the last one (which belongs to the Forget overlay
+    // since that's the one currently open).
+    const flamesButtons = getAllByText(/to the flames/i);
+    await fireEvent.click(flamesButtons[flamesButtons.length - 1]!);
+    expect(gameStore.achievements.unlocked.length).toBe(0);
   });
 });

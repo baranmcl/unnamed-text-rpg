@@ -6,6 +6,19 @@
 
   let confirmingConsign = $state(false);
 
+  let confirmingForget = $state(false);
+
+  function forgetDeeds() {
+    confirmingForget = true;
+  }
+  function confirmForget() {
+    gameStore.forgetAchievements();
+    confirmingForget = false;
+  }
+  function cancelForget() {
+    confirmingForget = false;
+  }
+
   function setTheme(theme: 'parchment' | 'moonlit') {
     gameStore.dispatch({ kind: 'SetTheme', theme });
   }
@@ -43,6 +56,7 @@
   function onKey(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       if (confirmingConsign) confirmingConsign = false;
+      else if (confirmingForget) confirmingForget = false;
       else onClose();
     }
   }
@@ -118,6 +132,9 @@
         <button type="button" class="danger" onclick={consignToFlames}>
           Consign this tale to the flames
         </button>
+        <button type="button" class="danger" onclick={forgetDeeds}>
+          Forget thy deeds
+        </button>
       </div>
     </div>
 
@@ -129,6 +146,21 @@
           <div class="confirm-actions">
             <button type="button" onclick={cancelConsign}>Never mind</button>
             <button type="button" class="danger" onclick={confirmConsign}>
+              To the flames
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    {#if confirmingForget}
+      <div class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="forget-title">
+        <div class="confirm-dialog">
+          <h3 id="forget-title">Forget thy deeds?</h3>
+          <p>This will erase your achievements record across all your tales. Achievements cannot be earned again from a previous record.</p>
+          <div class="confirm-actions">
+            <button type="button" onclick={cancelForget}>Never mind</button>
+            <button type="button" class="danger" onclick={confirmForget}>
               To the flames
             </button>
           </div>

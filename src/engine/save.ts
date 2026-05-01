@@ -24,6 +24,16 @@ const MIGRATIONS: Record<number, (s: any) => any> = {
       };
     }
     return { ...s, version: 2, character, combat };
+  },
+  2: (s: any) => {
+    const story = s.story ? {
+      ...s.story,
+      completedQuests: s.story.completedQuests ?? [],
+      completedObjectives: s.story.completedObjectives ?? {},
+      questLogActivityCount: s.story.questLogActivityCount ?? 0,
+      questLogActivityAtLastOpen: s.story.questLogActivityAtLastOpen ?? 0,
+    } : s.story;
+    return { ...s, version: 3, story };
   }
 };
 

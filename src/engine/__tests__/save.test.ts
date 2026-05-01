@@ -67,7 +67,7 @@ describe('save migration v1 → v2', () => {
     };
 
     const loaded = deserialize(JSON.stringify(v1Save));
-    expect(loaded.version).toBe(2);
+    expect(loaded.version).toBe(3);
     expect(loaded.character.statuses).toEqual([]);
   });
 
@@ -105,7 +105,7 @@ describe('save migration v1 → v2', () => {
     };
 
     const loaded = deserialize(JSON.stringify(v1SaveWithCombat));
-    expect(loaded.version).toBe(2);
+    expect(loaded.version).toBe(3);
     expect(loaded.combat?.kind).toBe('turn-based');
     if (loaded.combat?.kind === 'turn-based') {
       for (const c of loaded.combat.combatants) {
@@ -114,11 +114,66 @@ describe('save migration v1 → v2', () => {
     }
   });
 
-  it('serializes a v2 state and round-trips it cleanly', () => {
+  it('serializes the current SAVE_VERSION state and round-trips it cleanly', () => {
     const s = createInitialState(42);
     const json = serialize(s);
     const loaded = deserialize(json);
-    expect(loaded.version).toBe(2);
+    expect(loaded.version).toBe(3);
     expect(loaded.character.statuses).toEqual([]);
+  });
+});
+
+describe('save migration v2 → v3', () => {
+  it('backfills the four quest-state fields on character', () => {
+    const v2Save = {
+      version: 2,
+      rng: { seed: 1, step: 0 },
+      character: {
+        name: 'Test',
+        classId: 'reluctant_farmboy',
+        level: 1,
+        xp: 0,
+        hp: { current: 30, max: 30 },
+        mp: { current: 10, max: 10 },
+        stats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
+        equipment: {},
+        inventory: [],
+        knownSkills: [],
+        currency: 0,
+        statuses: []
+      },
+      world: { currentLocation: 'family_farm', visited: [], flags: {} },
+      story: {
+        stage: 'act_i',
+        currentBeat: null,
+        completedBeats: [],
+        activeQuests: []
+        // No completedQuests, completedObjectives, or counter fields — must be backfilled
+      },
+      combat: null,
+      log: [],
+      settings: { theme: 'parchment', textSize: 'medium', autoSave: true }
+    };
+
+    const loaded = deserialize(JSON.stringify(v2Save));
+    expect(loaded.version).toBe(3);
+    expect(loaded.story.completedQuests).toEqual([]);
+    expect(loaded.story.completedObjectives).toEqual({});
+    expect(loaded.story.questLogActivityCount).toBe(0);
+    expect(loaded.story.questLogActivityAtLastOpen).toBe(0);
+    // Pre-existing fields preserved
+    expect(loaded.story.activeQuests).toEqual([]);
+    expect(loaded.story.stage).toBe('act_i');
+  });
+
+  it('serializes a v3 state and round-trips it cleanly', () => {
+    const s = createInitialState(42);
+    const json = serialize(s);
+    const loaded = deserialize(json);
+    expect(loaded.version).toBe(3);
+    expect(loaded.story.completedQuests).toEqual([]);
+    expect(loaded.story.completedObjectives).toEqual({});
+    expect(loaded.story.questLogActivityCount).toBe(0);
+    expect(loaded.story.questLogActivityAtLastOpen).toBe(0);
   });
 });

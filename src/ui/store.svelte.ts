@@ -7,7 +7,7 @@ import {
   type AchievementsRecord
 } from '../engine/achievements';
 import { content } from '../content';
-import type { GameState, Achievement } from '../engine/types';
+import { MAX_LOG_ENTRIES, type GameState, type Achievement } from '../engine/types';
 
 export const SAVE_KEY = 'heroicchronicle.save.v1';
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -100,6 +100,10 @@ class GameStore {
             }
           ]
         };
+      }
+      // Apply the same MAX_LOG_ENTRIES cap that engine appenders use.
+      if (next.log.length > MAX_LOG_ENTRIES) {
+        next = { ...next, log: next.log.slice(-MAX_LOG_ENTRIES) };
       }
       this.pendingToasts = [...this.pendingToasts, ...toAdd];
     }

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import AchievementToast from '../AchievementToast.svelte';
 import { gameStore } from '../store.svelte';
@@ -6,11 +6,14 @@ import { AchievementId } from '../../engine/types';
 import { content } from '../../content';
 
 describe('AchievementToast', () => {
+  let originalAnimate: typeof Element.prototype.animate;
+
   beforeEach(() => {
     localStorage.clear();
     gameStore.resetSave();
     gameStore.forgetAchievements();
     vi.useFakeTimers();
+    originalAnimate = Element.prototype.animate;
     // JSDOM does not implement the Web Animations API; stub it so Svelte
     // out-transitions (fade/fly) don't throw when items leave the DOM.
     Element.prototype.animate = vi.fn().mockReturnValue({
@@ -19,7 +22,12 @@ describe('AchievementToast', () => {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       finished: Promise.resolve()
-    });
+    }) as unknown as typeof Element.prototype.animate;
+  });
+
+  afterEach(() => {
+    Element.prototype.animate = originalAnimate;
+    vi.useRealTimers();
   });
 
   it('renders nothing when pendingToasts is empty', () => {
@@ -55,10 +63,9 @@ describe('AchievementToast', () => {
       content.achievements[AchievementId('first_blood')]!,
       content.achievements[AchievementId('moonlit')]!
     ];
-    const { getAllByText, getByText } = render(AchievementToast);
-    expect(getByText(/First Blood/)).toBeInTheDocument();
-    // "Moonlit" appears in both the .name span and the .description span
-    // ("Switch to the Moonlit theme."), so use getAllByText here.
-    expect(getAllByText(/Moonlit/).length).toBeGreaterThanOrEqual(1);
+    const { container, getByText } = render(AchievementToast);
+    expect(container.querySelectorAll('.toast')).toHaveLength(2);
+    expect(getByText('First Blood')).toBeInTheDocument();
+    expect(getByText('Moonlit')).toBeInTheDocument();
   });
 });

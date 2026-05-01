@@ -1,7 +1,7 @@
 <script lang="ts">
   import { gameStore } from './store.svelte';
   import { fly, fade } from 'svelte/transition';
-  import type { Achievement } from '../engine/types';
+  import type { Achievement, AchievementId } from '../engine/types';
 
   const DISMISS_MS = 4000;
 
@@ -9,23 +9,39 @@
     gameStore.dismissToast(ach);
   }
 
+  // Map of toast id → its dismiss timer, preserved across $effect re-runs
+  // so a new toast arriving doesn't reset the countdown for existing toasts.
+  const timers = new Map<AchievementId, ReturnType<typeof setTimeout>>();
+
   $effect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    for (const ach of gameStore.pendingToasts) {
-      timers.push(setTimeout(() => gameStore.dismissToast(ach), DISMISS_MS));
+    const currentIds = new Set(gameStore.pendingToasts.map((a) => a.id));
+
+    // Cancel timers for toasts that have been removed from the queue.
+    for (const [id, t] of timers) {
+      if (!currentIds.has(id)) {
+        clearTimeout(t);
+        timers.delete(id);
+      }
     }
-    return () => {
-      for (const t of timers) clearTimeout(t);
-    };
+
+    // Schedule a timer only for ids we haven't already scheduled.
+    for (const ach of gameStore.pendingToasts) {
+      if (!timers.has(ach.id)) {
+        const t = setTimeout(() => {
+          timers.delete(ach.id);
+          gameStore.dismissToast(ach);
+        }, DISMISS_MS);
+        timers.set(ach.id, t);
+      }
+    }
   });
 </script>
 
 <div class="toast-stack" role="status" aria-live="polite">
-  {#each gameStore.pendingToasts as ach, i (ach.id)}
+  {#each gameStore.pendingToasts as ach (ach.id)}
     <button
       class="toast"
       type="button"
-      style="margin-top: {i === 0 ? 0 : 12}px"
       in:fly={{ y: -16, duration: 400 }}
       out:fade={{ duration: 200 }}
       onclick={() => dismiss(ach)}
@@ -48,6 +64,7 @@
     z-index: 200;
     display: flex;
     flex-direction: column;
+    gap: 12px;
     align-items: stretch;
     pointer-events: none;
   }

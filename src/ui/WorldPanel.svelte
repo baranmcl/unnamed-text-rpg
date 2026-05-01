@@ -6,6 +6,7 @@
   import type { LocationId, EncounterId, ItemId } from '../engine/types';
   import AchievementsModal from './AchievementsModal.svelte';
   import AchievementToast from './AchievementToast.svelte';
+  import QuestLogModal from './QuestLogModal.svelte';
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
   // Plan 2 wires this to actual Location data.
@@ -108,6 +109,18 @@
     achievementsOpen = false;
   }
 
+  let questLogOpen = $state(false);
+  let questLogBadge = $derived(
+    gameStore.state.story.questLogActivityCount > gameStore.state.story.questLogActivityAtLastOpen
+  );
+
+  function openQuestLog() {
+    questLogOpen = true;
+  }
+  function closeQuestLog() {
+    questLogOpen = false;
+  }
+
   // Fix 5: Auto-scroll log to bottom on new entries.
   let logEl = $state<HTMLElement | null>(null);
 
@@ -144,6 +157,23 @@
           </svg>
           {#if newSinceLastOpen > 0}
             <span class="trophy-badge" aria-label="{newSinceLastOpen} new"></span>
+          {/if}
+        </button>
+        <button
+          class="quest-log"
+          aria-label="View quest log"
+          title="Quest log"
+          type="button"
+          onclick={openQuestLog}
+        >
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 5 a2 2 0 0 1 2 -2 H17 a2 2 0 0 1 2 2 V19 a2 2 0 0 1 -2 2 H7 a2 2 0 0 1 -2 -2 Z" />
+            <path d="M9 8 H15" />
+            <path d="M9 12 H15" />
+            <path d="M9 16 H13" />
+          </svg>
+          {#if questLogBadge}
+            <span class="quest-log-badge" aria-label="new quest activity"></span>
           {/if}
         </button>
         <button
@@ -294,6 +324,7 @@
 
 <AchievementsModal open={achievementsOpen} onClose={closeAchievements} />
 <AchievementToast />
+<QuestLogModal open={questLogOpen} onClose={closeQuestLog} />
 
 <style>
   .world {
@@ -526,6 +557,31 @@
     transform: translateY(-1px);
   }
   .trophy-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gilt);
+    pointer-events: none;
+  }
+  .quest-log {
+    color: var(--ink);
+    opacity: 0.7;
+    transition: opacity 160ms ease, transform 400ms ease;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .quest-log:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  .quest-log-badge {
     position: absolute;
     top: 2px;
     right: 2px;

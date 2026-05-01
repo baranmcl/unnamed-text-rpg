@@ -124,7 +124,7 @@ describe('save migration v1 → v2', () => {
 });
 
 describe('save migration v2 → v3', () => {
-  it('backfills the four quest-state fields on character', () => {
+  it('backfills the four quest-state fields on story', () => {
     const v2Save = {
       version: 2,
       rng: { seed: 1, step: 0 },

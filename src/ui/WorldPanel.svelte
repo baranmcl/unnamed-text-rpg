@@ -127,7 +127,8 @@
         <p class="act-marker">{actLabel}</p>
         <h1 class="location-title">{locName}</h1>
       </div>
-      <button
+      <div class="header-actions">
+        <button
           class="trophy"
           aria-label="View achievements"
           title="Achievements"
@@ -145,20 +146,21 @@
             <span class="trophy-badge" aria-label="{newSinceLastOpen} new"></span>
           {/if}
         </button>
-      <button
-        class="compass"
-        aria-label="Look at the map"
-        title="Look at the map (coming in Plan 5)"
-        type="button"
-      >
-        <svg viewBox="0 0 64 64" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="32" cy="32" r="28" />
-          <circle cx="32" cy="32" r="22" />
-          <path d="M32 6 L36 32 L32 58 L28 32 Z" fill="currentColor" stroke="none" />
-          <path d="M6 32 L32 28 L58 32 L32 36 Z" fill="currentColor" fill-opacity="0.35" stroke="none" />
-          <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
-        </svg>
-      </button>
+        <button
+          class="compass"
+          aria-label="Look at the map"
+          title="Look at the map (coming in Plan 5)"
+          type="button"
+        >
+          <svg viewBox="0 0 64 64" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="32" cy="32" r="28" />
+            <circle cx="32" cy="32" r="22" />
+            <path d="M32 6 L36 32 L32 58 L28 32 Z" fill="currentColor" stroke="none" />
+            <path d="M6 32 L32 28 L58 32 L32 36 Z" fill="currentColor" fill-opacity="0.35" stroke="none" />
+            <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <div class="rule" in:fade={{ duration: 200, delay: 150 }}></div>
@@ -503,13 +505,17 @@
     letter-spacing: 0.06em;
     color: var(--ink-muted);
   }
+  .header-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+  }
   .trophy {
     color: var(--ink);
     opacity: 0.7;
     transition: opacity 160ms ease, transform 400ms ease;
     flex-shrink: 0;
     margin-bottom: 6px;
-    margin-right: 12px;
     background: none;
     border: none;
     cursor: pointer;

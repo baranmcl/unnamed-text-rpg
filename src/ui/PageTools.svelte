@@ -10,9 +10,6 @@
   function closeSettings() {
     settingsOpen = false;
   }
-
-  // Plan 1 ships a static folio. Plan 6 will derive it from story stage.
-  const folio = '— i.i.0 —';
 </script>
 
 <button
@@ -29,8 +26,6 @@
   </svg>
 </button>
 
-<div class="folio">{folio}</div>
-
 <SettingsModal open={settingsOpen} onClose={closeSettings} />
 
 <style>
@@ -46,18 +41,5 @@
   .gear:hover {
     opacity: 1;
     transform: translateY(-1px);
-  }
-
-  .folio {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--serif-display);
-    font-size: 13px;
-    color: var(--ink-faint);
-    letter-spacing: 0.2em;
-    z-index: 5;
-    pointer-events: none;
   }
 </style>

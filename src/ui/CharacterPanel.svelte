@@ -242,10 +242,10 @@
     {/if}
   </section>
 
-  <!-- Effects on his Person -->
+  <!-- Effects on your Person -->
   <section class="section">
     <button class="section-head" type="button" onclick={() => toggle('effects')} aria-expanded={!collapsed.effects}>
-      <span>Effects on his Person</span>
+      <span>Effects on your Person</span>
       <span class="chevron">{collapsed.effects ? '▸' : '▾'}</span>
     </button>
     {#if !collapsed.effects}

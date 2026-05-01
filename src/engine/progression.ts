@@ -62,6 +62,13 @@ export function applyLevelUp(state: GameState): GameState {
         systemLabel: 'SKILL',
         text: `You learn **${skill.name}**. (Level ${newLevel} signature move.)`
       });
+      s = {
+        ...s,
+        world: {
+          ...s.world,
+          flags: { ...s.world.flags, 'achievements.signature_unlocked': true }
+        }
+      };
     }
   }
 

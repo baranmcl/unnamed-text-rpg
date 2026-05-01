@@ -374,6 +374,14 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
     // Push the monster's defeated-flavor line before XP/loot, so the player
     // gets a closure beat before the mechanical readouts.
     const monster = content.monsters[encounter.monsterId];
+    // Achievement seed: first_blood fires off this flag.
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, 'achievements.first_combat_won': true }
+      }
+    };
     if (monster?.defeatedFlavor) {
       s = pushLog(s, { kind: 'narration', text: monster.defeatedFlavor });
     }

@@ -54,3 +54,14 @@ describe('applyLevelUp', () => {
     expect(count).toBeLessThanOrEqual(1);
   });
 });
+
+describe('applyLevelUp signature_unlocked side-effect', () => {
+  it('sets achievements.signature_unlocked when signature skill unlocks', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = applyLevelUp(s); // 1 -> 2
+    s = applyLevelUp(s); // 2 -> 3 — signature unlocks
+    expect(s.character.knownSkills.length).toBeGreaterThan(0);
+    expect(s.world.flags['achievements.signature_unlocked']).toBe(true);
+  });
+});

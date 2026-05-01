@@ -4,6 +4,7 @@ import { startCombat, playerAttack, monsterTurn, endCombat } from '../combat';
 import { createInitialState } from '../state';
 import { content } from '../../content';
 import { ClassId, EncounterId, ItemId, LocationId } from '../types';
+import { ClassId as ClassIdBrand } from '../types';
 import type { CombatEncounter, GameState, TurnBasedCombatState } from '../types';
 import { applyStatus } from '../status';
 import { reduce } from '../events';
@@ -336,5 +337,24 @@ describe('combat reads statuses', () => {
     expect(s.combat).toBeNull();
     expect(s.character.statuses.some((st) => st.kind === 'weapon_suspended')).toBe(false);
     expect(s.character.statuses.some((st) => st.kind === 'guaranteed_crit')).toBe(true);
+  });
+});
+
+describe('endCombat victory side-effects (achievements)', () => {
+  it('sets achievements.first_combat_won to true on first victory', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassIdBrand('reluctant_farmboy') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected turn-based combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+    const wounded: GameState = {
+      ...s,
+      combat: {
+        ...s.combat,
+        combatants: s.combat.combatants.map((c) => (c.id === monsterId ? { ...c, hp: 1 } : c))
+      }
+    };
+    const after = reduce(wounded, { kind: 'AttackTarget' });
+    expect(after.world.flags['achievements.first_combat_won']).toBe(true);
   });
 });

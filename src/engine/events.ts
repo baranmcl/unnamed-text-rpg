@@ -88,8 +88,19 @@ function drainPendingEncounter(state: GameState): GameState {
 
 function reduceInner(state: GameState, event: GameEvent): GameState {
   switch (event.kind) {
-    case 'SetTheme':
-      return { ...state, settings: { ...state.settings, theme: event.theme } };
+    case 'SetTheme': {
+      const next = { ...state, settings: { ...state.settings, theme: event.theme } };
+      if (event.theme === 'moonlit') {
+        return {
+          ...next,
+          world: {
+            ...next.world,
+            flags: { ...next.world.flags, 'achievements.theme_moonlit': true }
+          }
+        };
+      }
+      return next;
+    }
     case 'SetTextSize':
       return { ...state, settings: { ...state.settings, textSize: event.size } };
     case 'ToggleAutoSave':

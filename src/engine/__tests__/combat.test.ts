@@ -379,8 +379,8 @@ describe('endCombat awardXp regression', () => {
     // EXP. log entry exists (combat still logs the reward).
     const expEntry = after.log.find((e) => e.kind === 'system' && e.systemLabel === 'EXP.');
     expect(expEntry).toBeDefined();
-    // Self-consistent: at minimum, level >= 1 and xp >= 0.
-    expect(after.character.level).toBeGreaterThanOrEqual(1);
-    expect(after.character.xp).toBeGreaterThanOrEqual(0);
+    // 100 XP crosses the level * 100 = 100 threshold: expect level-up to 2 with 0 residual XP.
+    expect(after.character.level).toBe(2);
+    expect(after.character.xp).toBe(0);
   });
 });

@@ -4,6 +4,8 @@
   import { content } from '../content';
   import { fade, fly } from 'svelte/transition';
   import type { LocationId, EncounterId, ItemId } from '../engine/types';
+  import AchievementsModal from './AchievementsModal.svelte';
+  import AchievementToast from './AchievementToast.svelte';
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
   // Plan 2 wires this to actual Location data.
@@ -94,6 +96,18 @@
     return true;
   }
 
+  let achievementsOpen = $state(false);
+  let newSinceLastOpen = $derived(
+    Math.max(0, gameStore.achievements.unlocked.length - gameStore.achievements.unlockedCountAtLastOpen)
+  );
+
+  function openAchievements() {
+    achievementsOpen = true;
+  }
+  function closeAchievements() {
+    achievementsOpen = false;
+  }
+
   // Fix 5: Auto-scroll log to bottom on new entries.
   let logEl = $state<HTMLElement | null>(null);
 
@@ -113,6 +127,24 @@
         <p class="act-marker">{actLabel}</p>
         <h1 class="location-title">{locName}</h1>
       </div>
+      <button
+          class="trophy"
+          aria-label="View achievements"
+          title="Achievements"
+          type="button"
+          onclick={openAchievements}
+        >
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M7 3 H17 V8 a5 5 0 0 1 -10 0 Z" />
+            <path d="M7 5 H4 a3 3 0 0 0 3 4" />
+            <path d="M17 5 H20 a3 3 0 0 1 -3 4" />
+            <path d="M12 13 V17" />
+            <path d="M9 17 H15 V20 H9 Z" />
+          </svg>
+          {#if newSinceLastOpen > 0}
+            <span class="trophy-badge" aria-label="{newSinceLastOpen} new">●</span>
+          {/if}
+        </button>
       <button
         class="compass"
         aria-label="Look at the map"
@@ -257,6 +289,9 @@
     {/if}
   </div>
 </section>
+
+<AchievementsModal open={achievementsOpen} onClose={closeAchievements} />
+<AchievementToast />
 
 <style>
   .world {
@@ -467,5 +502,30 @@
     font-size: 12px;
     letter-spacing: 0.06em;
     color: var(--ink-muted);
+  }
+  .trophy {
+    color: var(--ink);
+    opacity: 0.7;
+    transition: opacity 160ms ease, transform 400ms ease;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    margin-right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .trophy:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  .trophy-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    color: var(--gilt);
+    font-size: 14px;
+    line-height: 1;
+    pointer-events: none;
   }
 </style>

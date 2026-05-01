@@ -132,8 +132,13 @@
         {:else}
           {#each completed as quest (quest.id)}
             <article class="quest done-quest">
-              <span class="quest-glyph">✦</span>
-              <span class="quest-title">{quest.title}</span>
+              <div class="quest-head">
+                <span class="quest-glyph">✦</span>
+                <div class="quest-text">
+                  <span class="quest-title">{quest.title}</span>
+                  <span class="quest-description">{quest.description}</span>
+                </div>
+              </div>
             </article>
           {/each}
         {/if}

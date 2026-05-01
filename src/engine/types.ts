@@ -376,3 +376,19 @@ export type StoryBeat = {
   onTrigger: BeatEffect[];
   transitionAnim?: 'actMarker' | 'giltUnfurl' | 'refusalRewind';
 };
+
+// =====================================================================
+// Achievements (Plan 4.5)
+// =====================================================================
+
+export type AchievementId = Brand<string, 'AchievementId'>;
+export const AchievementId = (s: string) => s as AchievementId;
+
+export type Achievement = {
+  id: AchievementId;
+  name: string;
+  description: string;          // gated for descriptionHidden until earned
+  preconditions: Predicate[];   // ALL must be true
+  hidden?: boolean;             // entry invisible in panel until earned
+  descriptionHidden?: boolean;  // name visible but description = "?" until earned
+};

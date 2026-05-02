@@ -85,6 +85,36 @@
     inspectingItem = null;
   }
 
+  // Flash-highlight stats and vital maxes when they change (e.g. after a level-up).
+  // `prevSnapshot` is a plain (non-reactive) holder so writing to it inside the effect
+  // does not retrigger the effect. `flashing` is reactive — toggled to apply the CSS.
+  let prevSnapshot = {
+    brawn: c.stats.brawn, brains: c.stats.brains,
+    bravado: c.stats.bravado, bluck: c.stats.bluck,
+    hpMax: c.hp.max, mpMax: c.mp.max
+  };
+  let flashing = $state<Record<string, boolean>>({});
+
+  $effect(() => {
+    const cur = {
+      brawn: c.stats.brawn, brains: c.stats.brains,
+      bravado: c.stats.bravado, bluck: c.stats.bluck,
+      hpMax: c.hp.max, mpMax: c.mp.max
+    };
+    const changed = (Object.keys(cur) as Array<keyof typeof cur>)
+      .filter((k) => cur[k] !== prevSnapshot[k]);
+    prevSnapshot = cur;
+    if (changed.length > 0) {
+      flashing = { ...flashing, ...Object.fromEntries(changed.map((k) => [k, true])) };
+      const cleared = [...changed];
+      setTimeout(() => {
+        const next = { ...flashing };
+        for (const k of cleared) delete next[k];
+        flashing = next;
+      }, 2000);
+    }
+  });
+
   let dynamicEpithet = $derived(content.classes[c.classId]?.epithet ?? 'the Untitled');
 
   function pct(part: number, whole: number): number {
@@ -154,7 +184,7 @@
 </script>
 
 <aside class="persona" aria-label="Character panel">
-  <p class="persona-heading">Dramatis Persona</p>
+  <p class="persona-heading">You</p>
   <div class="persona-rule"></div>
 
   <h2 class="persona-name">{c.name || '— (unnamed) —'}</h2>
@@ -171,11 +201,11 @@
       <div class="vitals">
         <span class="label" title="Hit points">{hpLabel}</span>
         <div class="bar"><div class="fill hp" style:width="{pct(c.hp.current, c.hp.max)}%"></div></div>
-        <span class="value">{c.hp.current} / {c.hp.max}</span>
+        <span class="value" class:flashing={flashing.hpMax}>{c.hp.current} / {c.hp.max}</span>
 
         <span class="label" title="Mana points">{mpLabel}</span>
         <div class="bar"><div class="fill mp" style:width="{pct(c.mp.current, c.mp.max)}%"></div></div>
-        <span class="value">{c.mp.current} / {c.mp.max}</span>
+        <span class="value" class:flashing={flashing.mpMax}>{c.mp.current} / {c.mp.max}</span>
 
         <span class="label">XP</span>
         <div class="bar"><div class="fill xp" style:width="{Math.min(100, (c.xp / xpToNextLevel(c.level)) * 100)}%"></div></div>
@@ -210,10 +240,10 @@
     </button>
     {#if !collapsed.qualities}
       <div class="stats">
-        <div class="stat"><span class="name">Brawn</span><span class="num">{c.stats.brawn}</span></div>
-        <div class="stat"><span class="name">Brains</span><span class="num">{c.stats.brains}</span></div>
-        <div class="stat"><span class="name">Bravado</span><span class="num">{c.stats.bravado}</span></div>
-        <div class="stat"><span class="name">(B)Luck</span><span class="num">{c.stats.bluck}</span></div>
+        <div class="stat" title="Hit harder. Take more punishment." class:flashing={flashing.brawn}><span class="name">Brawn</span><span class="num">{c.stats.brawn}</span></div>
+        <div class="stat" title="Bigger ideas, bigger mana pool." class:flashing={flashing.brains}><span class="name">Brains</span><span class="num">{c.stats.brains}</span></div>
+        <div class="stat" title="Strike first, dodge often, flee with dignity." class:flashing={flashing.bravado}><span class="name">Bravado</span><span class="num">{c.stats.bravado}</span></div>
+        <div class="stat" title="Crit more. Wink at fate. Get away with things." class:flashing={flashing.bluck}><span class="name">(B)Luck</span><span class="num">{c.stats.bluck}</span></div>
       </div>
     {/if}
   </section>
@@ -486,5 +516,16 @@
     letter-spacing: 0.06em;
     color: var(--ink);
     text-transform: lowercase;
+  }
+
+  /* Flash-highlight on level-up: pulses gilt for ~2s, fading to transparent. */
+  @keyframes flash-gilt {
+    0% { background-color: rgba(166, 131, 56, 0.55); color: var(--gilt); }
+    40% { background-color: rgba(166, 131, 56, 0.35); color: var(--gilt); }
+    100% { background-color: transparent; }
+  }
+  .flashing {
+    animation: flash-gilt 2s ease-out;
+    border-radius: 3px;
   }
 </style>

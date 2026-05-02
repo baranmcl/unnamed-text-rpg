@@ -150,6 +150,10 @@ class GameStore {
     this.state = createInitialState(Date.now());
     applyTheme(this.state.settings.theme);
     applyTextSize(this.state.settings.textSize);
+    // Sync the standalone theme localStorage key so the next refresh doesn't
+    // restore the pre-reset theme. Without this, in-memory theme says parchment
+    // but storage still has the old value, and the constructor pops it back.
+    storeTheme(this.state.settings.theme);
     // Achievements record is intentionally untouched here — Consign leaves it alone.
   }
 

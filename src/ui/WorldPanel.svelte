@@ -121,6 +121,19 @@
     questLogOpen = false;
   }
 
+  // Renders log entry text with `**bold**` markdown converted to <strong>.
+  // Escapes HTML entities first since text comes from authored content; the
+  // log layer is the only place {@html} is used, and only after escaping.
+  function formatLogText(text: string): string {
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    return escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  }
+
   // Fix 5: Auto-scroll log to bottom on new entries.
   let logEl = $state<HTMLElement | null>(null);
 
@@ -198,21 +211,21 @@
     <div class="log" aria-live="polite" bind:this={logEl} in:fade={{ duration: 300, delay: 200 }}>
       {#each log as entry (entry.id)}
         {#if entry.kind === 'narration'}
-          <p class="entry narration">{entry.text}</p>
+          <p class="entry narration">{@html formatLogText(entry.text)}</p>
         {:else if entry.kind === 'dialogue'}
           <div class="entry dialogue">
             <span class="speaker">{entry.speaker ?? ''}</span>
-            <span class="line">{entry.text}</span>
+            <span class="line">{@html formatLogText(entry.text)}</span>
           </div>
         {:else if entry.kind === 'system'}
           <div class="entry system">
             <span class="system-label">{entry.systemLabel ?? 'NOTE'} —</span>
-            <span class="system-text">{entry.text}</span>
+            <span class="system-text">{@html formatLogText(entry.text)}</span>
           </div>
         {:else if entry.kind === 'combat'}
-          <p class="entry combat">{entry.text}</p>
+          <p class="entry combat">{@html formatLogText(entry.text)}</p>
         {:else if entry.kind === 'loot'}
-          <p class="entry loot">{entry.text}</p>
+          <p class="entry loot">{@html formatLogText(entry.text)}</p>
         {:else if entry.kind === 'scene-divider'}
           <p class="entry scene-divider">· · ·</p>
         {:else if entry.kind === 'act-banner'}

@@ -111,6 +111,21 @@ The final image, regardless of ending: the man in tweed leaves the folding chair
 
 ---
 
+## Side Quests
+
+The main path carries the reveal; side quests carry the texture. Three main types, each with a different role in the spine:
+
+### Bounty
+The player accepts a contract from a bounty board (or NPC) to defeat a specific enemy or a specific number of them. Repeatable, low-stakes; gives the working-hero rhythm between main beats. **Spine role:** the bounty board *is* a script artifact. New contracts appear on schedule; targets are always findable; the pay is always *just enough*. The convenience is the tell — exercise the Editor's tidiness by making the world helpfully arranged around the player's questing.
+
+### The Trading Chain
+A single Zelda-style item-trade quest, threaded across multiple chapters. The player receives a starter trinket from one NPC, hands it to another in exchange for a slightly-different trinket, and so on along a winding chain — each NPC suspiciously prepared with the next link. **Spine role:** the chain stitches the world together (NPCs the main path doesn't visit, places the player wouldn't otherwise see) and lets each step plant a small motif (a page-number, a folk-name for the MacGuffin, a tweed cameo). Each link should be more absurd than the last; the final reward should feel fun rather than load-bearing.
+
+### Exploration
+The player is asked to visit a specific area or set of areas — a derelict shrine, a forgotten chapel, a far meadow. **Spine role:** exploration quests are the spine's primary foreshadowing engine. Every "go look at X" is an authoring slot for planting: a folio with a margin note in Campbell's hand, the folding chair (dust-covered), the man in tweed reading at a distance, a wall of MacGuffin folk-names scratched in a column. Reward should be modest; the *visit* is the payoff for the spine.
+
+---
+
 ## Recurring Motifs (Plant Liberally)
 
 - **Page numbers** appearing where they shouldn't (a footer on a tavern menu, a watermark on the Note from Mother, a chapter heading on a roadside sign)

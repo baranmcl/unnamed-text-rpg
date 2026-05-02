@@ -186,6 +186,7 @@ export type CharacterClass = {
   signatureMove: SkillId;
   openingLocationId: LocationId;
   openingNarrativeNodeId: NarrativeNodeId;
+  openingEncounterId?: EncounterId;  // triggers a NarrativeEncounter on StartNewGame when set
   hpLabel?: string;       // class-flavored synonym for HP (e.g. Bard "Confidence"); defaults to "HP"
   mpLabel?: string;       // class-flavored synonym for MP (e.g. Bard "Vibes"); defaults to "MP"
 };

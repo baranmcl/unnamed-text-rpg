@@ -39,28 +39,22 @@ export type GameEvent =
 
 type OpeningLine = { kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string };
 
-const ACT_LINE: OpeningLine = { kind: 'system', systemLabel: 'ACT', text: 'The Call to Adventure begins, more or less on schedule.' };
-
 const CLASS_OPENING_LINES: Record<string, OpeningLine[]> = {
   reluctant_farmhand: [
     { kind: 'narration', text: 'You wake on a Tuesday, which is, statistically, when most prophecies arrive.' },
-    { kind: 'narration', text: 'The cow regards you with the unfocused malice of a creature who has, against all odds, become aware of fate.' },
-    ACT_LINE
+    { kind: 'narration', text: 'The cow regards you with the unfocused malice of a creature who has, against all odds, become aware of fate.' }
   ],
   disgraced_knight: [
     { kind: 'narration', text: 'You wake at the wrong hour, which is, statistically, when most dismissals are pinned to boards.' },
-    { kind: 'narration', text: 'The pell regards you with the unfocused disapproval of a post that has, against all odds, become aware of your specific failures.' },
-    ACT_LINE
+    { kind: 'narration', text: 'The pell regards you with the unfocused disapproval of a post that has, against all odds, become aware of your specific failures.' }
   ],
   accidental_wizard: [
     { kind: 'narration', text: 'You wake to a polite haze of smoke, which is, statistically, when most cantrips of warding go subtly wrong.' },
-    { kind: 'narration', text: 'The tome regards you with the unfocused indignation of a book that has, against all odds, become aware of fire.' },
-    ACT_LINE
+    { kind: 'narration', text: 'The tome regards you with the unfocused indignation of a book that has, against all odds, become aware of fire.' }
   ],
   bard: [
     { kind: 'narration', text: 'You wake five minutes before curtain, which is, statistically, when most prophecies arrive.' },
-    { kind: 'narration', text: 'The audience regards you, audibly, with the unfocused malice of a crowd that has, against all odds, become aware of vowels.' },
-    ACT_LINE
+    { kind: 'narration', text: 'The audience regards you, audibly, with the unfocused malice of a crowd that has, against all odds, become aware of vowels.' }
   ]
 };
 
@@ -158,7 +152,19 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
       const withOpening = appendLogs(populated, openingLines);
       // Recurse into EnterLocation for the description. preserveLog prevents the
       // new-game opening lines from being cleared on first entry.
-      return reduceInner(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId, preserveLog: true });
+      const afterEnter = reduceInner(withOpening, { kind: 'EnterLocation', locationId: cls.openingLocationId, preserveLog: true });
+      // Queue the class's opener narrative encounter if one is registered; the
+      // outer reduce()'s drainPendingEncounter will pick it up.
+      if (cls.openingEncounterId && content.encounters[cls.openingEncounterId]) {
+        return {
+          ...afterEnter,
+          world: {
+            ...afterEnter.world,
+            flags: { ...afterEnter.world.flags, __pending_encounter: cls.openingEncounterId }
+          }
+        };
+      }
+      return afterEnter;
     }
 
     case 'EnterLocation': {

@@ -1,5 +1,5 @@
 import { NarrativeNodeId, type NarrativeNode } from '../../engine/types';
-import { knight_opener_a, knight_opener_b, wizard_opener_a, wizard_opener_b, bard_opening_short, farmhand_opening_short } from './openings';
+import { knight_opener_a, knight_opener_b, wizard_opener_a, wizard_opener_b, bard_opener_a, bard_opener_b, farmhand_opening_short } from './openings';
 
 const callRoot: NarrativeNode = {
   id: NarrativeNodeId('call_root'),
@@ -41,6 +41,7 @@ export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [knight_opener_b.id]: knight_opener_b,
   [wizard_opener_a.id]: wizard_opener_a,
   [wizard_opener_b.id]: wizard_opener_b,
-  [farmhand_opening_short.id]: farmhand_opening_short,
-  [bard_opening_short.id]: bard_opening_short
+  [bard_opener_a.id]: bard_opener_a,
+  [bard_opener_b.id]: bard_opener_b,
+  [farmhand_opening_short.id]: farmhand_opening_short
 };

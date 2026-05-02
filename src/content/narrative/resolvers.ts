@@ -165,6 +165,14 @@ const wizard_opener_engage_c: NarrativeResolver = (state) => ({
   next: NarrativeNodeId('wizard_opener_b')
 });
 
+const bard_opener_engage_lute: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, tuned_lute: true } }
+  },
+  next: NarrativeNodeId('bard_opener_b')
+});
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -177,5 +185,6 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   knight_opener_engage_notice,
   wizard_opener_engage_a,
   wizard_opener_engage_b,
-  wizard_opener_engage_c
+  wizard_opener_engage_c,
+  bard_opener_engage_lute
 };

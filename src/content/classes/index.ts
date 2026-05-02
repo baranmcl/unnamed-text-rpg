@@ -77,7 +77,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('swagger'),
     openingLocationId: LocationId('tavern_dressing_room'),
-    openingNarrativeNodeId: NarrativeNodeId('bard_opening_short'),
+    openingNarrativeNodeId: NarrativeNodeId('bard_opener_a'),
+    openingEncounterId: EncounterId('bard_opener_encounter'),
     hpLabel: 'Confidence',
     mpLabel: 'Vibes'
   }

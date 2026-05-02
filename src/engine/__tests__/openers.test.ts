@@ -92,3 +92,45 @@ describe('Wizard opener', () => {
     expect(lastEntry?.text).toMatch(/junior librarian moves between stacks with a slim, unmarked volume/);
   });
 });
+
+describe('Bard opener', () => {
+  function startBard() {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'B', classId: ClassId('bard') });
+    return s;
+  }
+
+  it('starts in the Bard engagement node after StartNewGame', () => {
+    const s = startBard();
+    expect(s.combat?.kind).toBe('narrative');
+    if (s.combat?.kind === 'narrative') {
+      expect(s.combat.currentNodeId).toBe(NarrativeNodeId('bard_opener_a'));
+    }
+  });
+
+  it('engagement choice plants tuned_lute and advances to Node B', () => {
+    let s = startBard();
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.world.flags['tuned_lute']).toBe(true);
+    expect(s.combat?.kind).toBe('narrative');
+    if (s.combat?.kind === 'narrative') {
+      expect(s.combat.currentNodeId).toBe(NarrativeNodeId('bard_opener_b'));
+    }
+  });
+
+  it('commitment choice triggers the Heckler tutorial combat', () => {
+    let s = startBard();
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.combat?.kind).toBe('turn-based');
+    if (s.combat?.kind === 'turn-based') {
+      expect(s.combat.encounterId).toBe(EncounterId('combat_pointed_heckler'));
+    }
+  });
+
+  it('Node A prose contains the man-in-tweed-front-row cameo', () => {
+    const s = startBard();
+    const lastEntry = s.log[s.log.length - 1];
+    expect(lastEntry?.text).toMatch(/A man in tweed sits there, taking notes/);
+  });
+});

@@ -52,12 +52,27 @@ export const wizard_opener_b: NarrativeNode = {
   ]
 };
 
-export const bard_opening_short: NarrativeNode = {
-  id: NarrativeNodeId('bard_opening_short'),
+export const bard_opener_a: NarrativeNode = {
+  id: NarrativeNodeId('bard_opener_a'),
   prose:
-    'Five minutes to the curtain. Your lute is missing strings; your cloak is being ironic again. ' +
+    'Five minutes to curtain. The back room of the Wretched Pheasant smells like spilled mead, candlewax, and ambition. ' +
+    'One of those vowels is yours. Your lute is missing a string. Your cloak is being ironic again. ' +
+    'The audience, audible through three layers of pine, is exercising its consonants. ' +
+    'Through a thumbnail-sized gap in the curtain you can see the front row. ' +
+    'A man in tweed sits there, taking notes in a book that is not yours, and does not look up. ' +
     'A heckler in the third row has been warming up since dawn and has, by now, achieved a kind of vowel-yoga ' +
-    'that bodes badly for your opening number.',
+    'that bodes badly for your opening number. You have ten minutes. You have two minutes. ' +
+    'Time is doing what time does to a Bard.',
+  choices: [
+    { label: 'Tune the lute.', resolve: 'bard_opener_engage_lute' }
+  ]
+};
+
+export const bard_opener_b: NarrativeNode = {
+  id: NarrativeNodeId('bard_opener_b'),
+  prose:
+    'The lute holds. The cloak settles. The curtain twitches. ' +
+    'You step toward the stage. The heckler is, you note, already standing.',
   choices: [
     { label: 'Open with a dignity-restoration anthem.', resolve: 'open_with_heckler' }
   ]

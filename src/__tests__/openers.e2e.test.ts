@@ -33,4 +33,16 @@ describe('openers e2e', () => {
       expect(gameStore.state.combat.encounterId).toBe(EncounterId('combat_feral_footnote'));
     }
   });
+
+  it('Bard: full opener flow ends in Heckler combat', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'B', classId: ClassId('bard') });
+    expect(gameStore.state.combat?.kind).toBe('narrative');
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(gameStore.state.world.flags['tuned_lute']).toBe(true);
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(gameStore.state.combat?.kind).toBe('turn-based');
+    if (gameStore.state.combat?.kind === 'turn-based') {
+      expect(gameStore.state.combat.encounterId).toBe(EncounterId('combat_pointed_heckler'));
+    }
+  });
 });

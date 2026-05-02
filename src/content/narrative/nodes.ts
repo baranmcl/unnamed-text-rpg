@@ -1,5 +1,5 @@
 import { NarrativeNodeId, type NarrativeNode } from '../../engine/types';
-import { knight_opening_short, wizard_opening_short, bard_opening_short, farmhand_opening_short } from './openings';
+import { knight_opener_a, knight_opener_b, wizard_opening_short, bard_opening_short, farmhand_opening_short } from './openings';
 
 const callRoot: NarrativeNode = {
   id: NarrativeNodeId('call_root'),
@@ -28,8 +28,7 @@ const hermitLingering: NarrativeNode = {
   speaker: 'Old Hermit',
   prose:
     '"Still here? I would have thought heroes ran toward their fates, not paced about. ' +
-    "Off you go, then. The road won't cross itself.\""
-,
+    "Off you go, then. The road won't cross itself.\"",
   choices: [
     { label: '("Off I go, then.")', resolve: 'hermit_dismiss' }
   ]
@@ -38,8 +37,9 @@ const hermitLingering: NarrativeNode = {
 export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [callRoot.id]: callRoot,
   [hermitLingering.id]: hermitLingering,
+  [knight_opener_a.id]: knight_opener_a,
+  [knight_opener_b.id]: knight_opener_b,
   [farmhand_opening_short.id]: farmhand_opening_short,
-  [knight_opening_short.id]: knight_opening_short,
   [wizard_opening_short.id]: wizard_opening_short,
   [bard_opening_short.id]: bard_opening_short
 };

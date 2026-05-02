@@ -133,6 +133,14 @@ const open_with_heckler: NarrativeResolver = (state) => {
 
 const hermit_dismiss: NarrativeResolver = (state) => ({ state, next: null });
 
+const knight_opener_engage_notice: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, read_dismissal_notice: true } }
+  },
+  next: NarrativeNodeId('knight_opener_b')
+});
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -141,5 +149,6 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   open_with_pell,
   open_with_footnote,
   open_with_heckler,
-  hermit_dismiss
+  hermit_dismiss,
+  knight_opener_engage_notice
 };

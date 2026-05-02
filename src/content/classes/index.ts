@@ -1,4 +1,4 @@
-import { ClassId, ItemId, LocationId, NarrativeNodeId, SkillId, type CharacterClass } from '../../engine/types';
+import { ClassId, EncounterId, ItemId, LocationId, NarrativeNodeId, SkillId, type CharacterClass } from '../../engine/types';
 
 export const classes: Record<ClassId, CharacterClass> = {
   [ClassId('reluctant_farmhand')]: {
@@ -37,7 +37,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('brute_force'),
     openingLocationId: LocationId('quartermasters_yard'),
-    openingNarrativeNodeId: NarrativeNodeId('knight_opening_short'),
+    openingNarrativeNodeId: NarrativeNodeId('knight_opener_a'),
+    openingEncounterId: EncounterId('knight_opener_encounter'),
     hpLabel: 'Honor',
     mpLabel: 'Discipline'
   },

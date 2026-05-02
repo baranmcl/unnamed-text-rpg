@@ -1,16 +1,31 @@
 import { NarrativeNodeId, type NarrativeNode } from '../../engine/types';
 
-export const knight_opening_short: NarrativeNode = {
-  id: NarrativeNodeId('knight_opening_short'),
+export const knight_opener_a: NarrativeNode = {
+  id: NarrativeNodeId('knight_opener_a'),
   prose:
-    'Dawn over the empty yard. Your dismissal still pinned to the board. ' +
+    'Dawn over the empty yard. Dust hangs where it has been kicked, an hour ago, by boots that were not yours. ' +
+    'The pell stands in the middle of it, leaning slightly to starboard. On the duty board, the dismissal-notice. ' +
+    'Wind tugs at one corner. The other three pins still hold. The yard at this hour is empty, mostly. ' +
+    'A figure in tweed crosses the parade ground at the far edge, unhurried, and is gone before the dust settles. ' +
+    'The pell, an old friend with no memory of you, has improved at being a pell. ' +
     'Whatever you did — and you cannot quite remember the specifics, only the volume of voices — it was sufficient. ' +
-    'The pell, an old friend with no memory of you, is still here. It has improved at being a pell.',
+    'The notice itemises.',
+  choices: [
+    { label: 'Read the notice.', resolve: 'knight_opener_engage_notice' }
+  ]
+};
+
+export const knight_opener_b: NarrativeNode = {
+  id: NarrativeNodeId('knight_opener_b'),
+  prose:
+    'You read it. The notice is shorter than the noise it caused. ' +
+    'You step away from the duty board. The pell waits.',
   choices: [
     { label: 'Take it out on the pell.', resolve: 'open_with_pell' }
   ]
 };
 
+// Wizard / Bard / Farmhand short nodes (placeholders) — replaced in Tasks 3-5.
 export const wizard_opening_short: NarrativeNode = {
   id: NarrativeNodeId('wizard_opening_short'),
   prose:
@@ -33,9 +48,6 @@ export const bard_opening_short: NarrativeNode = {
   ]
 };
 
-// Plan 5 will replace this with the full bespoke ~5-minute opening scene.
-// For now this placeholder satisfies validateContent — events.ts's StartNewGame
-// already pushes hardcoded opening lines for Farmhand and never actually loads this node.
 export const farmhand_opening_short: NarrativeNode = {
   id: NarrativeNodeId('farmhand_opening_short'),
   prose: 'PLACEHOLDER — wired by Plan 5.',

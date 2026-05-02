@@ -43,10 +43,28 @@ export const wizard_opener_a: NarrativeNode = {
   ]
 };
 
-export const wizard_opener_b: NarrativeNode = {
-  id: NarrativeNodeId('wizard_opener_b'),
+export const wizard_opener_b_a: NarrativeNode = {
+  id: NarrativeNodeId('wizard_opener_b_a'),
   prose:
-    'You follow the chosen line. The tome falls quiet, briefly. The footnote remains.',
+    "You follow the lich-king margin's line. The tome falls quiet, briefly. The footnote remains.",
+  choices: [
+    { label: 'Address the footnote.', resolve: 'open_with_footnote' }
+  ]
+};
+
+export const wizard_opener_b_b: NarrativeNode = {
+  id: NarrativeNodeId('wizard_opener_b_b'),
+  prose:
+    "You follow the itch-king margin's line. The tome falls quiet, briefly. The footnote remains.",
+  choices: [
+    { label: 'Address the footnote.', resolve: 'open_with_footnote' }
+  ]
+};
+
+export const wizard_opener_b_c: NarrativeNode = {
+  id: NarrativeNodeId('wizard_opener_b_c'),
+  prose:
+    "You follow the third margin's line. The tome falls quiet, briefly. The footnote remains.",
   choices: [
     { label: 'Address the footnote.', resolve: 'open_with_footnote' }
   ]

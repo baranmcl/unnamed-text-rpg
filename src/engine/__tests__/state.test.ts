@@ -2,14 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { createInitialState, createDemoState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { reduce } from '../events';
-import { ClassId, ItemId, LocationId, EncounterId, type GameState } from '../types';
+import { ClassId, ItemId, LocationId, EncounterId } from '../types';
 import type { TurnBasedCombatState } from '../types';
-
-function skipFarmhandOpener(s: GameState): GameState {
-  let next = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });  // engagement
-  next = reduce(next, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });  // commitment
-  return next;
-}
+import { skipFarmhandOpener } from './testHelpers';
 
 describe('createInitialState', () => {
   it('returns a fresh state with no character', () => {

@@ -28,7 +28,12 @@ describe('quests e2e', () => {
       ...gameStore.state,
       combat: {
         ...gameStore.state.combat,
-        combatants: gameStore.state.combat.combatants.map((c) => (c.id === monsterId ? { ...c, hp: 1 } : c))
+        combatants: gameStore.state.combat.combatants.map((c) => {
+          if (c.id === monsterId) return { ...c, hp: 1 };
+          // Guarantee a hit so the test is deterministic regardless of RNG seed.
+          if (c.kind === 'player') return { ...c, statuses: [{ id: 1, kind: 'guaranteed_crit' as const, duration: { kind: 'one_shot' as const }, source: 'test' }] };
+          return c;
+        })
       }
     };
     gameStore.state = wounded;

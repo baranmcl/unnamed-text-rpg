@@ -146,7 +146,7 @@ const wizard_opener_engage_a: NarrativeResolver = (state) => ({
     ...state,
     world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'a' } }
   },
-  next: NarrativeNodeId('wizard_opener_b')
+  next: NarrativeNodeId('wizard_opener_b_a')
 });
 
 const wizard_opener_engage_b: NarrativeResolver = (state) => ({
@@ -154,7 +154,7 @@ const wizard_opener_engage_b: NarrativeResolver = (state) => ({
     ...state,
     world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'b' } }
   },
-  next: NarrativeNodeId('wizard_opener_b')
+  next: NarrativeNodeId('wizard_opener_b_b')
 });
 
 const wizard_opener_engage_c: NarrativeResolver = (state) => ({
@@ -162,7 +162,7 @@ const wizard_opener_engage_c: NarrativeResolver = (state) => ({
     ...state,
     world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'c' } }
   },
-  next: NarrativeNodeId('wizard_opener_b')
+  next: NarrativeNodeId('wizard_opener_b_c')
 });
 
 const bard_opener_engage_lute: NarrativeResolver = (state) => ({

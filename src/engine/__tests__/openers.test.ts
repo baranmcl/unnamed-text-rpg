@@ -72,7 +72,7 @@ describe('Wizard opener', () => {
     expect(s.world.flags['wizard_first_margin']).toBe(margin);
     expect(s.combat?.kind).toBe('narrative');
     if (s.combat?.kind === 'narrative') {
-      expect(s.combat.currentNodeId).toBe(NarrativeNodeId('wizard_opener_b'));
+      expect(s.combat.currentNodeId).toBe(NarrativeNodeId(`wizard_opener_b_${margin}`));
     }
   });
 

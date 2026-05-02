@@ -92,6 +92,9 @@ export function validateContent(): void {
     if (!(cls.openingNarrativeNodeId in content.narrativeNodes)) {
       errors.push(`Class ${cls.id} openingNarrativeNodeId references unknown ${cls.openingNarrativeNodeId}.`);
     }
+    if (cls.openingEncounterId && !(cls.openingEncounterId in content.encounters)) {
+      errors.push(`Class ${cls.id} openingEncounterId references unknown ${cls.openingEncounterId}.`);
+    }
     for (const startItem of cls.startingItems) {
       if (!(startItem.itemId in content.items)) {
         errors.push(`Class ${cls.id} startingItems references unknown ${startItem.itemId}.`);

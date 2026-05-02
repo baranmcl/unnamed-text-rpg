@@ -45,4 +45,13 @@ describe('openers e2e', () => {
       expect(gameStore.state.combat.encounterId).toBe(EncounterId('combat_pointed_heckler'));
     }
   });
+
+  it('Farmhand: full opener flow ends in free play (no tutorial combat)', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'F', classId: ClassId('reluctant_farmhand') });
+    expect(gameStore.state.combat?.kind).toBe('narrative');
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(gameStore.state.world.flags['corked_jar']).toBe(true);
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(gameStore.state.combat).toBeNull();
+  });
 });

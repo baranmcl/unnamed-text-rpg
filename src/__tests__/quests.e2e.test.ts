@@ -11,6 +11,9 @@ describe('quests e2e', () => {
 
   it('farmhand full Chapter 1 run completes answer_the_call with rewards', () => {
     gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
+    // Walk past the bespoke opener (engagement → commitment terminates).
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
 
     // Quest activated immediately on game start.
     expect(gameStore.state.story.activeQuests).toContain('answer_the_call');
@@ -78,6 +81,8 @@ describe('quests e2e', () => {
 
   it('Consign this tale to the flames wipes quest state along with the save', () => {
     gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
     expect(gameStore.state.story.activeQuests).toContain('answer_the_call');
     gameStore.resetSave();
     expect(gameStore.state.story.activeQuests).toEqual([]);
@@ -87,6 +92,8 @@ describe('quests e2e', () => {
 
   it('Forget thy deeds leaves quest state intact', () => {
     gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
     const before = gameStore.state.story.activeQuests;
     gameStore.forgetAchievements();
     expect(gameStore.state.story.activeQuests).toEqual(before);

@@ -2,8 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { createInitialState, createDemoState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { reduce } from '../events';
-import { ClassId, ItemId, LocationId, EncounterId } from '../types';
+import { ClassId, ItemId, LocationId, EncounterId, type GameState } from '../types';
 import type { TurnBasedCombatState } from '../types';
+
+function skipFarmhandOpener(s: GameState): GameState {
+  let next = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });  // engagement
+  next = reduce(next, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });  // commitment
+  return next;
+}
 
 describe('createInitialState', () => {
   it('returns a fresh state with no character', () => {
@@ -90,6 +96,7 @@ describe('reduce — game-flow events', () => {
   it('EnterLocation updates currentLocation and adds to visited', () => {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_farm') });
     expect(s.world.visited).toContain(LocationId('family_farm'));
   });
@@ -97,6 +104,7 @@ describe('reduce — game-flow events', () => {
   it('EquipItem moves an inventory item into a slot', () => {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     // Unequip first
     s = reduce(s, { kind: 'UnequipSlot', slot: 'weapon' });
     expect(s.character.equipment.weapon).toBeUndefined();
@@ -108,6 +116,7 @@ describe('reduce — game-flow events', () => {
   it('TriggerEncounter starts combat with the encounter\'s monster', () => {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     expect(s.combat).not.toBeNull();
   });
@@ -115,6 +124,7 @@ describe('reduce — game-flow events', () => {
   it('AttackTarget reduces enemy hp (sometimes — try several)', () => {
     let s = createInitialState(2);
     s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     const monBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
     let dropped = false;

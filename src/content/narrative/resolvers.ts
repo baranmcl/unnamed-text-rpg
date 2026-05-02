@@ -173,6 +173,19 @@ const bard_opener_engage_lute: NarrativeResolver = (state) => ({
   next: NarrativeNodeId('bard_opener_b')
 });
 
+const farmhand_opener_engage_jar: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, corked_jar: true } }
+  },
+  next: NarrativeNodeId('farmhand_opener_b')
+});
+
+const farmhand_to_back_field: NarrativeResolver = (state) => ({
+  state,
+  next: null
+});
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -186,5 +199,7 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   wizard_opener_engage_a,
   wizard_opener_engage_b,
   wizard_opener_engage_c,
-  bard_opener_engage_lute
+  bard_opener_engage_lute,
+  farmhand_opener_engage_jar,
+  farmhand_to_back_field
 };

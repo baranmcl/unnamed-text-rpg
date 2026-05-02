@@ -16,9 +16,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('tempt_fate'),
     openingLocationId: LocationId('family_farm'),
-    // Plan 5 wires this to a real narrative node for the full opening scene.
-    // For Plan 2 the StartNewGame reducer emits a short opener directly.
-    openingNarrativeNodeId: NarrativeNodeId('farmhand_opening_short'),
+    openingNarrativeNodeId: NarrativeNodeId('farmhand_opener_a'),
+    openingEncounterId: EncounterId('farmhand_opener_encounter'),
     hpLabel: 'Pluck',
     mpLabel: 'Wits'
   },

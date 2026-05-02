@@ -9,7 +9,7 @@ import { grievance_bursar } from './grievance_bursar';
 import { errant_examiner } from './errant_examiner';
 import { critic_with_notes } from './critic_with_notes';
 import { hermit_lingering } from './hermit_lingering';
-import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter } from './openings';
+import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter, farmhand_opener_encounter } from './openings';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -24,5 +24,6 @@ export const encounters: Record<EncounterId, Encounter> = {
   [hermit_lingering.id]: hermit_lingering,
   [knight_opener_encounter.id]: knight_opener_encounter,
   [wizard_opener_encounter.id]: wizard_opener_encounter,
-  [bard_opener_encounter.id]: bard_opener_encounter
+  [bard_opener_encounter.id]: bard_opener_encounter,
+  [farmhand_opener_encounter.id]: farmhand_opener_encounter
 };

@@ -78,8 +78,28 @@ export const bard_opener_b: NarrativeNode = {
   ]
 };
 
-export const farmhand_opening_short: NarrativeNode = {
-  id: NarrativeNodeId('farmhand_opening_short'),
-  prose: 'PLACEHOLDER — wired by Plan 5.',
-  choices: []
+export const farmhand_opener_a: NarrativeNode = {
+  id: NarrativeNodeId('farmhand_opener_a'),
+  prose:
+    'You wake on a Tuesday, which is, statistically, when most prophecies arrive. ' +
+    'The kettle is already on. The chickens are already disappointed. ' +
+    "On the windowsill: a jar of last year's preserves, dust on the lid, a hand-written label peeling at one corner. " +
+    'The back field, un-weeded for a week, calls in the wordless way fields call. ' +
+    'Down the lane, a figure in tweed passes the farm without slowing. He glances once at the kitchen window. He keeps walking. ' +
+    'The cow, in the near pasture, regards you with the unfocused malice of a creature who has, against all odds, become aware of fate. ' +
+    'Whatever the day intends, it has chosen not to ask. You stand at the kitchen window. ' +
+    'The jar is small enough to fit in a pocket.',
+  choices: [
+    { label: 'Take the jar from the windowsill.', resolve: 'farmhand_opener_engage_jar' }
+  ]
+};
+
+export const farmhand_opener_b: NarrativeNode = {
+  id: NarrativeNodeId('farmhand_opener_b'),
+  prose:
+    'The jar fits. The lid is firm. You step out the kitchen door and the back field opens before you. ' +
+    'The cow does not turn. The chickens continue to be disappointed.',
+  choices: [
+    { label: 'Walk to the back field.', resolve: 'farmhand_to_back_field' }
+  ]
 };

@@ -21,4 +21,9 @@ export const bard_opener_encounter: NarrativeEncounter = {
   noFlee: true
 };
 
-// Farmhand opener encounter — added in Task 5.
+export const farmhand_opener_encounter: NarrativeEncounter = {
+  id: EncounterId('farmhand_opener_encounter'),
+  kind: 'narrative',
+  rootNodeId: NarrativeNodeId('farmhand_opener_a'),
+  noFlee: true
+};

@@ -2,8 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { checkQuests } from '../quests';
 import { createInitialState } from '../state';
 import { reduce } from '../events';
-import { ClassId, EncounterId, LocationId, QuestId } from '../types';
+import { ClassId, EncounterId, LocationId, QuestId, type GameState } from '../types';
 import { content } from '../../content';
+
+function skipFarmhandOpener(s: GameState): GameState {
+  let next = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+  next = reduce(next, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+  return next;
+}
 
 describe('checkQuests baseline', () => {
   it('returns a different state reference after activating quests', () => {
@@ -30,6 +36,7 @@ describe('checkQuests with the live registry', () => {
   function withCharacter() {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     return s;
   }
 
@@ -158,6 +165,7 @@ describe('checkQuests integration via reduce', () => {
   function withCharacter() {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
     return s;
   }
 

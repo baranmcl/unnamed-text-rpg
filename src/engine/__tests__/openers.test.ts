@@ -134,3 +134,43 @@ describe('Bard opener', () => {
     expect(lastEntry?.text).toMatch(/A man in tweed sits there, taking notes/);
   });
 });
+
+describe('Farmhand opener', () => {
+  function startFarmhand() {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'F', classId: ClassId('reluctant_farmhand') });
+    return s;
+  }
+
+  it('starts in the Farmhand engagement node after StartNewGame', () => {
+    const s = startFarmhand();
+    expect(s.combat?.kind).toBe('narrative');
+    if (s.combat?.kind === 'narrative') {
+      expect(s.combat.currentNodeId).toBe(NarrativeNodeId('farmhand_opener_a'));
+    }
+  });
+
+  it('engagement choice plants corked_jar and advances to Node B', () => {
+    let s = startFarmhand();
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.world.flags['corked_jar']).toBe(true);
+    expect(s.combat?.kind).toBe('narrative');
+    if (s.combat?.kind === 'narrative') {
+      expect(s.combat.currentNodeId).toBe(NarrativeNodeId('farmhand_opener_b'));
+    }
+  });
+
+  it('commitment choice terminates the encounter (no combat queued)', () => {
+    let s = startFarmhand();
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.combat).toBeNull();
+    expect(s.world.flags['__pending_encounter']).toBeUndefined();
+  });
+
+  it('Node A prose contains the figure-in-tweed-down-the-lane cameo', () => {
+    const s = startFarmhand();
+    const lastEntry = s.log[s.log.length - 1];
+    expect(lastEntry?.text).toMatch(/figure in tweed passes the farm/);
+  });
+});

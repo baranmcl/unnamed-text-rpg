@@ -32,21 +32,21 @@ describe('QuestLogModal', () => {
   });
 
   it('renders the dialog when open', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const { getByRole, getByText } = render(QuestLogModal, { props: { open: true, onClose: () => {} } });
     expect(getByRole('dialog')).toBeInTheDocument();
     expect(getByText(/Quest Log/i)).toBeInTheDocument();
   });
 
   it('renders the active main quest with its current objective', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const { getByText } = render(QuestLogModal, { props: { open: true, onClose: () => {} } });
     expect(getByText(/Answer the Call to Adventure/)).toBeInTheDocument();
     expect(getByText(/Survive your morning/)).toBeInTheDocument();
   });
 
   it('does not render future objectives in the DOM', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const { queryByText } = render(QuestLogModal, { props: { open: true, onClose: () => {} } });
     // Objective 1 (current) should be visible. Objectives 2, 3, 4 must not be.
     expect(queryByText(/Travel to the Dusty Crossroads/)).toBeNull();
@@ -55,14 +55,14 @@ describe('QuestLogModal', () => {
   });
 
   it('renders empty side and completed sections with "(none yet)" copy', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const { getAllByText } = render(QuestLogModal, { props: { open: true, onClose: () => {} } });
     const noneEntries = getAllByText(/none yet/i);
     expect(noneEntries.length).toBeGreaterThanOrEqual(2);
   });
 
   it('calls onClose when the close button is clicked', async () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const onClose = vi.fn();
     const { getByRole } = render(QuestLogModal, { props: { open: true, onClose } });
     await fireEvent.click(getByRole('button', { name: /close/i }));
@@ -70,7 +70,7 @@ describe('QuestLogModal', () => {
   });
 
   it('calls markQuestLogOpened when the modal opens', async () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const beforeCount = gameStore.state.story.questLogActivityCount;
     expect(gameStore.state.story.questLogActivityAtLastOpen).toBe(0);
     render(QuestLogModal, { props: { open: true, onClose: () => {} } });
@@ -79,7 +79,7 @@ describe('QuestLogModal', () => {
   });
 
   it('shows completed objectives with a collapse toggle when at least one is done', async () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     // Simulate completing the first objective by setting an unlock flag.
     gameStore.state = {
       ...gameStore.state,

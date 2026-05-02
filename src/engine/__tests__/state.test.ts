@@ -75,9 +75,9 @@ describe('reduce — settings events', () => {
 describe('reduce — game-flow events', () => {
   it('StartNewGame populates character from class definition and emits opening log', () => {
     const s0 = createInitialState(1);
-    const s1 = reduce(s0, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    const s1 = reduce(s0, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     expect(s1.character.name).toBe('Brendan');
-    expect(s1.character.classId).toBe(ClassId('reluctant_farmboy'));
+    expect(s1.character.classId).toBe(ClassId('reluctant_farmhand'));
     expect(s1.character.level).toBe(1);
     expect(s1.character.stats.brawn).toBe(8);
     expect(s1.character.hp.max).toBeGreaterThan(0);
@@ -89,14 +89,14 @@ describe('reduce — game-flow events', () => {
 
   it('EnterLocation updates currentLocation and adds to visited', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_farm') });
     expect(s.world.visited).toContain(LocationId('family_farm'));
   });
 
   it('EquipItem moves an inventory item into a slot', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     // Unequip first
     s = reduce(s, { kind: 'UnequipSlot', slot: 'weapon' });
     expect(s.character.equipment.weapon).toBeUndefined();
@@ -107,14 +107,14 @@ describe('reduce — game-flow events', () => {
 
   it('TriggerEncounter starts combat with the encounter\'s monster', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     expect(s.combat).not.toBeNull();
   });
 
   it('AttackTarget reduces enemy hp (sometimes — try several)', () => {
     let s = createInitialState(2);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     const monBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
     let dropped = false;

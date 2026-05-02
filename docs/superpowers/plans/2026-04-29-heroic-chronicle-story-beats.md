@@ -241,7 +241,7 @@ import { ClassId, LocationId, BeatId, ItemId, type GameState, type Predicate, ty
 
 function freshState(): GameState {
   let s = createInitialState(1);
-  s = { ...s, character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmboy') } };
+  s = { ...s, character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmhand') } };
   return s;
 }
 
@@ -536,7 +536,7 @@ function freshState(): GameState {
   let s = createInitialState(1);
   s = {
     ...s,
-    character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmboy') },
+    character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmhand') },
     world: { ...s.world, currentLocation: LocationId('dusty_crossroads') }
   };
   return s;
@@ -1479,7 +1479,7 @@ npm run dev
 ```
 
 Walk through:
-1. Start a new game (Reluctant Farmboy, any name).
+1. Start a new game (Reluctant Farmhand, any name).
 2. See the Family Farm description in the log + the "ACT — The Ordinary World establishes itself..." beat fires automatically.
 3. Confront the Officious Tax Rat → win.
 4. After victory log, the `hermit_beckons` beat fires: "A figure waves at you from the road..." log entry, plus "PATH — A new exit opens..."

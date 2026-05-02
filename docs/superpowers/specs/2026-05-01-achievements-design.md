@@ -309,7 +309,7 @@ The spine achievements deliberately have unset flag triggers in current code. Th
 ### 8.4 Integration smoke test
 
 A new e2e test in `src/__tests__/`:
-- Farmboy plays through to first combat victory → assert `first_blood` toast appeared; log has the system entry; localStorage has the achievement persisted.
+- Farmhand plays through to first combat victory → assert `first_blood` toast appeared; log has the system entry; localStorage has the achievement persisted.
 - Reload simulation: `loadAchievements` returns the achievement.
 - After `gameStore.resetSave()`: achievements still there.
 - After `gameStore.forgetAchievements()`: achievements gone; save still intact.

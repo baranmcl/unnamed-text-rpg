@@ -20,7 +20,7 @@ describe('WorldPanel quest log chrome', () => {
       removeEventListener: () => {},
       finished: Promise.resolve()
     }) as unknown as typeof Element.prototype.animate;
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
   });
 
   afterEach(() => {

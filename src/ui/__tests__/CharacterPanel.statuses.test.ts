@@ -9,7 +9,7 @@ import type { ClassId } from '../../engine/types';
 describe('CharacterPanel Afflictions & Boons row', () => {
   it('hides the row when statuses array is empty', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     gameStore.state = s;
     const { queryByText } = render(CharacterPanel);
     expect(queryByText(/Afflictions/i)).toBeNull();
@@ -17,7 +17,7 @@ describe('CharacterPanel Afflictions & Boons row', () => {
 
   it('renders the row with one badge per world-scoped status', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = {
       ...s,
       character: {

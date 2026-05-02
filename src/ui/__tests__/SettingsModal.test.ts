@@ -53,7 +53,7 @@ describe('SettingsModal', () => {
   });
 
   it('forgetAchievements is called on confirm', async () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
 

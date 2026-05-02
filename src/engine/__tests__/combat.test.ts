@@ -102,7 +102,7 @@ function characterAtLocation() {
     character: {
       ...s.character,
       name: 'Test',
-      classId: ClassId('reluctant_farmboy'),
+      classId: ClassId('reluctant_farmhand'),
       level: 1,
       hp: { current: 50, max: 50 },
       mp: { current: 10, max: 10 },
@@ -182,7 +182,7 @@ describe('combat sub-reducer', () => {
 
 function buildCombatState(): GameState {
   let s = createInitialState(123);
-  s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
   s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
   return s;
 }
@@ -257,7 +257,7 @@ describe('combat reads statuses', () => {
 
   it('intimidated on monster causes its next turn to be skipped', () => {
     let s = createInitialState(123);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
     if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
     const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
@@ -342,7 +342,7 @@ describe('combat reads statuses', () => {
 describe('endCombat victory side-effects (achievements)', () => {
   it('sets achievements.first_combat_won to true on first victory', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     if (s.combat?.kind !== 'turn-based') throw new Error('expected turn-based combat');
     const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
@@ -361,7 +361,7 @@ describe('endCombat victory side-effects (achievements)', () => {
 describe('endCombat awardXp regression', () => {
   it('first_tax_rat victory grants the same level/xp outcome as before extraction', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
     if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
     const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;

@@ -55,12 +55,12 @@ describe('All four classes enabled', () => {
     const knightCard = getByRole('radio', { name: /class disgraced knight/i }) as HTMLInputElement;
     const wizardCard = getByRole('radio', { name: /class accidental wizard/i }) as HTMLInputElement;
     const bardCard = getByRole('radio', { name: /class bard/i }) as HTMLInputElement;
-    const farmboyCard = getByRole('radio', { name: /class reluctant farmboy/i }) as HTMLInputElement;
+    const farmhandCard = getByRole('radio', { name: /class reluctant farmhand/i }) as HTMLInputElement;
 
     expect(knightCard.disabled).toBe(false);
     expect(wizardCard.disabled).toBe(false);
     expect(bardCard.disabled).toBe(false);
-    expect(farmboyCard.disabled).toBe(false);
+    expect(farmhandCard.disabled).toBe(false);
   });
 
   it('renders a teaser line for each class', () => {

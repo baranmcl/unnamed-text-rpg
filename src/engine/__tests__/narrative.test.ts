@@ -16,7 +16,7 @@ function freshState(): GameState {
   let s = createInitialState(1);
   s = {
     ...s,
-    character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmboy') },
+    character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmhand') },
     world: { ...s.world, currentLocation: LocationId('dusty_crossroads') }
   };
   return s;

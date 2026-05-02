@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn the Plan 1 shell into something playable. By the end, a fresh save shows character creation; the player picks a name, picks the Reluctant Farmboy (the other three classes are disabled), reads a short opening scene, lands on the Family Farm, can inspect items, equip/unequip, click "Confront the rat" to enter combat, fight the Officious Tax Rat with Attack/Item/Flee (Skill button visible but disabled), win or lose, and have the entire session resume from save on reload.
+**Goal:** Turn the Plan 1 shell into something playable. By the end, a fresh save shows character creation; the player picks a name, picks the Reluctant Farmhand (the other three classes are disabled), reads a short opening scene, lands on the Family Farm, can inspect items, equip/unequip, click "Confront the rat" to enter combat, fight the Officious Tax Rat with Attack/Item/Flee (Skill button visible but disabled), win or lose, and have the entire session resume from save on reload.
 
 **Architecture:** Extends the Plan 1 engine. New content registries (`src/content/`) are loaded at startup. New events extend the existing reducer. Combat is a self-contained sub-reducer in `src/engine/combat.ts` operating on `state.combat`. UI gains a `CharacterCreation` route, an `InspectModal`, and contextual button bars in `WorldPanel` driven by `state.combat ? 'combat' : 'exploration'`.
 
@@ -12,7 +12,7 @@
 
 **Confirmed scope decisions** (from brainstorm before this plan):
 - Character creation: single screen, name input + 4 class cards (3 disabled with "Coming in Plan 4" tooltip).
-- Farmboy opening scene: short — 3–5 log entries (~30 sec). The full ~5-min scene + other three openings authored together in Plan 5.
+- Farmhand opening scene: short — 3–5 log entries (~30 sec). The full ~5-min scene + other three openings authored together in Plan 5.
 - First combat: triggered by an explicit "Confront the rat" button on the Family Farm location. No auto-trigger on entry.
 - Skill button: visible but disabled in this plan, with tooltip "Skills unlock at Level 3" — sets player expectation.
 
@@ -30,7 +30,7 @@
 - `src/content/monsters/officious_tax_rat.ts`
 - `src/content/encounters/tax_rat.ts`
 - `src/content/locations/family_farm.ts`
-- `src/content/classes/reluctant_farmboy.ts`
+- `src/content/classes/reluctant_farmhand.ts`
 - `src/content/skills/index.ts` — SkillId constants + display metadata for the disabled Skill button
 - `src/content/__tests__/validate.test.ts`
 
@@ -482,13 +482,13 @@ Expected: 0 errors.
 
 ---
 
-## Task 6: Author Tempt Fate skill stub + Reluctant Farmboy class
+## Task 6: Author Tempt Fate skill stub + Reluctant Farmhand class
 
 **Files:**
 - Modify (replace): `src/content/skills/index.ts`
 - Modify (replace): `src/content/classes/index.ts`
 
-The Tempt Fate skill is the Farmboy's signature move. In Plan 2 it ships only as metadata so the disabled Skill button can show its name in a tooltip. Its combat resolver lands in Plan 4.
+The Tempt Fate skill is the Farmhand's signature move. In Plan 2 it ships only as metadata so the disabled Skill button can show its name in a tooltip. Its combat resolver lands in Plan 4.
 
 - [ ] **Step 1: Replace `src/content/skills/index.ts`**
 
@@ -513,10 +513,10 @@ export const skills: Record<SkillId, Skill> = {
 import { ClassId, ItemId, LocationId, NarrativeNodeId, SkillId, type CharacterClass } from '../../engine/types';
 
 export const classes: Record<ClassId, CharacterClass> = {
-  [ClassId('reluctant_farmboy')]: {
-    id: ClassId('reluctant_farmboy'),
-    name: 'Reluctant Farmboy',
-    epithet: 'the Reluctant Farmboy',
+  [ClassId('reluctant_farmhand')]: {
+    id: ClassId('reluctant_farmhand'),
+    name: 'Reluctant Farmhand',
+    epithet: 'the Reluctant Farmhand',
     startingStats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
     baseHp: 30,
     baseMp: 10,
@@ -529,7 +529,7 @@ export const classes: Record<ClassId, CharacterClass> = {
     openingLocationId: LocationId('family_farm'),
     // Plan 5 wires this to a real narrative node for the full opening scene.
     // For Plan 2 the StartNewGame reducer emits a short opener directly.
-    openingNarrativeNodeId: NarrativeNodeId('farmboy_opening_short')
+    openingNarrativeNodeId: NarrativeNodeId('farmhand_opening_short')
   }
 };
 ```
@@ -539,7 +539,7 @@ export const classes: Record<ClassId, CharacterClass> = {
 ```bash
 npm run check
 git add src/content/skills/index.ts src/content/classes/index.ts
-git commit -m "Author Tempt Fate skill stub and Reluctant Farmboy class"
+git commit -m "Author Tempt Fate skill stub and Reluctant Farmhand class"
 ```
 
 Expected: 0 errors.
@@ -763,7 +763,7 @@ function characterAtLocation() {
     character: {
       ...s.character,
       name: 'Test',
-      classId: ClassId('reluctant_farmboy'),
+      classId: ClassId('reluctant_farmhand'),
       level: 1,
       hp: { current: 50, max: 50 },
       mp: { current: 10, max: 10 },
@@ -1084,9 +1084,9 @@ Then append this new `describe` block to the BOTTOM of the file:
 describe('reduce — game-flow events', () => {
   it('StartNewGame populates character from class definition and emits opening log', () => {
     const s0 = createInitialState(1);
-    const s1 = reduce(s0, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    const s1 = reduce(s0, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     expect(s1.character.name).toBe('Brendan');
-    expect(s1.character.classId).toBe(ClassId('reluctant_farmboy'));
+    expect(s1.character.classId).toBe(ClassId('reluctant_farmhand'));
     expect(s1.character.level).toBe(1);
     expect(s1.character.stats.brawn).toBe(8);
     expect(s1.character.hp.max).toBeGreaterThan(0);
@@ -1098,14 +1098,14 @@ describe('reduce — game-flow events', () => {
 
   it('EnterLocation updates currentLocation and adds to visited', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_farm') });
     expect(s.world.visited).toContain(LocationId('family_farm'));
   });
 
   it('EquipItem moves an inventory item into a slot', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     // Unequip first
     s = reduce(s, { kind: 'UnequipSlot', slot: 'weapon' });
     expect(s.character.equipment.weapon).toBeUndefined();
@@ -1116,14 +1116,14 @@ describe('reduce — game-flow events', () => {
 
   it('TriggerEncounter starts combat with the encounter\'s monster', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     expect(s.combat).not.toBeNull();
   });
 
   it('AttackTarget reduces enemy hp (sometimes — try several)', () => {
     let s = createInitialState(2);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
     const monBefore = s.combat!.combatants.find((c) => c.kind === 'monster')!.hp;
     let dropped = false;
@@ -1472,7 +1472,7 @@ git commit -m "Use createInitialState for fresh saves; validate content at start
 - Create: `src/ui/CharacterCreation.svelte`
 - Create: `src/ui/__tests__/CharacterCreation.test.ts`
 
-Single-screen form: name input + four class cards (only Reluctant Farmboy enabled). Submit dispatches `StartNewGame`. Submit disabled until name and class are both selected. Disabled class cards have a tooltip "Coming in Plan 4."
+Single-screen form: name input + four class cards (only Reluctant Farmhand enabled). Submit dispatches `StartNewGame`. Submit disabled until name and class are both selected. Disabled class cards have a tooltip "Coming in Plan 4."
 
 - [ ] **Step 1: Failing test**
 
@@ -1496,14 +1496,14 @@ describe('CharacterCreation', () => {
     expect(cards).toHaveLength(4);
   });
 
-  it('disables class cards other than Reluctant Farmboy', () => {
+  it('disables class cards other than Reluctant Farmhand', () => {
     const { getAllByRole } = render(CharacterCreation);
     const cards = getAllByRole('radio', { name: /class/i }) as HTMLInputElement[];
     const enabled = cards.filter((c) => !c.disabled);
     expect(enabled.length).toBe(1);
   });
 
-  it('start button is disabled until name + Farmboy selected', async () => {
+  it('start button is disabled until name + Farmhand selected', async () => {
     const { getByLabelText, getByRole } = render(CharacterCreation);
     const startBtn = getByRole('button', { name: /begin/i }) as HTMLButtonElement;
     expect(startBtn.disabled).toBe(true);
@@ -1512,8 +1512,8 @@ describe('CharacterCreation', () => {
     await fireEvent.input(nameInput, { target: { value: 'Brendan' } });
     expect(startBtn.disabled).toBe(true);  // class still not selected
 
-    const farmboy = getByLabelText(/reluctant farmboy/i) as HTMLInputElement;
-    await fireEvent.click(farmboy);
+    const farmhand = getByLabelText(/reluctant farmhand/i) as HTMLInputElement;
+    await fireEvent.click(farmhand);
     expect(startBtn.disabled).toBe(false);
   });
 
@@ -1521,8 +1521,8 @@ describe('CharacterCreation', () => {
     const { getByLabelText, getByRole } = render(CharacterCreation);
     const nameInput = getByLabelText(/name/i) as HTMLInputElement;
     await fireEvent.input(nameInput, { target: { value: 'Brendan' } });
-    const farmboy = getByLabelText(/reluctant farmboy/i) as HTMLInputElement;
-    await fireEvent.click(farmboy);
+    const farmhand = getByLabelText(/reluctant farmhand/i) as HTMLInputElement;
+    await fireEvent.click(farmhand);
     const startBtn = getByRole('button', { name: /begin/i });
     await fireEvent.click(startBtn);
     expect(gameStore.state.character.name).toBe('Brendan');
@@ -1548,8 +1548,8 @@ npm run test -- CharacterCreation
   let name = $state('');
   let selectedClass = $state<ClassId | null>(null);
 
-  // For Plan 2: only Reluctant Farmboy is enabled.
-  const ENABLED_CLASSES: ClassId[] = ['reluctant_farmboy' as ClassId];
+  // For Plan 2: only Reluctant Farmhand is enabled.
+  const ENABLED_CLASSES: ClassId[] = ['reluctant_farmhand' as ClassId];
 
   let allClasses = $derived(Object.values(content.classes));
   let canBegin = $derived(name.trim().length > 0 && selectedClass !== null);
@@ -1692,7 +1692,7 @@ Expected: all 4 pass.
 
 ```bash
 git add src/ui/CharacterCreation.svelte src/ui/__tests__/CharacterCreation.test.ts
-git commit -m "Add CharacterCreation screen (Reluctant Farmboy only; other classes disabled)"
+git commit -m "Add CharacterCreation screen (Reluctant Farmhand only; other classes disabled)"
 ```
 
 ---
@@ -1729,7 +1729,7 @@ describe('App', () => {
   it('renders the game shell after character creation', async () => {
     const { getByLabelText, getByRole, getByText } = render(App);
     await fireEvent.input(getByLabelText(/name/i), { target: { value: 'Brendan' } });
-    await fireEvent.click(getByLabelText(/reluctant farmboy/i));
+    await fireEvent.click(getByLabelText(/reluctant farmhand/i));
     await fireEvent.click(getByRole('button', { name: /begin/i }));
     expect(getByText('Brendan')).toBeInTheDocument();
     expect(getByLabelText('World panel')).toBeInTheDocument();
@@ -1836,7 +1836,7 @@ describe('InspectModal', () => {
   beforeEach(() => {
     localStorage.clear();
     gameStore.resetSave();
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'Test', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Test', classId: ClassId('reluctant_farmhand') });
   });
 
   it('renders the item flavor text', () => {
@@ -1859,7 +1859,7 @@ describe('InspectModal', () => {
   });
 
   it('clicking Discard removes a quest item from inventory', async () => {
-    // Quest items show a "Discard" button (not "Drop"). The starter Farmboy
+    // Quest items show a "Discard" button (not "Drop"). The starter Farmhand
     // inventory includes Note from Mother (a quest item).
     const { getByRole } = render(InspectModal, { props: { itemId: ItemId('note_from_mother'), onClose: () => {} } });
     await fireEvent.click(getByRole('button', { name: /discard/i }));
@@ -2384,8 +2384,8 @@ npm run dev
 ```
 
 Walk through (in the browser at the printed URL):
-1. Page loads to CharacterCreation. Three class cards are dimmed; only Reluctant Farmboy is selectable.
-2. Type a name. Select Reluctant Farmboy. Click "Begin the tale."
+1. Page loads to CharacterCreation. Three class cards are dimmed; only Reluctant Farmhand is selectable.
+2. Type a name. Select Reluctant Farmhand. Click "Begin the tale."
 3. Game shell appears. Log shows the 3 opening lines + the Family Farm description. Character panel shows the character with stats 8/6/5/7, HP `30 + 8*3 = 54`, MP `10 + 6*2 = 22`, equipped Rusty Pitchfork + Itchy Wool Tunic, inventory of 3 items (pitchfork, tunic, note).
 4. The button bar shows just "Confront the Officious Tax Rat" (the Walk into the village exit is gated until later plans).
 5. Click an inventory slot — InspectModal opens. Try Unequip on the pitchfork; equipment slot empties. Equip again — slot fills.
@@ -2439,7 +2439,7 @@ Expected:
 | §3.3 Turn-based combat (Attack/Item/Flee, no Skill yet) | Tasks 8, 9, 10, 17 |
 | §3.4 Stats (the four Bs) — applied to a real character | Task 6, 10 (StartNewGame) |
 | §3.5 Signature moves — declared, not yet executed | Task 6 (Tempt Fate stub) |
-| §3.6 Character classes — Reluctant Farmboy fully wired | Task 6 |
+| §3.6 Character classes — Reluctant Farmhand fully wired | Task 6 |
 | §3.7 XP gain on combat victory | Task 9 (endCombat) |
 | §5 Content system — registries + validation | Tasks 2, 3, 4, 5, 6, 7 |
 | §5.4 v1 content — 1 class, 1 location, 1 monster, 1 encounter, 4 items | Tasks 3–6 |

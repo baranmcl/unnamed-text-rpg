@@ -214,7 +214,7 @@ describe('achievements persistence', () => {
   it('saveAchievements + loadAchievements round-trip', () => {
     const r: AchievementsRecord = {
       unlocked: [AchievementId('first_blood')],
-      played_classes: ['reluctant_farmboy'],
+      played_classes: ['reluctant_farmhand'],
       tempt_fate_backfires_seen: ['trip', 'crit_yourself'],
       unlockedCountAtLastOpen: 1
     };
@@ -376,7 +376,7 @@ describe('checkAchievements', () => {
 
   function withCharacter() {
     let s = createInitialState(1);
-    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmboy'), level: 1 } };
+    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmhand'), level: 1 } };
     return s;
   }
 
@@ -415,7 +415,7 @@ describe('checkAchievements', () => {
     const s = withCharacter();
     const r: AchievementsRecord = {
       ...fresh(),
-      played_classes: ['reluctant_farmboy', 'disgraced_knight', 'accidental_wizard', 'bard']
+      played_classes: ['reluctant_farmhand', 'disgraced_knight', 'accidental_wizard', 'bard']
     };
     const out = checkAchievements(s, r);
     expect(out.newlyUnlocked).toContain(AchievementId('the_tetralogy'));
@@ -485,7 +485,7 @@ describe('checkAchievements', () => {
 
   function withCharacter() {
     let s = createInitialState(1);
-    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmboy'), level: 1 } };
+    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmhand'), level: 1 } };
     return s;
   }
 
@@ -773,7 +773,7 @@ describe('checkAchievements with the live registry', () => {
 
   function withCharacter() {
     let s = createInitialState(1);
-    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmboy'), level: 1 } };
+    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmhand'), level: 1 } };
     return s;
   }
 
@@ -871,7 +871,7 @@ describe('checkAchievements with the live registry', () => {
     const s = withCharacter();
     const r: AchievementsRecord = {
       ...fresh(),
-      played_classes: ['reluctant_farmboy', 'disgraced_knight', 'accidental_wizard', 'bard']
+      played_classes: ['reluctant_farmhand', 'disgraced_knight', 'accidental_wizard', 'bard']
     };
     const out = checkAchievements(s, r);
     expect(out.newlyUnlocked).toContain(AchievementId('the_tetralogy'));
@@ -946,7 +946,7 @@ import { ClassId, EncounterId, type GameState } from '../types';
 describe('endCombat victory side-effects (achievements)', () => {
   it('sets achievements.first_combat_won to true on first victory', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     // Force a one-shot KO via direct state manipulation, then run a player action that triggers endCombat.
     if (s.combat?.kind !== 'turn-based') throw new Error('expected turn-based combat');
@@ -999,7 +999,7 @@ In `src/engine/__tests__/progression.test.ts`, append:
 describe('applyLevelUp signature_unlocked side-effect', () => {
   it('sets achievements.signature_unlocked when signature skill unlocks', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     // Drive level up to unlock-level (3) by injecting xp and triggering the threshold loop via a victory.
     // Simpler: call applyLevelUp directly twice (level 1 -> 2 -> 3) since unlockLevel is 3.
     s = applyLevelUp(s); // 1 -> 2
@@ -1118,7 +1118,7 @@ In `src/content/skills/__tests__/resolvers.test.ts`, append:
 describe('Tempt Fate achievement seeds', () => {
   it('sets achievements.tempted_fate on use', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
     s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -1133,7 +1133,7 @@ describe('Tempt Fate achievement seeds', () => {
     let observed: string | null = null;
     for (let seed = 1; seed <= 200 && observed === null; seed++) {
       let s = createInitialState(seed);
-      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
       s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
       s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
       s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -1233,18 +1233,18 @@ describe('store achievements integration', () => {
   });
 
   it('records the played class on StartNewGame', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    expect(gameStore.achievements.played_classes).toContain('reluctant_farmboy');
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    expect(gameStore.achievements.played_classes).toContain('reluctant_farmhand');
   });
 
   it('does not double-add the same played class', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    expect(gameStore.achievements.played_classes.filter((c) => c === 'reluctant_farmboy').length).toBe(1);
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    expect(gameStore.achievements.played_classes.filter((c) => c === 'reluctant_farmhand').length).toBe(1);
   });
 
   it('queues a toast and writes a system log entry when an achievement unlocks', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked).toContain(AchievementId('moonlit'));
     expect(gameStore.pendingToasts.some((a) => a.id === AchievementId('moonlit'))).toBe(true);
@@ -1255,14 +1255,14 @@ describe('store achievements integration', () => {
   });
 
   it('persists the achievements record to localStorage', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     const persisted = loadAchievements();
     expect(persisted.unlocked).toContain(AchievementId('moonlit'));
   });
 
   it('drains __just_tempted_backfire into tempt_fate_backfires_seen and clears the flag', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     gameStore.state = { ...gameStore.state, character: { ...gameStore.state.character, knownSkills: ['tempt_fate' as SkillId] } };
 
@@ -1282,7 +1282,7 @@ describe('store achievements integration', () => {
   });
 
   it('forgetAchievements clears the in-memory record and localStorage', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
     gameStore.forgetAchievements();
@@ -1291,7 +1291,7 @@ describe('store achievements integration', () => {
   });
 
   it('markAchievementsOpened sets unlockedCountAtLastOpen to current length', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
     gameStore.markAchievementsOpened();
@@ -2005,7 +2005,7 @@ describe('WorldPanel trophy chrome', () => {
     localStorage.clear();
     gameStore.resetSave();
     gameStore.forgetAchievements();
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
   });
 
   it('renders the trophy button', () => {
@@ -2174,7 +2174,7 @@ Append to `src/ui/__tests__/SettingsModal.test.ts`:
   });
 
   it('forgetAchievements is called on confirm', async () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
 
@@ -2296,8 +2296,8 @@ describe('achievements e2e', () => {
     gameStore.forgetAchievements();
   });
 
-  it('farmboy first-victory unlocks first_blood and persists', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+  it('farmhand first-victory unlocks first_blood and persists', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     if (gameStore.state.combat?.kind !== 'turn-based') throw new Error('expected combat');
     const monsterId = gameStore.state.combat.combatants.find((c) => c.kind === 'monster')!.id;
@@ -2321,7 +2321,7 @@ describe('achievements e2e', () => {
   });
 
   it('Consign this tale to the flames leaves achievements intact', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked).toContain(AchievementId('moonlit'));
     gameStore.resetSave();
@@ -2330,7 +2330,7 @@ describe('achievements e2e', () => {
   });
 
   it('Forget thy deeds wipes achievements but leaves the save intact', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     gameStore.saveNow();
     const beforeName = gameStore.state.character.name;
@@ -2344,7 +2344,7 @@ describe('achievements e2e', () => {
   });
 
   it('moonlit toast is queued and a system log entry appears in the same tick', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.pendingToasts.some((a) => a.id === AchievementId('moonlit'))).toBe(true);
     expect(

@@ -5,7 +5,7 @@ import { ClassId, LocationId, BeatId, ItemId, type GameState, type Predicate, ty
 
 function freshState(): GameState {
   let s = createInitialState(1);
-  s = { ...s, character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmboy') } };
+  s = { ...s, character: { ...s.character, name: 'Test', classId: ClassId('reluctant_farmhand') } };
   return s;
 }
 

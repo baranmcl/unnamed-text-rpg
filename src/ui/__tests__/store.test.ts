@@ -11,18 +11,18 @@ describe('store achievements integration', () => {
   });
 
   it('records the played class on StartNewGame', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    expect(gameStore.achievements.played_classes).toContain('reluctant_farmboy');
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    expect(gameStore.achievements.played_classes).toContain('reluctant_farmhand');
   });
 
   it('does not double-add the same played class', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
-    expect(gameStore.achievements.played_classes.filter((c) => c === 'reluctant_farmboy').length).toBe(1);
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    expect(gameStore.achievements.played_classes.filter((c) => c === 'reluctant_farmhand').length).toBe(1);
   });
 
   it('queues a toast and writes a system log entry when an achievement unlocks', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked).toContain(AchievementId('moonlit'));
     expect(gameStore.pendingToasts.some((a) => a.id === AchievementId('moonlit'))).toBe(true);
@@ -33,14 +33,14 @@ describe('store achievements integration', () => {
   });
 
   it('persists the achievements record to localStorage', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     const persisted = loadAchievements();
     expect(persisted.unlocked).toContain(AchievementId('moonlit'));
   });
 
   it('drains __just_tempted_backfire into tempt_fate_backfires_seen and clears the flag', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     gameStore.state = { ...gameStore.state, character: { ...gameStore.state.character, knownSkills: ['tempt_fate' as SkillId], mp: { current: 999, max: 999 } } };
 
@@ -63,7 +63,7 @@ describe('store achievements integration', () => {
   });
 
   it('forgetAchievements clears the in-memory record and localStorage', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
     gameStore.forgetAchievements();
@@ -72,7 +72,7 @@ describe('store achievements integration', () => {
   });
 
   it('markAchievementsOpened sets unlockedCountAtLastOpen to current length', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked.length).toBeGreaterThan(0);
     gameStore.markAchievementsOpened();
@@ -88,7 +88,7 @@ describe('store quest log integration', () => {
   });
 
   it('markQuestLogOpened snapshots questLogActivityCount into questLogActivityAtLastOpen', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     // After StartNewGame, the quest activates and increments the counter to 1.
     expect(gameStore.state.story.questLogActivityCount).toBeGreaterThanOrEqual(1);
     expect(gameStore.state.story.questLogActivityAtLastOpen).toBe(0);
@@ -97,7 +97,7 @@ describe('store quest log integration', () => {
   });
 
   it('badge derivation: count > snapshot reflects unseen activity', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     // Quest activated; snapshot is 0; badge should show.
     expect(gameStore.state.story.questLogActivityCount > gameStore.state.story.questLogActivityAtLastOpen).toBe(true);
     gameStore.markQuestLogOpened();

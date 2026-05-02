@@ -17,7 +17,7 @@ describe('App', () => {
   it('renders the game shell after character creation', async () => {
     const { getByLabelText, getByRole, getByText } = render(App);
     await fireEvent.input(getByLabelText(/name/i), { target: { value: 'Brendan' } });
-    await fireEvent.click(getByLabelText(/reluctant farmboy/i));
+    await fireEvent.click(getByLabelText(/reluctant farmhand/i));
     await fireEvent.click(getByRole('button', { name: /begin/i }));
     expect(getByText('Brendan')).toBeInTheDocument();
     expect(getByLabelText('World panel')).toBeInTheDocument();

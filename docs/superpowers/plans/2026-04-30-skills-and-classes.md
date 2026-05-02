@@ -547,7 +547,7 @@ describe('save migration v1 → v2', () => {
       rng: { seed: 1, step: 0 },
       character: {
         name: 'Test',
-        classId: 'reluctant_farmboy',
+        classId: 'reluctant_farmhand',
         level: 1,
         xp: 0,
         hp: { current: 30, max: 30 },
@@ -586,7 +586,7 @@ describe('save migration v1 → v2', () => {
       rng: { seed: 1, step: 0 },
       character: {
         name: 'Test',
-        classId: 'reluctant_farmboy',
+        classId: 'reluctant_farmhand',
         level: 1,
         xp: 0,
         hp: { current: 25, max: 30 },
@@ -700,7 +700,7 @@ import type { GameState, TurnBasedCombatState, EncounterId, MonsterId, ClassId }
 
 function buildCombatState(): GameState {
   let s = createInitialState(123);
-  s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
   // Trigger a combat encounter for predictable mechanics. The Practice Hay Bale
   // is repeatable, no flee restrictions, no special interactions.
   s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
@@ -787,7 +787,7 @@ describe('combat reads statuses', () => {
     // Use first_tax_rat which has actions; we apply intimidated and verify the
     // monster does not log an attack flavor.
     let s = createInitialState(123);
-    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
     if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
     const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
@@ -1344,7 +1344,7 @@ import type { ClassId, EncounterId, SkillId } from '../../../engine/types';
 describe('UseSkill MP gating', () => {
   it('does nothing if the player does not know the skill', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     const before = s.character.mp.current;
     s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -1354,7 +1354,7 @@ describe('UseSkill MP gating', () => {
   it('deducts MP and runs the resolver when the skill is known and MP is sufficient', () => {
     // Manually add tempt_fate to knownSkills (test fixture — we're not testing level-up here).
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
 
@@ -1407,7 +1407,7 @@ import { content } from '../../../content';
 describe('Brute Force resolver', () => {
   it('rolls a single attack with reduced accuracy and 1.8x damage', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['brute_force' as SkillId] } };
 
@@ -1569,7 +1569,7 @@ Append to `src/content/skills/__tests__/resolvers.test.ts`:
 describe('Out-Think It resolver', () => {
   it('applies weakness_revealed to the monster (until_end_of_fight)', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId] } };
 
@@ -1585,7 +1585,7 @@ describe('Out-Think It resolver', () => {
 
   it('replaces existing weakness_revealed (no stacking)', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId], mp: { current: 100, max: 100 } } };
 
@@ -1705,7 +1705,7 @@ Append to `src/content/skills/__tests__/resolvers.test.ts`:
 describe('Swagger resolver', () => {
   it('applies intimidated (turns: 1) to the monster, causing its next turn to skip', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['swagger' as SkillId] } };
 
@@ -1801,7 +1801,7 @@ Append to `src/content/skills/__tests__/resolvers.test.ts`:
 describe('Tempt Fate resolver', () => {
   it('applies guaranteed_crit (one_shot) to the player', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
 
@@ -1819,7 +1819,7 @@ describe('Tempt Fate resolver', () => {
     let backfireFired = false;
     for (let seed = 1; seed < 50 && !backfireFired; seed++) {
       let s = createInitialState(seed);
-      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
       s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
       s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
       s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -2013,22 +2013,22 @@ import { createInitialState } from '../state';
 import { ClassId, SkillId, type GameState } from '../types';
 import { reduce } from '../events';
 
-function farmboyAtLevel1(): GameState {
+function farmhandAtLevel1(): GameState {
   let s = createInitialState(1);
-  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
   return s;
 }
 
 describe('STAT_ROTATIONS', () => {
   it('has an entry for every class', () => {
-    expect(STAT_ROTATIONS['reluctant_farmboy' as ClassId]).toBeDefined();
+    expect(STAT_ROTATIONS['reluctant_farmhand' as ClassId]).toBeDefined();
     // Other classes will be added in Tasks 12-14; we verify shape, not content.
   });
 });
 
 describe('applyLevelUp', () => {
   it('increments level and adds HP/MP per the spec formula', () => {
-    const s = farmboyAtLevel1();
+    const s = farmhandAtLevel1();
     const before = { hp: s.character.hp.max, mp: s.character.mp.max, level: s.character.level };
     const after = applyLevelUp(s);
     expect(after.character.level).toBe(before.level + 1);
@@ -2040,17 +2040,17 @@ describe('applyLevelUp', () => {
   });
 
   it('applies the class stat rotation to the appropriate stat at level 2', () => {
-    // Farmboy's first rotation entry is "bluck".
-    const s = farmboyAtLevel1();
+    // Farmhand's first rotation entry is "bluck".
+    const s = farmhandAtLevel1();
     const before = s.character.stats.bluck;
     const after = applyLevelUp(s);
     expect(after.character.stats.bluck).toBe(before + 1);
   });
 
   it('unlocks the class signature move at the configured unlockLevel', () => {
-    // Level Farmboy from 1→3 by calling applyLevelUp twice. The signature move
+    // Level Farmhand from 1→3 by calling applyLevelUp twice. The signature move
     // (tempt_fate) unlocks at level 3.
-    let s = farmboyAtLevel1();
+    let s = farmhandAtLevel1();
     s = applyLevelUp(s);  // level 2
     expect(s.character.knownSkills).not.toContain('tempt_fate');
     s = applyLevelUp(s);  // level 3
@@ -2058,7 +2058,7 @@ describe('applyLevelUp', () => {
   });
 
   it('does not duplicate a skill if already known', () => {
-    let s = farmboyAtLevel1();
+    let s = farmhandAtLevel1();
     s = applyLevelUp(s);
     s = applyLevelUp(s);
     s = applyLevelUp(s);
@@ -2095,7 +2095,7 @@ function ordinal(n: number): string {
 // Per-class stat-bump rotation. Index 0 = bump applied at level 2; index 1 = level 3; etc.
 // Cycles via modulo if the array is exhausted.
 export const STAT_ROTATIONS: Record<ClassId, (keyof StatBlock)[]> = {
-  ['reluctant_farmboy' as ClassId]: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
+  ['reluctant_farmhand' as ClassId]: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
   // Other classes (Knight, Wizard, Bard) added in their respective content tasks.
 };
 
@@ -2214,7 +2214,7 @@ import type { ClassId } from '../types';
 describe('milestone bump on advance_stage', () => {
   it('applies a free level-up when advance_stage fires', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     const before = s.character.level;
 
     s = applyEffect(s, { kind: 'advance_stage', stage: 'act_ii' });
@@ -2943,7 +2943,7 @@ import type { ClassId, EncounterId, SkillId } from '../../engine/types';
 
 function setupWithCombat(): void {
   let s = createInitialState(1);
-  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
   s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
   gameStore.set(s);
 }
@@ -3069,7 +3069,7 @@ import type { ClassId } from '../../engine/types';
 describe('CharacterPanel Afflictions & Boons row', () => {
   it('hides the row when statuses array is empty', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     gameStore.set(s);
     const { queryByText } = render(CharacterPanel);
     expect(queryByText(/Afflictions/i)).toBeNull();
@@ -3077,7 +3077,7 @@ describe('CharacterPanel Afflictions & Boons row', () => {
 
   it('renders the row with one badge per world-scoped status', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = {
       ...s,
       character: {
@@ -3204,12 +3204,12 @@ describe('All four classes enabled', () => {
     const knightCard = getByRole('button', { name: /Disgraced Knight/i }) as HTMLButtonElement;
     const wizardCard = getByRole('button', { name: /Accidental Wizard/i }) as HTMLButtonElement;
     const bardCard = getByRole('button', { name: /Bard/i }) as HTMLButtonElement;
-    const farmboyCard = getByRole('button', { name: /Reluctant Farmboy/i }) as HTMLButtonElement;
+    const farmhandCard = getByRole('button', { name: /Reluctant Farmhand/i }) as HTMLButtonElement;
 
     expect(knightCard.disabled).toBe(false);
     expect(wizardCard.disabled).toBe(false);
     expect(bardCard.disabled).toBe(false);
-    expect(farmboyCard.disabled).toBe(false);
+    expect(farmhandCard.disabled).toBe(false);
   });
 
   it('renders a teaser line for each class', () => {
@@ -3240,7 +3240,7 @@ In `src/ui/CharacterCreation.svelte`:
 
 | ClassId | Teaser |
 |---|---|
-| `reluctant_farmboy` | "You were going to weed the back field. Destiny had other plans." |
+| `reluctant_farmhand` | "You were going to weed the back field. Destiny had other plans." |
 | `disgraced_knight` | "The yard at dawn. Your dismissal still pinned to the board." |
 | `accidental_wizard` | "The library is on fire. The library is, however, only slightly on fire." |
 | `bard` | "Ten minutes to showtime. The audience is already heckling the curtain." |
@@ -3249,7 +3249,7 @@ The teasers can come from a constant map in the component or directly from each 
 
 ```ts
 const CLASS_TEASERS: Record<string, string> = {
-  reluctant_farmboy: 'You were going to weed the back field. Destiny had other plans.',
+  reluctant_farmhand: 'You were going to weed the back field. Destiny had other plans.',
   disgraced_knight: 'The yard at dawn. Your dismissal still pinned to the board.',
   accidental_wizard: 'The library is on fire. The library is, however, only slightly on fire.',
   bard: 'Ten minutes to showtime. The audience is already heckling the curtain.'
@@ -3352,7 +3352,7 @@ import type { ClassId, EncounterId, LocationId, SkillId } from '../engine/types'
 
 describe('E2E: each class plays from creation through tutorial combat', () => {
   const classCases = [
-    { classId: 'reluctant_farmboy' as ClassId, location: 'family_farm' as LocationId, signatureMove: 'tempt_fate' as SkillId },
+    { classId: 'reluctant_farmhand' as ClassId, location: 'family_farm' as LocationId, signatureMove: 'tempt_fate' as SkillId },
     { classId: 'disgraced_knight' as ClassId, location: 'quartermasters_yard' as LocationId, signatureMove: 'brute_force' as SkillId },
     { classId: 'accidental_wizard' as ClassId, location: 'burning_library' as LocationId, signatureMove: 'out_think_it' as SkillId },
     { classId: 'bard' as ClassId, location: 'tavern_dressing_room' as LocationId, signatureMove: 'swagger' as SkillId }

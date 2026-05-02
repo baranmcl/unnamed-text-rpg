@@ -8,7 +8,7 @@ import type { ClassId, EncounterId, SkillId } from '../../engine/types';
 
 function setupWithCombat(): void {
   let s = createInitialState(1);
-  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
   s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
   gameStore.state = s;
 }

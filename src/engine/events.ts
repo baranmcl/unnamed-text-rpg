@@ -42,7 +42,7 @@ type OpeningLine = { kind: GameState['log'][number]['kind']; text: string; speak
 const ACT_LINE: OpeningLine = { kind: 'system', systemLabel: 'ACT', text: 'The Call to Adventure begins, more or less on schedule.' };
 
 const CLASS_OPENING_LINES: Record<string, OpeningLine[]> = {
-  reluctant_farmboy: [
+  reluctant_farmhand: [
     { kind: 'narration', text: 'You wake on a Tuesday, which is, statistically, when most prophecies arrive.' },
     { kind: 'narration', text: 'The cow regards you with the unfocused malice of a creature who has, against all odds, become aware of fate.' },
     ACT_LINE
@@ -154,7 +154,7 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
         combat: null,
         log: []
       };
-      const openingLines = CLASS_OPENING_LINES[event.classId] ?? CLASS_OPENING_LINES['reluctant_farmboy']!;
+      const openingLines = CLASS_OPENING_LINES[event.classId] ?? CLASS_OPENING_LINES['reluctant_farmhand']!;
       const withOpening = appendLogs(populated, openingLines);
       // Recurse into EnterLocation for the description. preserveLog prevents the
       // new-game opening lines from being cleared on first entry.

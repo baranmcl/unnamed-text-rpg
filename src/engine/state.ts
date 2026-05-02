@@ -84,7 +84,7 @@ export function createDemoState(): GameState {
     rng: { seed: 1, step: 0 },
     character: {
       name: 'Sir Brendan',
-      classId: ClassId('reluctant_farmboy'),
+      classId: ClassId('reluctant_farmhand'),
       level: 3,
       xp: 35,
       hp: { current: 45, max: 60 },

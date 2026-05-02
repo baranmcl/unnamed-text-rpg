@@ -38,7 +38,7 @@ describe('save migration v1 → v2', () => {
       rng: { seed: 1, step: 0 },
       character: {
         name: 'Test',
-        classId: 'reluctant_farmboy',
+        classId: 'reluctant_farmhand',
         level: 1,
         xp: 0,
         hp: { current: 30, max: 30 },
@@ -77,7 +77,7 @@ describe('save migration v1 → v2', () => {
       rng: { seed: 1, step: 0 },
       character: {
         name: 'Test',
-        classId: 'reluctant_farmboy',
+        classId: 'reluctant_farmhand',
         level: 1,
         xp: 0,
         hp: { current: 25, max: 30 },
@@ -130,7 +130,7 @@ describe('save migration v2 → v3', () => {
       rng: { seed: 1, step: 0 },
       character: {
         name: 'Test',
-        classId: 'reluctant_farmboy',
+        classId: 'reluctant_farmhand',
         level: 1,
         xp: 0,
         hp: { current: 30, max: 30 },

@@ -39,7 +39,7 @@ A single-player, web-based, text-based, comedic role-playing game structured aro
 
 ### Aesthetic: *The Heroic Chronicle*
 
-The UI presents itself as an illuminated manuscript chronicling the player's heroic deeds — drop caps, ornate dividers, wax-seal commitments, a cast list headed *Dramatis Persona*. **The form is the joke.** A dignified chronicle of a reluctant farmboy whose (B)Luck stat is 4 is funnier than a dark terminal displaying the same information.
+The UI presents itself as an illuminated manuscript chronicling the player's heroic deeds — drop caps, ornate dividers, wax-seal commitments, a cast list headed *Dramatis Persona*. **The form is the joke.** A dignified chronicle of a reluctant farmhand whose (B)Luck stat is 4 is funnier than a dark terminal displaying the same information.
 
 ### The big bit
 
@@ -120,7 +120,7 @@ Four classes in v1, one per primary stat. All share the game's systems; flavor a
 
 | Class | Primary stat | Br/Bn/Bv/(B)L | Starting items | Hook |
 |---|---|---|---|---|
-| **Reluctant Farmboy** | (B)Luck | 8/6/5/7 | Rusty Pitchfork, Itchy Wool Tunic, Note from Mother | Stumbled into destiny. Things just keep *working out*. |
+| **Reluctant Farmhand** | (B)Luck | 8/6/5/7 | Rusty Pitchfork, Itchy Wool Tunic, Note from Mother | Stumbled into destiny. Things just keep *working out*. |
 | **Disgraced Knight** | Brawn | 9/4/7/5 | Nicked Longsword, Battered Half-Plate (missing one pauldron), Defaced Family Crest | Exiled for a scandal nobody remembers clearly. |
 | **Accidental Wizard** | Brains | 4/10/5/6 | Cracked Staff, A Robe That Is Far Too Long, Tome of Questionable Translations | Attended the wrong magical academy. Learned everything *slightly wrong*. |
 | **Bard Who Didn't Ask For This** | Bravado | 5/7/9/4 | Dented Lute, Dramatic Cloak, Audience Expectation *(quest item)* | Wanted to write sad songs in a tavern. Got roped into a prophecy instead. |
@@ -319,8 +319,8 @@ type Item = {
 
 type CharacterClass = {
   id: ClassId
-  name: string                      // "Reluctant Farmboy"
-  epithet: string                   // "the Reluctant Farmboy"
+  name: string                      // "Reluctant Farmhand"
+  epithet: string                   // "the Reluctant Farmhand"
   startingStats: StatBlock
   startingHp: number
   startingMp: number
@@ -456,7 +456,7 @@ Color-use rule: crimson and gilt are used *sparingly*. A primary-action wax seal
 ### 6.5 Character panel details
 
 - **Header** — `DRAMATIS PERSONA` (small-caps uncial, centered) above a horizontal rule.
-- **Identity block** — character name (large display serif), epithet (`the Reluctant Farmboy`, italic, muted), level line (`Third-Degree Hero`, small-caps).
+- **Identity block** — character name (large display serif), epithet (`the Reluctant Farmhand`, italic, muted), level line (`Third-Degree Hero`, small-caps).
 - **Four collapsible sections** (each with a section-head row: small-caps label, flanking hairlines, chevron). Collapsed state persists per-section to localStorage.
   1. **Vitals** — HP / MP / XP bars, each a hand-inked rectangle (1px border, contrasting fill with its own 1px darker border) plus a mono numeric readout. HP crimson, MP moss, XP gilt. Low-HP (≤25%) triggers a subtle stroke-wobble animation.
   2. **Qualities** — the four B-stats in a 2×2 grid. Each is italic bracketed `[ Brawn ]` with a right-aligned mono bold number. Dotted hairline underlines.
@@ -521,7 +521,7 @@ Derived from the class definition. Every class starts at **level 1** with **HP =
 
 | Class | baseHp | baseMp | Starting HP | Starting MP |
 |---|---|---|---|---|
-| Farmboy | 30 | 10 | 54 | 22 |
+| Farmhand | 30 | 10 | 54 | 22 |
 | Knight | 40 | 8 | 67 | 16 |
 | Wizard | 22 | 20 | 34 | 40 |
 | Bard | 28 | 14 | 43 | 28 |

@@ -831,7 +831,7 @@ export function createDemoState(): GameState {
     rng: { seed: 1, step: 0 },
     character: {
       name: 'Sir Brendan',
-      classId: ClassId('reluctant_farmboy'),
+      classId: ClassId('reluctant_farmhand'),
       level: 3,
       xp: 35,
       hp: { current: 45, max: 60 },
@@ -1897,7 +1897,7 @@ Dramatis Persona card. Four collapsible sections, each persisting its open/close
   function epithet(): string {
     // Plan 2 will pull this from the class definition. Plan 1 hardcodes
     // for demo state.
-    return 'the Reluctant Farmboy';
+    return 'the Reluctant Farmhand';
   }
 </script>
 
@@ -2671,7 +2671,7 @@ Open http://localhost:5173. You should see:
 - Cream parchment background with corner foxing
 - Left panel: "Act I · The Call to Adventure" / "Dusty Crossroads" location title / compass icon top-right of header / four log entries (narration, dialogue, narration, system)
 - Vertical divider with `❦` grabber in the middle
-- Right panel: "Dramatis Persona" heading / "Sir Brendan" / "the Reluctant Farmboy" / "Third-Degree Hero" / collapsible Vitals/Qualities/Accoutrements/Effects sections
+- Right panel: "Dramatis Persona" heading / "Sir Brendan" / "the Reluctant Farmhand" / "Third-Degree Hero" / collapsible Vitals/Qualities/Accoutrements/Effects sections
 - Top-right gear icon
 - Bottom-center folio "— i.i.0 —"
 - Drag the divider — widths shift, persists on reload

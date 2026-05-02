@@ -9,8 +9,8 @@ describe('quests e2e', () => {
     gameStore.forgetAchievements();
   });
 
-  it('farmboy full Act I run completes answer_the_call with rewards', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+  it('farmhand full Act I run completes answer_the_call with rewards', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
 
     // Quest activated immediately on game start.
     expect(gameStore.state.story.activeQuests).toContain('answer_the_call');
@@ -77,7 +77,7 @@ describe('quests e2e', () => {
   });
 
   it('Consign this tale to the flames wipes quest state along with the save', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     expect(gameStore.state.story.activeQuests).toContain('answer_the_call');
     gameStore.resetSave();
     expect(gameStore.state.story.activeQuests).toEqual([]);
@@ -86,7 +86,7 @@ describe('quests e2e', () => {
   });
 
   it('Forget thy deeds leaves quest state intact', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const before = gameStore.state.story.activeQuests;
     gameStore.forgetAchievements();
     expect(gameStore.state.story.activeQuests).toEqual(before);

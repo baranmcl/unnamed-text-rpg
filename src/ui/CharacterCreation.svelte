@@ -6,8 +6,8 @@
   let name = $state('');
   let selectedClass = $state<ClassIdType | null>(null);
 
-  // Display all four classes; only the Farmboy is actually selectable in Plan 2.
-  const farmboy = content.classes[ClassId('reluctant_farmboy')]!;
+  // Display all four classes.
+  const farmhand = content.classes[ClassId('reluctant_farmhand')]!;
 
   type CardEntry = {
     id: ClassIdType;
@@ -16,14 +16,14 @@
   };
 
   const classCards: CardEntry[] = [
-    { id: farmboy.id, name: farmboy.name, enabled: true },
+    { id: farmhand.id, name: farmhand.name, enabled: true },
     { id: ClassId('disgraced_knight'), name: 'Disgraced Knight', enabled: true },
     { id: ClassId('accidental_wizard'), name: 'Accidental Wizard', enabled: true },
     { id: ClassId('bard'), name: "Bard Who Didn't Ask For This", enabled: true }
   ];
 
   const CLASS_TEASERS: Record<string, string> = {
-    reluctant_farmboy: 'You were going to weed the back field. Destiny had other plans.',
+    reluctant_farmhand: 'You were going to weed the back field. Destiny had other plans.',
     disgraced_knight: 'The yard at dawn. Your dismissal still pinned to the board.',
     accidental_wizard: 'The library is on fire. The library is, however, only slightly on fire.',
     bard: 'Ten minutes to showtime. The audience is already heckling the curtain.'

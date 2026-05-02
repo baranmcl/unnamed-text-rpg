@@ -8,7 +8,7 @@ describe('InspectModal', () => {
   beforeEach(() => {
     localStorage.clear();
     gameStore.resetSave();
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'Test', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Test', classId: ClassId('reluctant_farmhand') });
   });
 
   it('renders the item flavor text', () => {
@@ -31,7 +31,7 @@ describe('InspectModal', () => {
   });
 
   it('clicking Discard removes a quest item from inventory', async () => {
-    // Quest items show a "Discard" button (not "Drop"). The starter Farmboy
+    // Quest items show a "Discard" button (not "Drop"). The starter Farmhand
     // inventory includes Note from Mother (a quest item).
     const { getByRole } = render(InspectModal, { props: { itemId: ItemId('note_from_mother'), onClose: () => {} } });
     await fireEvent.click(getByRole('button', { name: /discard/i }));

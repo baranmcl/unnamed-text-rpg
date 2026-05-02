@@ -19,7 +19,7 @@ describe('checkQuests baseline', () => {
 
   it('does not mutate the input state', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const before = JSON.stringify(s);
     checkQuests(s);
     expect(JSON.stringify(s)).toBe(before);
@@ -29,7 +29,7 @@ describe('checkQuests baseline', () => {
 describe('checkQuests with the live registry', () => {
   function withCharacter() {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     return s;
   }
 
@@ -157,7 +157,7 @@ describe('checkQuests with the live registry', () => {
 describe('checkQuests integration via reduce', () => {
   function withCharacter() {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     return s;
   }
 

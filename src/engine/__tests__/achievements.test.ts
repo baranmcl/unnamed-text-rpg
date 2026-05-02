@@ -27,7 +27,7 @@ describe('achievements persistence', () => {
   it('saveAchievements + loadAchievements round-trip', () => {
     const r: AchievementsRecord = {
       unlocked: [AchievementId('first_blood')],
-      played_classes: ['reluctant_farmboy'],
+      played_classes: ['reluctant_farmhand'],
       tempt_fate_backfires_seen: ['trip', 'crit_yourself'],
       unlockedCountAtLastOpen: 1
     };
@@ -72,7 +72,7 @@ describe('achievements persistence', () => {
 describe('checkAchievements', () => {
   function withCharacter() {
     let s = createInitialState(1);
-    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmboy'), level: 1 } };
+    s = { ...s, character: { ...s.character, name: 'T', classId: ClassId('reluctant_farmhand'), level: 1 } };
     return s;
   }
 
@@ -184,7 +184,7 @@ describe('checkAchievements', () => {
     const s = withCharacter();
     const r: AchievementsRecord = {
       ...defaultRecord(),
-      played_classes: ['reluctant_farmboy', 'disgraced_knight', 'accidental_wizard', 'bard']
+      played_classes: ['reluctant_farmhand', 'disgraced_knight', 'accidental_wizard', 'bard']
     };
     const out = checkAchievements(s, r);
     expect(out.newlyUnlocked).toContain(AchievementId('the_tetralogy'));

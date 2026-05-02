@@ -10,8 +10,8 @@ describe('achievements e2e', () => {
     gameStore.forgetAchievements();
   });
 
-  it('farmboy first-victory unlocks first_blood and persists', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmboy') });
+  it('farmhand first-victory unlocks first_blood and persists', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     if (gameStore.state.combat?.kind !== 'turn-based') throw new Error('expected combat');
     const monsterId = gameStore.state.combat.combatants.find((c) => c.kind === 'monster')!.id;
@@ -37,7 +37,7 @@ describe('achievements e2e', () => {
   });
 
   it('Consign this tale to the flames leaves achievements intact', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.achievements.unlocked).toContain(AchievementId('moonlit'));
     gameStore.resetSave();
@@ -46,7 +46,7 @@ describe('achievements e2e', () => {
   });
 
   it('Forget thy deeds wipes achievements but leaves the save intact', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     gameStore.saveNow();
     const beforeName = gameStore.state.character.name;
@@ -60,7 +60,7 @@ describe('achievements e2e', () => {
   });
 
   it('moonlit toast is queued and a system log entry appears in the same tick', () => {
-    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     expect(gameStore.pendingToasts.some((a) => a.id === AchievementId('moonlit'))).toBe(true);
     expect(

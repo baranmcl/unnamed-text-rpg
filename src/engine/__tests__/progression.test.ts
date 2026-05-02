@@ -4,21 +4,21 @@ import { createInitialState } from '../state';
 import { ClassId, SkillId, type GameState } from '../types';
 import { reduce } from '../events';
 
-function farmboyAtLevel1(): GameState {
+function farmhandAtLevel1(): GameState {
   let s = createInitialState(1);
-  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
   return s;
 }
 
 describe('STAT_ROTATIONS', () => {
   it('has an entry for every class', () => {
-    expect(STAT_ROTATIONS['reluctant_farmboy' as ClassId]).toBeDefined();
+    expect(STAT_ROTATIONS['reluctant_farmhand' as ClassId]).toBeDefined();
   });
 });
 
 describe('applyLevelUp', () => {
   it('increments level and adds HP/MP per the spec formula', () => {
-    const s = farmboyAtLevel1();
+    const s = farmhandAtLevel1();
     const before = { hp: s.character.hp.max, mp: s.character.mp.max, level: s.character.level };
     const after = applyLevelUp(s);
     expect(after.character.level).toBe(before.level + 1);
@@ -29,15 +29,15 @@ describe('applyLevelUp', () => {
   });
 
   it('applies the class stat rotation to the appropriate stat at level 2', () => {
-    // Farmboy's first rotation entry is "bluck".
-    const s = farmboyAtLevel1();
+    // Farmhand's first rotation entry is "bluck".
+    const s = farmhandAtLevel1();
     const before = s.character.stats.bluck;
     const after = applyLevelUp(s);
     expect(after.character.stats.bluck).toBe(before + 1);
   });
 
   it('unlocks the class signature move at the configured unlockLevel', () => {
-    let s = farmboyAtLevel1();
+    let s = farmhandAtLevel1();
     s = applyLevelUp(s);  // level 2
     expect(s.character.knownSkills).not.toContain('tempt_fate');
     s = applyLevelUp(s);  // level 3
@@ -45,7 +45,7 @@ describe('applyLevelUp', () => {
   });
 
   it('does not duplicate a skill if already known', () => {
-    let s = farmboyAtLevel1();
+    let s = farmhandAtLevel1();
     s = applyLevelUp(s);
     s = applyLevelUp(s);
     s = applyLevelUp(s);
@@ -58,7 +58,7 @@ describe('applyLevelUp', () => {
 describe('applyLevelUp signature_unlocked side-effect', () => {
   it('sets achievements.signature_unlocked when signature skill unlocks', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = applyLevelUp(s); // 1 -> 2
     s = applyLevelUp(s); // 2 -> 3 — signature unlocks
     expect(s.character.knownSkills.length).toBeGreaterThan(0);
@@ -69,7 +69,7 @@ describe('applyLevelUp signature_unlocked side-effect', () => {
 describe('awardXp helper', () => {
   it('adds the amount to character.xp without leveling up below threshold', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const startXp = s.character.xp;
     const startLevel = s.character.level;
     s = awardXp(s, 50);
@@ -79,7 +79,7 @@ describe('awardXp helper', () => {
 
   it('triggers a single level-up when amount crosses the threshold', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const startLevel = s.character.level;
     // Threshold for level 1 → 2 is 100. Award 100 XP.
     s = awardXp(s, 100);
@@ -90,7 +90,7 @@ describe('awardXp helper', () => {
 
   it('triggers multiple level-ups when amount crosses several thresholds', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const startLevel = s.character.level;
     // Award enough XP for at least two level-ups (level 1→2 needs 100, 2→3 needs 200).
     s = awardXp(s, 350);
@@ -99,7 +99,7 @@ describe('awardXp helper', () => {
 
   it('handles amount = 0 as a no-op when below threshold', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmboy') });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     const before = s;
     s = awardXp(s, 0);
     expect(s.character.xp).toBe(before.character.xp);

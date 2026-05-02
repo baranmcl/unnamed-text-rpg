@@ -8,7 +8,7 @@ import { content } from '../../../content';
 describe('UseSkill MP gating', () => {
   it('does nothing if the player does not know the skill', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     const before = s.character.mp.current;
     s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -17,7 +17,7 @@ describe('UseSkill MP gating', () => {
 
   it('deducts MP and runs the resolver when the skill is known and MP is sufficient', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
 
@@ -41,7 +41,7 @@ describe('UseSkill MP gating', () => {
 describe('Brute Force resolver', () => {
   it('rolls a single attack with reduced accuracy and 1.8x damage', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['brute_force' as SkillId] } };
 
@@ -61,7 +61,7 @@ describe('Brute Force resolver', () => {
 describe('Out-Think It resolver', () => {
   it('applies weakness_revealed to the monster (until_end_of_fight)', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId] } };
 
@@ -77,7 +77,7 @@ describe('Out-Think It resolver', () => {
 
   it('replaces existing weakness_revealed (no stacking)', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['out_think_it' as SkillId], mp: { current: 100, max: 100 } } };
 
@@ -95,7 +95,7 @@ describe('Out-Think It resolver', () => {
 describe('Swagger resolver', () => {
   it('applies intimidated (turns: 1) to the monster, causing its next turn to skip', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['swagger' as SkillId] } };
 
@@ -109,7 +109,7 @@ describe('Swagger resolver', () => {
 describe('Tempt Fate resolver', () => {
   it('applies guaranteed_crit (one_shot) to the player', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
 
@@ -127,7 +127,7 @@ describe('Tempt Fate resolver', () => {
     let backfireFired = false;
     for (let seed = 1859; seed <= 1870 && !backfireFired; seed++) {
       let s = createInitialState(seed);
-      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
       s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
       s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
       s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -178,7 +178,7 @@ describe('Bard playable', () => {
 describe('Tempt Fate achievement seeds', () => {
   it('sets achievements.tempted_fate on use', () => {
     let s = createInitialState(1);
-    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
     s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
     s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
     s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });
@@ -190,7 +190,7 @@ describe('Tempt Fate achievement seeds', () => {
     let observed: string | null = null;
     for (let seed = 1; seed <= 2000 && observed === null; seed++) {
       let s = createInitialState(seed);
-      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmboy' as ClassId });
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
       s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
       s = { ...s, character: { ...s.character, knownSkills: ['tempt_fate' as SkillId] } };
       s = reduce(s, { kind: 'UseSkill', skillId: 'tempt_fate' as SkillId });

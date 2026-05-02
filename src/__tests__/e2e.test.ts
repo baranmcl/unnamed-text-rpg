@@ -5,7 +5,7 @@ import type { ClassId, LocationId, SkillId } from '../engine/types';
 
 describe('E2E: each class plays from creation through to its starting location', () => {
   const classCases = [
-    { classId: 'reluctant_farmboy' as ClassId, location: 'family_farm' as LocationId, signatureMove: 'tempt_fate' as SkillId },
+    { classId: 'reluctant_farmhand' as ClassId, location: 'family_farm' as LocationId, signatureMove: 'tempt_fate' as SkillId },
     { classId: 'disgraced_knight' as ClassId, location: 'quartermasters_yard' as LocationId, signatureMove: 'brute_force' as SkillId },
     { classId: 'accidental_wizard' as ClassId, location: 'burning_library' as LocationId, signatureMove: 'out_think_it' as SkillId },
     { classId: 'bard' as ClassId, location: 'tavern_dressing_room' as LocationId, signatureMove: 'swagger' as SkillId }

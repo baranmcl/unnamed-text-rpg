@@ -433,7 +433,7 @@ const answer_the_call: Quest = {
       label: 'Survive your morning.',
       completePredicate: [
         // Any of the four class-specific unlock flags fires when the player
-        // defeats their named foe. The hermit_beckons beat (farmboy) and the
+        // defeats their named foe. The hermit_beckons beat (farmhand) and the
         // _setting_out beats (knight/wizard/bard) all set the right flag.
         {
           kind: 'any_flag',
@@ -486,7 +486,7 @@ export const quests: Record<QuestId, Quest> = {
 
 | Player path | Objective 1 (survive) | Objective 2 (travel) | Objective 3 (hear) | Objective 4 (decide) |
 |---|---|---|---|---|
-| Farmboy → defeats first_tax_rat → crossroads → accept | ✅ unlocked_crossroads | ✅ visited | ✅ started_call_encounter | ✅ accepted_call |
+| Farmhand → defeats first_tax_rat → crossroads → accept | ✅ unlocked_crossroads | ✅ visited | ✅ started_call_encounter | ✅ accepted_call |
 | Knight → defeats Bursar → King's Road → crossroads → insult | ✅ unlocked_kings_road | ✅ visited | ✅ started_call_encounter | ✅ insulted_hermit_hat |
 | Wizard → defeats Examiner → Cobbled Walk → crossroads → cry | ✅ unlocked_cobbled_walk | ✅ visited | ✅ started_call_encounter | ✅ cried_at_hermit |
 | Bard → defeats Critic → back-alley → crossroads → refuse 4× → hermit lingers → insult | ✅ unlocked_back_alley | ✅ visited | ✅ started_call_encounter | ✅ insulted_hermit_hat |
@@ -527,7 +527,7 @@ All four class paths complete the quest cleanly via current Act I flow.
 
 ### 8.4 Integration smoke (`src/__tests__/quests.e2e.test.ts`)
 
-- Farmboy run from `StartNewGame` → wound first_tax_rat to 1 HP → AttackTarget → enter crossroads → trigger `the_call` encounter → choose Accept → assert: quest is in `completedQuests`, all four objectives are in `completedObjectives.answer_the_call`, character has +50 leaves and the +100 xp's level-up effect (which combined with the act_ii milestone bump means level should be at least 3 by the time the quest resolves), QUEST and REWARD log entries are present.
+- Farmhand run from `StartNewGame` → wound first_tax_rat to 1 HP → AttackTarget → enter crossroads → trigger `the_call` encounter → choose Accept → assert: quest is in `completedQuests`, all four objectives are in `completedObjectives.answer_the_call`, character has +50 leaves and the +100 xp's level-up effect (which combined with the act_ii milestone bump means level should be at least 3 by the time the quest resolves), QUEST and REWARD log entries are present.
 
 ### 8.5 Acceptance criteria
 

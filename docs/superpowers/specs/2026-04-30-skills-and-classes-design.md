@@ -11,7 +11,7 @@
 
 Plan 4 delivers the second of the four classes' worth of mechanical depth, and lays the substrate (status effects) that future content will rely on. Specifically:
 
-1. **Make all four classes playable.** Disgraced Knight, Accidental Wizard, and Bard Who Didn't Ask For This join Reluctant Farmboy on the character-creation screen, each with starting stats, items, a tutorial location, and a placeholder ~30-second opener. Plan 5 will replace each placeholder with the full bespoke 5-minute opening scene.
+1. **Make all four classes playable.** Disgraced Knight, Accidental Wizard, and Bard Who Didn't Ask For This join Reluctant Farmhand on the character-creation screen, each with starting stats, items, a tutorial location, and a placeholder ~30-second opener. Plan 5 will replace each placeholder with the full bespoke 5-minute opening scene.
 2. **Ship the skills system.** Combat gains a "Skill" action; level 3 unlocks each class's signature move; MP gating works.
 3. **Author all four signature moves.** Brute Force, Out-Think It, Swagger, Tempt Fate — each with full mechanics including their interactions with the new status system.
 4. **Build a generic status-effect system.** Combat-scoped statuses (intimidated, weakness revealed, guaranteed crit, etc.) and world-scoped statuses (designed in, unused in Plan 4) share one mechanism, visible in both panels.
@@ -19,7 +19,7 @@ Plan 4 delivers the second of the four classes' worth of mechanical depth, and l
 
 ## 2. Non-goals
 
-- **Bespoke 5-minute class openings.** Each new class gets a placeholder short opener (analogous to the existing `farmboy_opening_short`). Plan 5 owns the full scenes.
+- **Bespoke 5-minute class openings.** Each new class gets a placeholder short opener (analogous to the existing `farmhand_opening_short`). Plan 5 owns the full scenes.
 - **Gilt-unfurl banner animation.** The milestone level-up fires mechanically and emits a log line; the visual set piece ships with Plan 6's other animations.
 - **World-scoped status content** (hermit blessings, tavern drunk, food buffs, etc.). The system supports them but no encounter populates them in Plan 4.
 - **Skill submenu.** Each class has exactly one skill in Plan 4. The submenu can land when a class first gains a second skill.
@@ -228,7 +228,7 @@ tempt_fate         → resolverId: 'tempt_fate'
 
 ## 6. Three new classes
 
-All three classes follow the same authoring pattern as Reluctant Farmboy: stat block + baseHp/Mp + starting items + signature move + opening location + placeholder opener narrative node.
+All three classes follow the same authoring pattern as Reluctant Farmhand: stat block + baseHp/Mp + starting items + signature move + opening location + placeholder opener narrative node.
 
 ### 6.1 Disgraced Knight
 
@@ -279,7 +279,7 @@ All three classes follow the same authoring pattern as Reluctant Farmboy: stat b
 
 Each class card on `CharacterCreation.svelte` shows a one-line teaser of the opening below the stat block:
 
-- **Reluctant Farmboy:** *"You were going to weed the back field. Destiny had other plans."*
+- **Reluctant Farmhand:** *"You were going to weed the back field. Destiny had other plans."*
 - **Disgraced Knight:** *"The yard at dawn. Your dismissal still pinned to the board."*
 - **Accidental Wizard:** *"The library is on fire. The library is, however, only slightly on fire."*
 - **Bard Who Didn't Ask For This:** *"Ten minutes to showtime. The audience is already heckling the curtain."*
@@ -331,13 +331,13 @@ All three follow the Practice Hay Bale pattern: modest HP, modest damage, **no c
 
 ### 7.5 Placeholder opening narrative nodes
 
-Each new class gets a node mirroring `farmboy_opening_short`:
+Each new class gets a node mirroring `farmhand_opening_short`:
 
 - `knight_opening_short` — two short paragraphs of yard-at-dawn prose, then a single button: *"Take it out on the pell."* → triggers `combat_insolent_pell`
 - `wizard_opening_short` — two short paragraphs of library-on-fire prose, then a single button: *"Address the footnote."* → triggers `combat_feral_footnote`
 - `bard_opening_short` — two short paragraphs of dressing-room prose, then a single button: *"Open with a dignity-restoration anthem."* → triggers `combat_pointed_heckler`
 
-After the tutorial combat resolves, each class's location-exit to Dusty Crossroads is the path forward — same shape as Farmboy's flow today.
+After the tutorial combat resolves, each class's location-exit to Dusty Crossroads is the path forward — same shape as Farmhand's flow today.
 
 ---
 
@@ -349,7 +349,7 @@ After the tutorial combat resolves, each class's location-exit to Dusty Crossroa
 // Each entry is the stat key bumped at that level.
 // Index 0 is the bump at level 2; index 1 at level 3; etc.
 const STAT_ROTATIONS: Record<ClassId, (keyof StatBlock)[]> = {
-  reluctant_farmboy: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
+  reluctant_farmhand: ['bluck', 'brains', 'bluck', 'brawn', 'bluck', 'bravado', 'bluck', 'brains', 'bluck'],
   disgraced_knight:  ['brawn', 'bravado', 'brawn', 'brains', 'brawn', 'bluck', 'brawn', 'bravado', 'brawn'],
   accidental_wizard: ['brains', 'bluck', 'brains', 'bravado', 'brains', 'brawn', 'brains', 'bluck', 'brains'],
   bard:              ['bravado', 'bluck', 'bravado', 'brains', 'bravado', 'brawn', 'bravado', 'bluck', 'bravado'],
@@ -429,7 +429,7 @@ The plan is shippable when:
 6. A stage advance grants a bonus level-up that fires the same `applyLevelUp` path as a normal level-up, including potential skill unlock and stat-bump.
 7. A v1 save loads cleanly under v2 code and continues to function.
 8. All new tests pass; existing tests still pass; type-check is clean.
-9. No regressions on existing Farmboy → Crossroads → Call narrative flow.
+9. No regressions on existing Farmhand → Crossroads → Call narrative flow.
 
 ---
 

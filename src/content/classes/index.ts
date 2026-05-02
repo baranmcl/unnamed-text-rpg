@@ -1,10 +1,10 @@
 import { ClassId, ItemId, LocationId, NarrativeNodeId, SkillId, type CharacterClass } from '../../engine/types';
 
 export const classes: Record<ClassId, CharacterClass> = {
-  [ClassId('reluctant_farmboy')]: {
-    id: ClassId('reluctant_farmboy'),
-    name: 'Reluctant Farmboy',
-    epithet: 'the Reluctant Farmboy',
+  [ClassId('reluctant_farmhand')]: {
+    id: ClassId('reluctant_farmhand'),
+    name: 'Reluctant Farmhand',
+    epithet: 'the Reluctant Farmhand',
     startingStats: { brawn: 8, brains: 6, bravado: 5, bluck: 7 },
     baseHp: 30,
     baseMp: 10,
@@ -18,7 +18,7 @@ export const classes: Record<ClassId, CharacterClass> = {
     openingLocationId: LocationId('family_farm'),
     // Plan 5 wires this to a real narrative node for the full opening scene.
     // For Plan 2 the StartNewGame reducer emits a short opener directly.
-    openingNarrativeNodeId: NarrativeNodeId('farmboy_opening_short'),
+    openingNarrativeNodeId: NarrativeNodeId('farmhand_opening_short'),
     hpLabel: 'Pluck',
     mpLabel: 'Wits'
   },

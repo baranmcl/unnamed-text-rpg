@@ -141,6 +141,30 @@ const knight_opener_engage_notice: NarrativeResolver = (state) => ({
   next: NarrativeNodeId('knight_opener_b')
 });
 
+const wizard_opener_engage_a: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'a' } }
+  },
+  next: NarrativeNodeId('wizard_opener_b')
+});
+
+const wizard_opener_engage_b: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'b' } }
+  },
+  next: NarrativeNodeId('wizard_opener_b')
+});
+
+const wizard_opener_engage_c: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, consulted_tome: true, wizard_first_margin: 'c' } }
+  },
+  next: NarrativeNodeId('wizard_opener_b')
+});
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -150,5 +174,8 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   open_with_footnote,
   open_with_heckler,
   hermit_dismiss,
-  knight_opener_engage_notice
+  knight_opener_engage_notice,
+  wizard_opener_engage_a,
+  wizard_opener_engage_b,
+  wizard_opener_engage_c
 };

@@ -20,4 +20,17 @@ describe('openers e2e', () => {
       expect(gameStore.state.combat.encounterId).toBe(EncounterId('combat_insolent_pell'));
     }
   });
+
+  it('Wizard: full opener flow ends in Footnote combat', () => {
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'W', classId: ClassId('accidental_wizard') });
+    expect(gameStore.state.combat?.kind).toBe('narrative');
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 1 });  // margin b
+    expect(gameStore.state.world.flags['consulted_tome']).toBe(true);
+    expect(gameStore.state.world.flags['wizard_first_margin']).toBe('b');
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });  // commitment
+    expect(gameStore.state.combat?.kind).toBe('turn-based');
+    if (gameStore.state.combat?.kind === 'turn-based') {
+      expect(gameStore.state.combat.encounterId).toBe(EncounterId('combat_feral_footnote'));
+    }
+  });
 });

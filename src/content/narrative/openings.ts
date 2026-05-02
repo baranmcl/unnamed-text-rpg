@@ -25,13 +25,28 @@ export const knight_opener_b: NarrativeNode = {
   ]
 };
 
-// Wizard / Bard / Farmhand short nodes (placeholders) — replaced in Tasks 3-5.
-export const wizard_opening_short: NarrativeNode = {
-  id: NarrativeNodeId('wizard_opening_short'),
+export const wizard_opener_a: NarrativeNode = {
+  id: NarrativeNodeId('wizard_opener_a'),
   prose:
-    'Smoke describes lazy circles around the chandelier. Your tome is offering, in increasingly aggressive marginalia, ' +
-    'three contradictory pieces of advice about lich-kings, itch-kings, and a third option you do not recognize. ' +
-    'Something small and predatory has just detached from a citation and is now eyeing you.',
+    "The reading room's vaulted ceiling carries an even, contemplative haze of smoke. The smoke is being polite. " +
+    'The fire — three rows over, may yet be reasoned with — is also being polite, for now. ' +
+    'Your tome is open on the lectern. Three margins are arguing. The first cites a lich-king. ' +
+    'The second cites an itch-king. The third cites something you do not recognise and would prefer not to. ' +
+    'A junior librarian moves between stacks with a slim, unmarked volume; the spine does not match the catalog stamp. ' +
+    'She does not look at you, or at the smoke. The cantrip-bell on her satchel does not ring. ' +
+    'Something small and predatory has detached from a citation and is now eyeing you over the lectern\'s edge. ' +
+    "The tome's three margins continue to argue, undeterred.",
+  choices: [
+    { label: 'Follow the lich-king margin.', resolve: 'wizard_opener_engage_a' },
+    { label: 'Follow the itch-king margin.', resolve: 'wizard_opener_engage_b' },
+    { label: 'Follow the third margin.', resolve: 'wizard_opener_engage_c' }
+  ]
+};
+
+export const wizard_opener_b: NarrativeNode = {
+  id: NarrativeNodeId('wizard_opener_b'),
+  prose:
+    'You follow the chosen line. The tome falls quiet, briefly. The footnote remains.',
   choices: [
     { label: 'Address the footnote.', resolve: 'open_with_footnote' }
   ]

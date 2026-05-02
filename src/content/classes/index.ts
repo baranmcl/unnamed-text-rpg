@@ -57,7 +57,8 @@ export const classes: Record<ClassId, CharacterClass> = {
     ],
     signatureMove: SkillId('out_think_it'),
     openingLocationId: LocationId('burning_library'),
-    openingNarrativeNodeId: NarrativeNodeId('wizard_opening_short'),
+    openingNarrativeNodeId: NarrativeNodeId('wizard_opener_a'),
+    openingEncounterId: EncounterId('wizard_opener_encounter'),
     hpLabel: 'Composure',
     mpLabel: 'Mana'
   },

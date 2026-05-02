@@ -7,4 +7,11 @@ export const knight_opener_encounter: NarrativeEncounter = {
   noFlee: true
 };
 
-// Wizard / Bard / Farmhand opener encounters — added in Tasks 3-5.
+export const wizard_opener_encounter: NarrativeEncounter = {
+  id: EncounterId('wizard_opener_encounter'),
+  kind: 'narrative',
+  rootNodeId: NarrativeNodeId('wizard_opener_a'),
+  noFlee: true
+};
+
+// Bard / Farmhand opener encounters — added in Tasks 4-5.

@@ -20,7 +20,7 @@ const call_accept: NarrativeResolver = (state) => {
   const s = appendLogs(state, [
     { kind: 'narration', text: 'You accept. The hermit nods, satisfied. Somewhere far off, a destiny adjusts its tie.' },
     { kind: 'scene-divider', text: '' },
-    { kind: 'act-banner', text: 'Act II' },
+    { kind: 'chapter-banner', text: 'Chapter 6' },
     { kind: 'narration', text: 'Tests, Allies, and Enemies.' },
     { kind: 'narration', text: 'The page turns. The script thickens.' },
     { kind: 'scene-divider', text: '' }
@@ -28,7 +28,7 @@ const call_accept: NarrativeResolver = (state) => {
   return {
     state: {
       ...s,
-      story: { ...s.story, stage: 'act_ii' },
+      story: { ...s.story, stage: 'chapter_6' },
       world: { ...s.world, flags: { ...s.world.flags, accepted_call: true } }
     },
     next: null

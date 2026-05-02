@@ -3,7 +3,7 @@ import { LocationId, EncounterId, type Location } from '../../engine/types';
 export const quartermasters_yard: Location = {
   id: LocationId('quartermasters_yard'),
   name: "Quartermaster's Yard",
-  act: 'act_i',
+  chapter: 'chapter_1',
   description:
     'The army yard at first light, abandoned by everyone except a stack of unsigned timesheets ' +
     'and the lingering disappointment of recent superior officers. A pell stands in the middle ' +

@@ -31,7 +31,7 @@ describe('createDemoState', () => {
     expect(s.character.hp.current).toBeGreaterThan(0);
     expect(s.character.hp.max).toBeGreaterThanOrEqual(s.character.hp.current);
     expect(s.world.currentLocation).toBeTruthy();
-    expect(s.story.stage).toBe('act_i');
+    expect(s.story.stage).toBe('chapter_1');
     expect(s.log.length).toBeGreaterThan(0);
     // Demo log includes at least one of each kind we render in Plan 1
     const kinds = new Set(s.log.map((e) => e.kind));

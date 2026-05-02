@@ -38,8 +38,8 @@ describe('evalPredicate', () => {
 
   it('stage predicate matches state.story.stage', () => {
     const s = freshState();
-    expect(evalPredicate(s, { kind: 'stage', stage: 'act_i' })).toBe(true);
-    expect(evalPredicate(s, { kind: 'stage', stage: 'act_ii' })).toBe(false);
+    expect(evalPredicate(s, { kind: 'stage', stage: 'chapter_1' })).toBe(true);
+    expect(evalPredicate(s, { kind: 'stage', stage: 'chapter_6' })).toBe(false);
   });
 
   it('flag_at_least returns true when numeric flag >= min', () => {
@@ -121,8 +121,8 @@ describe('applyEffect', () => {
 
   it('advance_stage updates story.stage', () => {
     const s = freshState();
-    const s2 = applyEffect(s, { kind: 'advance_stage', stage: 'act_ii' });
-    expect(s2.story.stage).toBe('act_ii');
+    const s2 = applyEffect(s, { kind: 'advance_stage', stage: 'chapter_6' });
+    expect(s2.story.stage).toBe('chapter_6');
   });
 
   it('log appends a log entry', () => {
@@ -161,9 +161,9 @@ describe('milestone bump on advance_stage', () => {
     let s = freshState();
     const before = s.character.level;
 
-    s = applyEffect(s, { kind: 'advance_stage', stage: 'act_ii' });
+    s = applyEffect(s, { kind: 'advance_stage', stage: 'chapter_6' });
 
-    expect(s.story.stage).toBe('act_ii');
+    expect(s.story.stage).toBe('chapter_6');
     expect(s.character.level).toBe(before + 1);
     const entry = s.log.find((e) => e.text.includes('Degree of Heroism') || e.text.includes('chapter turn'));
     expect(entry).toBeDefined();

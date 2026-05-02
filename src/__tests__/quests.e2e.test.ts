@@ -9,7 +9,7 @@ describe('quests e2e', () => {
     gameStore.forgetAchievements();
   });
 
-  it('farmhand full Act I run completes answer_the_call with rewards', () => {
+  it('farmhand full Chapter 1 run completes answer_the_call with rewards', () => {
     gameStore.dispatch({ kind: 'StartNewGame', name: 'Brendan', classId: ClassId('reluctant_farmhand') });
 
     // Quest activated immediately on game start.
@@ -56,7 +56,7 @@ describe('quests e2e', () => {
 
     // Rewards applied.
     expect(gameStore.state.character.currency).toBe(preRewardCurrency + 50);
-    // XP reward (100) at level 1 + the act_ii milestone level-up means
+    // XP reward (100) at level 1 + the chapter_6 milestone level-up means
     // the player is at least level 2 now (typically 3 after both bumps).
     expect(gameStore.state.character.level).toBeGreaterThan(startLevel);
 
@@ -72,8 +72,8 @@ describe('quests e2e', () => {
     expect(rewardEntry?.text).toContain('50 leaves');
     expect(rewardEntry?.text).toContain('100 experience');
 
-    // Stage advanced to act_ii.
-    expect(gameStore.state.story.stage).toBe('act_ii');
+    // Stage advanced to chapter_6.
+    expect(gameStore.state.story.stage).toBe('chapter_6');
   });
 
   it('Consign this tale to the flames wipes quest state along with the save', () => {

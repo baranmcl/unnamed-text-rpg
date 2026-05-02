@@ -52,7 +52,7 @@ describe('narrative sub-reducer', () => {
     s = startNarrativeEncounter(s, callEncounter());
     const s2 = chooseNarrativeOption(s, 0);
     expect(s2.combat).toBeNull();
-    expect(s2.story.stage).toBe('act_ii');
+    expect(s2.story.stage).toBe('chapter_6');
   });
 
   it('chooseNarrativeOption with an out-of-range index is a no-op', () => {
@@ -100,7 +100,7 @@ describe('narrative sub-reducer', () => {
  *   s = startNarrativeEncounter(s, _callEncounter());
  *   const s2 = chooseNarrativeOption(s, 0);
  *   expect(s2.combat).toBeNull();
- *   expect(s2.story.stage).toBe('act_ii');
+ *   expect(s2.story.stage).toBe('chapter_6');
  * });
  *
  * it('chooseNarrativeOption with an out-of-range index is a no-op', () => {

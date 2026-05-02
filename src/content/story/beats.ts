@@ -2,9 +2,9 @@ import { BeatId, EncounterId, LocationId, type StoryBeat } from '../../engine/ty
 
 const ordinary_world_established: StoryBeat = {
   id: BeatId('ordinary_world_established'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
-    { kind: 'stage', stage: 'act_i' },
+    { kind: 'stage', stage: 'chapter_1' },
     { kind: 'visited', locationId: LocationId('family_farm') }
   ],
   onTrigger: [
@@ -12,8 +12,8 @@ const ordinary_world_established: StoryBeat = {
       kind: 'log',
       entry: {
         kind: 'system',
-        systemLabel: 'ACT',
-        text: 'Act I — The Ordinary World establishes itself, with mild fanfare.'
+        systemLabel: 'CHAPTER',
+        text: 'Chapter 1 — The Ordinary World establishes itself, with mild fanfare.'
       }
     }
   ]
@@ -21,9 +21,9 @@ const ordinary_world_established: StoryBeat = {
 
 const hermit_beckons: StoryBeat = {
   id: BeatId('hermit_beckons'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
-    { kind: 'stage', stage: 'act_i' },
+    { kind: 'stage', stage: 'chapter_1' },
     { kind: 'flag', flag: 'defeated:first_tax_rat' }
   ],
   onTrigger: [
@@ -48,21 +48,21 @@ const hermit_beckons: StoryBeat = {
 
 const call_received: StoryBeat = {
   id: BeatId('call_received'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
     { kind: 'visited', locationId: LocationId('dusty_crossroads') }
   ],
   onTrigger: [
     { kind: 'trigger_encounter', encounterId: EncounterId('the_call') }
   ],
-  transitionAnim: 'actMarker'
+  transitionAnim: 'chapterMarker'
 };
 
 const knight_setting_out: StoryBeat = {
   id: BeatId('knight_setting_out'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
-    { kind: 'stage', stage: 'act_i' },
+    { kind: 'stage', stage: 'chapter_1' },
     { kind: 'flag', flag: 'defeated:grievance_bursar' }
   ],
   onTrigger: [
@@ -87,9 +87,9 @@ const knight_setting_out: StoryBeat = {
 
 const wizard_setting_out: StoryBeat = {
   id: BeatId('wizard_setting_out'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
-    { kind: 'stage', stage: 'act_i' },
+    { kind: 'stage', stage: 'chapter_1' },
     { kind: 'flag', flag: 'defeated:errant_examiner' }
   ],
   onTrigger: [
@@ -114,9 +114,9 @@ const wizard_setting_out: StoryBeat = {
 
 const bard_setting_out: StoryBeat = {
   id: BeatId('bard_setting_out'),
-  stage: 'act_i',
+  stage: 'chapter_1',
   preconditions: [
-    { kind: 'stage', stage: 'act_i' },
+    { kind: 'stage', stage: 'chapter_1' },
     { kind: 'flag', flag: 'defeated:critic_with_notes' }
   ],
   onTrigger: [

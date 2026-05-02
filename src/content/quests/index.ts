@@ -5,7 +5,7 @@ const answer_the_call: Quest = {
   title: 'Answer the Call to Adventure',
   description: "Right on schedule, more or less. (You'll see.)",
   kind: 'main',
-  activatePredicate: [{ kind: 'stage', stage: 'act_i' }],
+  activatePredicate: [{ kind: 'stage', stage: 'chapter_1' }],
   objectives: [
     {
       id: 'survive_your_morning',

@@ -142,7 +142,7 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           flags: {}
         },
         story: {
-          stage: 'act_i',
+          stage: 'chapter_1',
           currentBeat: null,
           completedBeats: [],
           activeQuests: [],

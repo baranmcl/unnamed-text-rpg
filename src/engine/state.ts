@@ -31,7 +31,7 @@ export function createInitialState(seed: number): GameState {
       flags: {}
     },
     story: {
-      stage: 'act_i',
+      stage: 'chapter_1',
       currentBeat: null,
       completedBeats: [],
       activeQuests: [],
@@ -109,7 +109,7 @@ export function createDemoState(): GameState {
       flags: { met_hermit: true }
     },
     story: {
-      stage: 'act_i',
+      stage: 'chapter_1',
       currentBeat: null,
       completedBeats: [],
       activeQuests: [],

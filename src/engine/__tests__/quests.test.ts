@@ -13,7 +13,7 @@ describe('checkQuests baseline', () => {
     //  and checkQuests would correctly return the same reference.)
     const s = createInitialState(1);
     const out = checkQuests(s);
-    // The registry is now populated; at least one quest activates for act_i characters.
+    // The registry is now populated; at least one quest activates for chapter_1 characters.
     expect(out).not.toBe(s);
   });
 
@@ -38,7 +38,7 @@ describe('checkQuests with the live registry', () => {
     expect(Object.keys(content.quests).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('activates answer_the_call once the player is in act_i', () => {
+  it('activates answer_the_call once the player is in chapter_1', () => {
     const s = withCharacter();
     const out = checkQuests(s);
     expect(out.story.activeQuests).toContain('answer_the_call');

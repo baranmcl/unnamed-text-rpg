@@ -3,7 +3,7 @@ import { LocationId, EncounterId, type Location } from '../../engine/types';
 export const burning_library: Location = {
   id: LocationId('burning_library'),
   name: 'Slightly On Fire Library',
-  act: 'act_i',
+  chapter: 'chapter_1',
   description:
     "The reading room's vaulted ceiling carries an even, contemplative haze of smoke. " +
     'The smoke is being polite. The fire — which is in only the third row of stacks and may yet be reasoned with — ' +

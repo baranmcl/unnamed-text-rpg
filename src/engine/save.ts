@@ -34,6 +34,26 @@ const MIGRATIONS: Record<number, (s: any) => any> = {
       questLogActivityAtLastOpen: s.story.questLogActivityAtLastOpen ?? 0,
     } : s.story;
     return { ...s, version: 3, story };
+  },
+  3: (s: any) => {
+    // 6 acts collapsed into 9 chapters; map narrative-faithfully so saves land
+    // on the closest chapter. act_iv + act_v both fold into the two-phase Abyss.
+    const ACT_TO_CHAPTER: Record<string, string> = {
+      act_i: 'chapter_1',
+      act_ii: 'chapter_6',
+      act_iii: 'chapter_7',
+      act_iv: 'chapter_8',
+      act_v: 'chapter_8',
+      act_vi: 'chapter_9'
+    };
+    const story = s.story ? {
+      ...s.story,
+      stage: ACT_TO_CHAPTER[s.story.stage] ?? 'chapter_1'
+    } : s.story;
+    const log = Array.isArray(s.log)
+      ? s.log.map((e: any) => (e?.kind === 'act-banner' ? { ...e, kind: 'chapter-banner' } : e))
+      : s.log;
+    return { ...s, version: 4, story, log };
   }
 };
 

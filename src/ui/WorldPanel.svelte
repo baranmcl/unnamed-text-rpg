@@ -1,6 +1,6 @@
 <script lang="ts">
   import { gameStore } from './store.svelte';
-  import { ACT_TITLES } from '../engine/types';
+  import { CHAPTER_TITLES } from '../engine/types';
   import { content } from '../content';
   import { fade, fly } from 'svelte/transition';
   import type { LocationId, EncounterId, ItemId } from '../engine/types';
@@ -18,7 +18,7 @@
       .join(' ');
   }
 
-  let actLabel = $derived(ACT_TITLES[gameStore.state.story.stage]);
+  let chapterLabel = $derived(CHAPTER_TITLES[gameStore.state.story.stage]);
   let locName = $derived(locationDisplayName(gameStore.state.world.currentLocation));
   let log = $derived(gameStore.state.log);
 
@@ -150,7 +150,7 @@
   {#key gameStore.state.world.currentLocation}
     <header class="world-header" in:fly={{ y: 8, duration: 400 }}>
       <div class="header-text">
-        <p class="act-marker">{actLabel}</p>
+        <p class="chapter-marker">{chapterLabel}</p>
         <h1 class="location-title">{locName}</h1>
       </div>
       <div class="header-actions">
@@ -228,9 +228,9 @@
           <p class="entry loot">{@html formatLogText(entry.text)}</p>
         {:else if entry.kind === 'scene-divider'}
           <p class="entry scene-divider">· · ·</p>
-        {:else if entry.kind === 'act-banner'}
-          <div class="entry act-banner">
-            <span class="act-banner-text">{entry.text}</span>
+        {:else if entry.kind === 'chapter-banner'}
+          <div class="entry chapter-banner">
+            <span class="chapter-banner-text">{entry.text}</span>
           </div>
         {:else if entry.kind === 'image' && entry.src}
           <figure class="entry image">
@@ -356,7 +356,7 @@
     gap: 16px;
   }
 
-  .act-marker {
+  .chapter-marker {
     font-family: var(--serif-display);
     font-size: 11px;
     letter-spacing: 0.28em;
@@ -446,7 +446,7 @@
     letter-spacing: 0.8em;
     margin: 24px 0;
   }
-  .act-banner {
+  .chapter-banner {
     text-align: center;
     margin: 28px 0 24px;
     padding: 18px 0;
@@ -470,7 +470,7 @@
     text-transform: uppercase;
     color: var(--ink-muted);
   }
-  .act-banner-text {
+  .chapter-banner-text {
     font-family: var(--serif-display);
     font-size: 28px;
     color: var(--gilt);

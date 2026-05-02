@@ -3,7 +3,7 @@ import { LocationId, EncounterId, type Location } from '../../engine/types';
 export const dusty_crossroads: Location = {
   id: LocationId('dusty_crossroads'),
   name: 'The Dusty Crossroads',
-  act: 'act_i',
+  chapter: 'chapter_1',
   description:
     'You stand at a crossroads, which, as crossroads go, is unusually literal. ' +
     'A signpost leans drunkenly, pointing in four directions, three of which no longer exist. ' +

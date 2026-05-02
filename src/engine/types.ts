@@ -32,24 +32,30 @@ export const QuestId = (s: string) => s as QuestId;
 export const NpcId = (s: string) => s as NpcId;
 
 // =====================================================================
-// Acts (hero's-journey stages collapsed to six)
+// Chapters (hero's-journey stages — see docs/superpowers/narrative-spine.md)
 // =====================================================================
 
-export type ActId =
-  | 'act_i'
-  | 'act_ii'
-  | 'act_iii'
-  | 'act_iv'
-  | 'act_v'
-  | 'act_vi';
+export type ChapterId =
+  | 'chapter_1'
+  | 'chapter_2'
+  | 'chapter_3'
+  | 'chapter_4'
+  | 'chapter_5'
+  | 'chapter_6'
+  | 'chapter_7'
+  | 'chapter_8'
+  | 'chapter_9';
 
-export const ACT_TITLES: Record<ActId, string> = {
-  act_i: 'Act I · The Call to Adventure',
-  act_ii: 'Act II · Tests, Allies, and Enemies',
-  act_iii: 'Act III · The Approach',
-  act_iv: 'Act IV · The Ordeal',
-  act_v: 'Act V · The Return',
-  act_vi: 'Act VI · Return with the Elixir'
+export const CHAPTER_TITLES: Record<ChapterId, string> = {
+  chapter_1: 'Chapter 1 · Status Quo',
+  chapter_2: 'Chapter 2 · The Call to Adventure',
+  chapter_3: 'Chapter 3 · Refusal of the Call',
+  chapter_4: 'Chapter 4 · Meeting with the Mentor',
+  chapter_5: 'Chapter 5 · Crossing the Threshold',
+  chapter_6: 'Chapter 6 · Tests, Allies, and Enemies',
+  chapter_7: 'Chapter 7 · The Approach',
+  chapter_8: 'Chapter 8 · The Abyss',
+  chapter_9: 'Chapter 9 · Reward and Return'
 };
 
 // =====================================================================
@@ -159,7 +165,7 @@ export type RestSpot = {
 export type Location = {
   id: LocationId;
   name: string;
-  act: ActId;
+  chapter: ChapterId;
   description: string;
   reEntryDescription?: string;
   ambientLines?: string[];      // pool of re-entry alternates; uniformly picked alongside reEntryDescription
@@ -272,7 +278,7 @@ export type LogEntryKind =
   | 'combat'
   | 'loot'
   | 'scene-divider'
-  | 'act-banner'
+  | 'chapter-banner'
   | 'image';
 
 export type LogEntry = {
@@ -332,7 +338,7 @@ export type GameState = {
     flags: Record<string, boolean | number | string>;
   };
   story: {
-    stage: ActId;
+    stage: ChapterId;
     currentBeat: BeatId | null;
     completedBeats: BeatId[];
     activeQuests: QuestId[];
@@ -351,7 +357,7 @@ export type GameState = {
 };
 
 export const MAX_LOG_ENTRIES = 200;
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 // =====================================================================
 // Story beats (Plan 3)
@@ -361,7 +367,7 @@ export type Predicate =
   | { kind: 'flag'; flag: string; equals?: boolean | number | string }
   | { kind: 'visited'; locationId: LocationId }
   | { kind: 'beat_completed'; beatId: BeatId }
-  | { kind: 'stage'; stage: ActId }
+  | { kind: 'stage'; stage: ChapterId }
   | { kind: 'flag_at_least'; flag: string; min: number }
   | { kind: 'level_at_least'; level: number }
   | { kind: 'currency_at_least'; n: number }
@@ -370,16 +376,16 @@ export type Predicate =
 export type BeatEffect =
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }
   | { kind: 'grant_item'; itemId: ItemId; qty?: number }
-  | { kind: 'advance_stage'; stage: ActId }
+  | { kind: 'advance_stage'; stage: ChapterId }
   | { kind: 'log'; entry: Omit<LogEntry, 'id'> }
   | { kind: 'trigger_encounter'; encounterId: EncounterId };
 
 export type StoryBeat = {
   id: BeatId;
-  stage: ActId;
+  stage: ChapterId;
   preconditions: Predicate[];   // ALL must be true for the beat to fire
   onTrigger: BeatEffect[];
-  transitionAnim?: 'actMarker' | 'giltUnfurl' | 'refusalRewind';
+  transitionAnim?: 'chapterMarker' | 'giltUnfurl' | 'refusalRewind';
 };
 
 // =====================================================================

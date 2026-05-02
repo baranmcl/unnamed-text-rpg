@@ -3,7 +3,7 @@ import { LocationId, EncounterId, type Location } from '../../engine/types';
 export const family_farm: Location = {
   id: LocationId('family_farm'),
   name: 'The Family Farm',
-  act: 'act_i',
+  chapter: 'chapter_1',
   description:
     'The farm sprawls in three directions, mostly downhill. Chickens are in the early stages of a labour dispute. ' +
     'The barn slumps companionably against a fence that has given up. From the eastern field, you hear the ' +

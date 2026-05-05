@@ -43,6 +43,16 @@ export function startNarrativeEncounter(state: GameState, encounter: NarrativeEn
       ...s,
       world: { ...s.world, flags: { ...s.world.flags, started_call_encounter: true } }
     };
+    // Granular chapter progression: arriving at the Hermit IS Chapter 2.
+    if (s.story.stage === 'chapter_1') {
+      s = appendLogs(s, [
+        { kind: 'scene-divider', text: '' },
+        { kind: 'chapter-banner', text: 'Chapter 2' },
+        { kind: 'narration', text: 'The Call to Adventure.' },
+        { kind: 'scene-divider', text: '' }
+      ]);
+      s = { ...s, story: { ...s.story, stage: 'chapter_2' } };
+    }
   }
   return pushNode(s, encounter.rootNodeId);
 }

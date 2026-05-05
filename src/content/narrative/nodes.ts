@@ -19,6 +19,11 @@ const callRoot: NarrativeNode = {
       resolve: 'call_cry',
       disabledIfFlag: 'cried_at_hermit',
       disabledTooltip: 'You have already wept your share for now.'
+    },
+    {
+      label: 'Walk back the way you came.',
+      resolve: 'walk_back_home',
+      visible: { kind: 'any_flag', flags: ['refusal_count', 'insulted_hermit_hat', 'cried_at_hermit'] }
     }
   ]
 };

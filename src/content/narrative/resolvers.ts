@@ -3,6 +3,7 @@ import type {
   NarrativeResolver, NarrativeResolverId
 } from '../../engine/types';
 import { MAX_LOG_ENTRIES, NarrativeNodeId } from '../../engine/types';
+import { classes } from '../classes';
 
 function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameState {
   let nextId = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
@@ -20,20 +21,32 @@ const call_accept: NarrativeResolver = (state) => {
   const s = appendLogs(state, [
     { kind: 'narration', text: 'You accept. The hermit nods, satisfied. Somewhere far off, a destiny adjusts its tie.' },
     { kind: 'scene-divider', text: '' },
-    { kind: 'chapter-banner', text: 'Chapter 6' },
-    { kind: 'narration', text: 'Tests, Allies, and Enemies.' },
+    { kind: 'chapter-banner', text: 'Chapter 4' },
+    { kind: 'narration', text: 'Meeting with the Mentor.' },
     { kind: 'narration', text: 'The page turns. The script thickens.' },
     { kind: 'scene-divider', text: '' }
   ]);
   return {
     state: {
       ...s,
-      story: { ...s.story, stage: 'chapter_6' },
+      story: { ...s.story, stage: 'chapter_4' },
       world: { ...s.world, flags: { ...s.world.flags, accepted_call: true } }
     },
     next: null
   };
 };
+
+// Helper: on first refusal-track action, emit the Ch 3 banner and advance.
+function enterChapter3IfNew(s: GameState): GameState {
+  if (s.story.stage === 'chapter_3') return s;
+  const withBanner = appendLogs(s, [
+    { kind: 'scene-divider', text: '' },
+    { kind: 'chapter-banner', text: 'Chapter 3' },
+    { kind: 'narration', text: 'Refusal of the Call.' },
+    { kind: 'scene-divider', text: '' }
+  ]);
+  return { ...withBanner, story: { ...withBanner.story, stage: 'chapter_3' } };
+}
 
 // Refuse escalates each time the player clicks it. Tracked via a counter
 // flag (`refusal_count`). After the last line, additional refusals reuse it.
@@ -49,9 +62,10 @@ const call_refuse: NarrativeResolver = (state) => {
   const count = prev + 1;
   const lineIndex = Math.min(count - 1, REFUSE_LINES.length - 1);
   const line = REFUSE_LINES[lineIndex]!;
-  const s = appendLogs(state, [
+  let s = appendLogs(state, [
     { kind: 'system', systemLabel: 'NARRATOR', text: line }
   ]);
+  s = enterChapter3IfNew(s);
   return {
     state: {
       ...s,
@@ -65,10 +79,11 @@ const call_refuse: NarrativeResolver = (state) => {
 };
 
 const call_insult: NarrativeResolver = (state) => {
-  const s = appendLogs(state, [
+  let s = appendLogs(state, [
     { kind: 'system', systemLabel: 'NARRATOR', text: 'That is not, strictly speaking, in the script.' },
     { kind: 'dialogue', speaker: 'Old Hermit', text: '"...My hat is, in point of fact, a perfectly serviceable hat."' }
   ]);
+  s = enterChapter3IfNew(s);
   return {
     state: {
       ...s,
@@ -82,10 +97,11 @@ const call_insult: NarrativeResolver = (state) => {
 };
 
 const call_cry: NarrativeResolver = (state) => {
-  const s = appendLogs(state, [
+  let s = appendLogs(state, [
     { kind: 'system', systemLabel: 'NARRATOR', text: 'There, there.' },
     { kind: 'dialogue', speaker: 'Old Hermit', text: '"(Politely offers a slightly grimy handkerchief.)"' }
   ]);
+  s = enterChapter3IfNew(s);
   return {
     state: {
       ...s,
@@ -95,6 +111,24 @@ const call_cry: NarrativeResolver = (state) => {
       }
     },
     next: ROOT
+  };
+};
+
+const walk_back_home: NarrativeResolver = (state) => {
+  const cls = classes[state.character.classId];
+  if (!cls) return { state, next: null };
+  const s = appendLogs(state, [
+    { kind: 'system', systemLabel: 'NARRATOR', text: 'You turn around. The crossroads recedes. Fate, presumably, sighs.' }
+  ]);
+  return {
+    state: {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, __pending_enter_location: cls.openingLocationId }
+      }
+    },
+    next: null
   };
 };
 
@@ -191,6 +225,7 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   call_refuse,
   call_insult,
   call_cry,
+  walk_back_home,
   open_with_pell,
   open_with_footnote,
   open_with_heckler,

@@ -1,6 +1,9 @@
 # Brainstorming / design-time artifacts
 .superpowers/
 
+# Claude Code per-session config (permission allowlist, etc.)
+.claude/
+
 # Editor / OS
 .DS_Store
 Thumbs.db

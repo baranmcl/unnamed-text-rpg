@@ -64,8 +64,7 @@ describe('quests e2e', () => {
 
     // Rewards applied.
     expect(gameStore.state.character.currency).toBe(preRewardCurrency + 50);
-    // XP reward (100) at level 1 + the chapter_6 milestone level-up means
-    // the player is at least level 2 now (typically 3 after both bumps).
+    // XP reward (100) at level 1 levels the player up to level 2.
     expect(gameStore.state.character.level).toBeGreaterThan(startLevel);
 
     // QUEST and REWARD log entries present.
@@ -80,8 +79,8 @@ describe('quests e2e', () => {
     expect(rewardEntry?.text).toContain('50 leaves');
     expect(rewardEntry?.text).toContain('100 experience');
 
-    // Stage advanced to chapter_6.
-    expect(gameStore.state.story.stage).toBe('chapter_6');
+    // Stage advanced to chapter_4 (Meeting with the Mentor) on Accept.
+    expect(gameStore.state.story.stage).toBe('chapter_4');
   });
 
   it('Consign this tale to the flames wipes quest state along with the save', () => {

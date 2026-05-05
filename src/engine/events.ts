@@ -44,6 +44,8 @@ export function reduce(state: GameState, event: GameEvent): GameState {
   next = checkQuests(next);
   // Handle any pending encounter trigger that beats may have queued.
   next = drainPendingEncounter(next);
+  // Handle any pending location entry that resolvers may have queued.
+  next = drainPendingLocation(next);
   return next;
 }
 
@@ -57,6 +59,18 @@ function drainPendingEncounter(state: GameState): GameState {
   // Dispatch the encounter via reduceInner (NOT reduce — avoids infinite recursion).
   s = reduceInner(s, { kind: 'TriggerEncounter', encounterId: pending as EncounterId });
   // Re-check beats and quests in case the encounter starting unlocked anything.
+  s = checkBeats(s);
+  s = checkQuests(s);
+  return s;
+}
+
+function drainPendingLocation(state: GameState): GameState {
+  const pending = state.world.flags['__pending_enter_location'];
+  if (typeof pending !== 'string') return state;
+  const cleared = { ...state.world.flags };
+  delete (cleared as Record<string, unknown>)['__pending_enter_location'];
+  let s: GameState = { ...state, world: { ...state.world, flags: cleared } };
+  s = reduceInner(s, { kind: 'EnterLocation', locationId: pending as LocationId });
   s = checkBeats(s);
   s = checkQuests(s);
   return s;

@@ -1,10 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createInitialState, createDemoState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { reduce } from '../events';
 import { ClassId, ItemId, LocationId, EncounterId } from '../types';
 import type { TurnBasedCombatState } from '../types';
 import { skipFarmhandOpener } from './testHelpers';
+import { gameStore } from '../../ui/store.svelte';
+import { MAX_SLOTS } from '../slots';
 
 describe('createInitialState', () => {
   it('returns a fresh state with no character', () => {
@@ -129,5 +131,37 @@ describe('reduce — game-flow events', () => {
       if (monAfter < monBefore) { dropped = true; break; }
     }
     expect(dropped).toBe(true);
+  });
+});
+
+describe('store slot persistence', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    // Force re-construction by re-importing? Workaround: directly reset.
+    gameStore.consignSlot(0);
+    gameStore.consignSlot(1);
+  });
+
+  it('persists the active slot live state on dispatch when autoSave is on', async () => {
+    gameStore.beginNewTaleInSlot(0);
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'A', classId: ClassId('reluctant_farmhand') });
+    // Wait for autosave debounce.
+    await new Promise((r) => setTimeout(r, 600));
+    const raw = localStorage.getItem('heroicchronicle.slot.0.v1');
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.live.character.name).toBe('A');
+  });
+
+  it('does not write to localStorage when no active slot is set', async () => {
+    gameStore.switchToSlotPicker();
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'B', classId: ClassId('reluctant_farmhand') });
+    await new Promise((r) => setTimeout(r, 600));
+    const raw = localStorage.getItem('heroicchronicle.slot.0.v1');
+    expect(raw).toBeNull();
+  });
+
+  it('exposes MAX_SLOTS = 6', () => {
+    expect(MAX_SLOTS).toBe(6);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { gameStore, SAVE_KEY } from '../ui/store.svelte';
+import { gameStore } from '../ui/store.svelte';
 import { ClassId, EncounterId, AchievementId, type GameState } from '../engine/types';
 import { loadAchievements, ACHIEVEMENTS_STORAGE_KEY } from '../engine/achievements';
 
@@ -46,6 +46,7 @@ describe('achievements e2e', () => {
   });
 
   it('Forget thy deeds wipes achievements but leaves the save intact', () => {
+    gameStore.beginNewTaleInSlot(0);
     gameStore.dispatch({ kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     gameStore.dispatch({ kind: 'SetTheme', theme: 'moonlit' });
     gameStore.saveNow();
@@ -56,7 +57,8 @@ describe('achievements e2e', () => {
     expect(gameStore.achievements.unlocked).toEqual([]);
     expect(localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY)).toBeNull();
     expect(gameStore.state.character.name).toBe(beforeName);
-    expect(localStorage.getItem(SAVE_KEY)).not.toBeNull();
+    // Save data is now slot-based; verify the active slot is still persisted.
+    expect(localStorage.getItem('heroicchronicle.slot.0.v1')).not.toBeNull();
   });
 
   it('moonlit toast is queued and a system log entry appears in the same tick', () => {

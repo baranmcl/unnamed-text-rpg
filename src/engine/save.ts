@@ -11,8 +11,6 @@ export function serialize(state: GameState): string {
   return JSON.stringify(state);
 }
 
-// Migration registry. v1 ships with no migrations because v1 IS the first
-// version. Each entry transforms from key to key+1.
 const MIGRATIONS: Record<number, (s: any) => any> = {
   1: (s: any) => {
     const character = s.character ? { ...s.character, statuses: s.character.statuses ?? [] } : s.character;
@@ -36,8 +34,6 @@ const MIGRATIONS: Record<number, (s: any) => any> = {
     return { ...s, version: 3, story };
   },
   3: (s: any) => {
-    // 6 acts collapsed into 9 chapters; map narrative-faithfully so saves land
-    // on the closest chapter. act_iv + act_v both fold into the two-phase Abyss.
     const ACT_TO_CHAPTER: Record<string, string> = {
       act_i: 'chapter_1',
       act_ii: 'chapter_6',
@@ -57,14 +53,11 @@ const MIGRATIONS: Record<number, (s: any) => any> = {
   }
 };
 
-export function deserialize(json: string): GameState {
-  let parsed: any;
-  try {
-    parsed = JSON.parse(json);
-  } catch (e) {
-    throw new SaveLoadError('Save data is not valid JSON.', e);
-  }
-
+/**
+ * Migrate a parsed save object (or snapshot) up to the current SAVE_VERSION.
+ * Used by deserialize() and by slot loading where the JSON has already been parsed.
+ */
+export function migrateParsedState(parsed: any): GameState {
   if (typeof parsed !== 'object' || parsed === null || typeof parsed.version !== 'number') {
     throw new SaveLoadError('Save data is missing a version number.');
   }
@@ -87,6 +80,16 @@ export function deserialize(json: string): GameState {
 
   validateShape(parsed);
   return parsed as GameState;
+}
+
+export function deserialize(json: string): GameState {
+  let parsed: any;
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {
+    throw new SaveLoadError('Save data is not valid JSON.', e);
+  }
+  return migrateParsedState(parsed);
 }
 
 function validateShape(s: any): void {

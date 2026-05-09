@@ -81,7 +81,7 @@ describe('BookmarksModal', () => {
     const restoreBtn = getByRole('button', { name: /Restore/i });
     await fireEvent.click(restoreBtn);
     // Confirmation modal appears
-    const confirm = getByRole('button', { name: /^Restore$/ });
+    const confirm = getByRole('button', { name: /Restore this moment/i });
     await fireEvent.click(confirm);
     // Text size should now match the snapshot.
     expect(gameStore.state.settings.textSize).toBe('medium');

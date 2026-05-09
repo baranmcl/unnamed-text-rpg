@@ -72,7 +72,7 @@
     onclick={onBackdropClick}
     onkeydown={onKey}
   >
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="bookmarks-title" aria-hidden={confirmingRestoreId !== null ? true : undefined}>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="bookmarks-title">
       <header class="dialog-header">
         <h2 id="bookmarks-title">Bookmarks</h2>
         <button type="button" class="close" onclick={onClose} aria-label="Close">×</button>
@@ -127,7 +127,7 @@
           <p>Anything since will be unwritten.</p>
           <div class="confirm-actions">
             <button type="button" onclick={cancelRestore}>Never mind</button>
-            <button type="button" class="primary" onclick={confirmRestore}>Restore</button>
+            <button type="button" class="primary" onclick={confirmRestore}>Restore this moment</button>
           </div>
         </div>
       </div>

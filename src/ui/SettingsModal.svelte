@@ -8,6 +8,22 @@
 
   let confirmingForget = $state(false);
 
+  let confirmingSwitch = $state(false);
+
+  function switchTales() {
+    confirmingSwitch = true;
+  }
+
+  function confirmSwitch() {
+    gameStore.switchToSlotPicker();
+    confirmingSwitch = false;
+    onClose();
+  }
+
+  function cancelSwitch() {
+    confirmingSwitch = false;
+  }
+
   function forgetDeeds() {
     confirmingForget = true;
   }
@@ -57,6 +73,7 @@
     if (e.key === 'Escape') {
       if (confirmingConsign) confirmingConsign = false;
       else if (confirmingForget) confirmingForget = false;
+      else if (confirmingSwitch) confirmingSwitch = false;
       else onClose();
     }
   }
@@ -129,6 +146,7 @@
 
       <div class="actions">
         <button type="button" onclick={preserveTale}>Preserve thy tale</button>
+        <button type="button" onclick={switchTales}>Switch tales</button>
         <button type="button" class="danger" onclick={consignToFlames}>
           Consign this tale to the flames
         </button>
@@ -163,6 +181,19 @@
             <button type="button" class="danger" onclick={confirmForget}>
               To the flames
             </button>
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    {#if confirmingSwitch}
+      <div class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="switch-title">
+        <div class="confirm-dialog">
+          <h3 id="switch-title">Set this tale aside?</h3>
+          <p>Your progress will be saved. You can return to this slot from the shelf.</p>
+          <div class="confirm-actions">
+            <button type="button" onclick={cancelSwitch}>Never mind</button>
+            <button type="button" onclick={confirmSwitch}>Aye, set it aside</button>
           </div>
         </div>
       </div>

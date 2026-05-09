@@ -64,3 +64,25 @@ describe('SettingsModal', () => {
     expect(gameStore.achievements.unlocked.length).toBe(0);
   });
 });
+
+describe('SettingsModal · Switch tales', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    gameStore.beginNewTaleInSlot(0);
+    gameStore.dispatch({ kind: 'StartNewGame', name: 'Test', classId: ClassId('reluctant_farmhand') });
+  });
+
+  it('shows a Switch tales button', () => {
+    const { getByRole } = render(SettingsModal, { props: { open: true, onClose: () => {} } });
+    expect(getByRole('button', { name: /Switch tales/i })).toBeTruthy();
+  });
+
+  it('Switch tales clears the active slot after confirmation', async () => {
+    const onClose = vi.fn();
+    const { getByRole } = render(SettingsModal, { props: { open: true, onClose } });
+    await fireEvent.click(getByRole('button', { name: /Switch tales/i }));
+    await fireEvent.click(getByRole('button', { name: /Aye, set it aside/i }));
+    expect(gameStore.activeSlot).toBeNull();
+    expect(onClose).toHaveBeenCalled();
+  });
+});

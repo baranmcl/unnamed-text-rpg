@@ -7,6 +7,11 @@
   import AchievementsModal from './AchievementsModal.svelte';
   import AchievementToast from './AchievementToast.svelte';
   import QuestLogModal from './QuestLogModal.svelte';
+  import BookmarksModal from './BookmarksModal.svelte';
+
+  let bookmarksOpen = $state(false);
+  function openBookmarks() { bookmarksOpen = true; }
+  function closeBookmarks() { bookmarksOpen = false; }
 
   // Plan 1: location name comes from state.world.currentLocation id capitalized.
   // Plan 2 wires this to actual Location data.
@@ -203,6 +208,18 @@
             <circle cx="32" cy="32" r="2.5" fill="currentColor" stroke="none" />
           </svg>
         </button>
+        <button
+          class="header-icon bookmarks-btn"
+          type="button"
+          onclick={openBookmarks}
+          aria-label="Bookmarks"
+          title="Bookmarks"
+        >
+          <!-- ribbon glyph: a stylised bookmark / ribbon -->
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 3 V19 L11 14 L17 19 V3 Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -338,6 +355,7 @@
 <AchievementsModal open={achievementsOpen} onClose={closeAchievements} />
 <AchievementToast />
 <QuestLogModal open={questLogOpen} onClose={closeQuestLog} />
+<BookmarksModal open={bookmarksOpen} onClose={closeBookmarks} />
 
 <style>
   .world {
@@ -603,5 +621,20 @@
     border-radius: 50%;
     background: var(--gilt);
     pointer-events: none;
+  }
+  .header-icon {
+    color: var(--ink);
+    opacity: 0.7;
+    transition: opacity 160ms ease, transform 400ms ease;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .header-icon:hover {
+    opacity: 1;
+    transform: translateY(-1px);
   }
 </style>

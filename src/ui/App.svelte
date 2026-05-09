@@ -4,20 +4,27 @@
   import Divider from './Divider.svelte';
   import PageTools from './PageTools.svelte';
   import CharacterCreation from './CharacterCreation.svelte';
+  import SlotPicker from './SlotPicker.svelte';
   import { gameStore } from './store.svelte';
   import { isCharacterCreated } from '../engine/state';
 
-  let created = $derived(isCharacterCreated(gameStore.state));
+  let view = $derived.by(() => {
+    if (gameStore.activeSlot === null) return 'picker';
+    if (!isCharacterCreated(gameStore.state)) return 'creation';
+    return 'world';
+  });
 </script>
 
-{#if created}
+{#if view === 'picker'}
+  <SlotPicker />
+{:else if view === 'creation'}
+  <CharacterCreation />
+{:else}
   <div class="chronicle">
     <WorldPanel />
     <Divider />
     <CharacterPanel />
   </div>
-{:else}
-  <CharacterCreation />
 {/if}
 
 <PageTools />

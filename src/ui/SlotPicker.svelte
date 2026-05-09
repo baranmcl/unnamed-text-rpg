@@ -1,7 +1,7 @@
 <script lang="ts">
   import { gameStore } from './store.svelte';
   import { content } from '../content';
-  import { CHAPTER_TITLES, MAX_LOG_ENTRIES } from '../engine/types';
+  import { CHAPTER_TITLES } from '../engine/types';
   import { MAX_SLOTS, type SlotData } from '../engine/slots';
 
   let summaries = $derived.by(() => gameStore.getSlotSummaries());
@@ -46,8 +46,6 @@
   function cancelForget() {
     confirmingForgetIdx = null;
   }
-
-  void MAX_LOG_ENTRIES; // silence unused-import lint; pulled in case of future use
 </script>
 
 <div class="picker">

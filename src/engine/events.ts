@@ -191,7 +191,19 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
       const baseState = shouldClear
         ? { ...state, log: [], world: worldUpdate, rng: nextRng }
         : { ...state, world: worldUpdate, rng: nextRng };
-      return appendLogs(baseState, [{ kind: 'narration', text }]);
+      let result = appendLogs(baseState, [{ kind: 'narration', text }]);
+      // Re-trigger the_call if the player walked away mid-Refusal and is back.
+      // The Hermit is patient; the encounter waits for an Accept (or further refusals).
+      if (event.locationId === 'dusty_crossroads'
+          && result.world.flags['started_call_encounter']
+          && !result.world.flags['accepted_call']
+          && !result.combat) {
+        result = {
+          ...result,
+          world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: 'the_call' } }
+        };
+      }
+      return result;
     }
 
     case 'TriggerEncounter': {

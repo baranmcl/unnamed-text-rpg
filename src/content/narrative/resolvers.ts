@@ -54,7 +54,10 @@ const REFUSE_LINES = [
   "(Fate's greatest skill is the illusion of choice.)",
   "(I understand you're reluctant — but Fate has other plans.)",
   '(The narrator sighs heavily, retrieves the manuscript, smooths it, and we try this again.)',
-  '(...the narrator says nothing this time. The crossroads grows quiet.)'
+  '(...the narrator says nothing this time. The crossroads grows quiet.)',
+  '(The Hermit, with great patience, takes attendance in a small notebook he produces from somewhere.)',
+  '(There is, it turns out, all the time in the world. The Hermit smooths a wrinkle in his sleeve. The road waits.)',
+  '(Both the narrator and the Hermit are now reading their respective books. Eventually, you will get bored.)'
 ];
 
 const call_refuse: NarrativeResolver = (state) => {
@@ -117,6 +120,7 @@ const call_cry: NarrativeResolver = (state) => {
 const walk_back_home: NarrativeResolver = (state) => {
   const cls = classes[state.character.classId];
   if (!cls) return { state, next: null };
+  const walked = (state.world.flags['walked_back_count'] as number | undefined) ?? 0;
   const s = appendLogs(state, [
     { kind: 'system', systemLabel: 'NARRATOR', text: 'You turn around. The crossroads recedes. Fate, presumably, sighs.' }
   ]);
@@ -125,7 +129,11 @@ const walk_back_home: NarrativeResolver = (state) => {
       ...s,
       world: {
         ...s.world,
-        flags: { ...s.world.flags, __pending_enter_location: cls.openingLocationId }
+        flags: {
+          ...s.world.flags,
+          walked_back_count: walked + 1,
+          __pending_enter_location: cls.openingLocationId
+        }
       }
     },
     next: null

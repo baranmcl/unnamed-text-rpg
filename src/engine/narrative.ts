@@ -14,6 +14,13 @@ function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameStat
   };
 }
 
+const WALKED_BACK_LINES = [
+  'You came back, of course.',
+  'You came back, again, of course.',
+  'The narrator has stopped commenting on your returns. The Hermit has not.',
+  'The road, you note, has not gone anywhere. Neither has the Hermit. Neither, in fact, has the dust.'
+];
+
 function pushNode(state: GameState, nodeId: NarrativeNodeId): GameState {
   const node = content.narrativeNodes[nodeId];
   if (!node) return state;
@@ -52,6 +59,15 @@ export function startNarrativeEncounter(state: GameState, encounter: NarrativeEn
         { kind: 'scene-divider', text: '' }
       ]);
       s = { ...s, story: { ...s.story, stage: 'chapter_2' } };
+    }
+    // Walk-back acknowledgement: if the player walked away and is back, the
+    // narrator notices.
+    const walkedBack = (s.world.flags['walked_back_count'] as number | undefined) ?? 0;
+    if (walkedBack > 0) {
+      const lineIndex = Math.min(walkedBack - 1, WALKED_BACK_LINES.length - 1);
+      s = appendLogs(s, [
+        { kind: 'system', systemLabel: 'NARRATOR', text: WALKED_BACK_LINES[lineIndex]! }
+      ]);
     }
   }
   return pushNode(s, encounter.rootNodeId);

@@ -56,7 +56,7 @@
   }
 
   function confirmConsign() {
-    gameStore.resetSave();
+    gameStore.consignSlot();
     confirmingConsign = false;
     onClose();
   }

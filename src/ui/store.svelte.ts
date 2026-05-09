@@ -275,12 +275,13 @@ class GameStore {
   /** Switch to slot `i` (must be filled). Saves current slot first. */
   switchToSlot(i: number): void {
     if (i < 0 || i >= MAX_SLOTS) return;
-    // Save current first (always, regardless of autoSave).
-    this.persistLive();
+    // Cancel pending autosave first to avoid a redundant write race.
     if (this.autosaveTimer) {
       clearTimeout(this.autosaveTimer);
       this.autosaveTimer = null;
     }
+    // Save current first (always, regardless of autoSave).
+    this.persistLive();
     const slot = readSlot(i);
     if (!slot) return; // Slot is empty; caller should use beginNewTaleInSlot instead.
     this.state = slot.live;
@@ -292,11 +293,13 @@ class GameStore {
 
   /** Save current and return to the slot picker (no active slot). */
   switchToSlotPicker(): void {
-    this.persistLive();
+    // Cancel pending autosave first to avoid a redundant write race.
     if (this.autosaveTimer) {
       clearTimeout(this.autosaveTimer);
       this.autosaveTimer = null;
     }
+    // Save current state before switching.
+    this.persistLive();
     this.activeSlot = null;
     writeActiveSlot(null);
     this.state = createInitialState(Date.now());
@@ -422,6 +425,3 @@ class GameStore {
 }
 
 export const gameStore = new GameStore();
-
-// SAVE_KEY export retained for any test that imports it (now points to legacy key).
-export const SAVE_KEY = LEGACY_SAVE_KEY;

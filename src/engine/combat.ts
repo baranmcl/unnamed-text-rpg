@@ -516,6 +516,28 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
       }
     }
 
+    // Old Road win counter: increment for the two Old Road monsters (mandatory or voluntary).
+    const oldRoadEncounterIds = new Set<string>([
+      'combat_wayfaring_footnote',
+      'combat_wayfaring_footnote_mandatory',
+      'combat_plot_convenience',
+      'combat_plot_convenience_mandatory'
+    ]);
+    if (oldRoadEncounterIds.has(encounter.id)) {
+      const wins = ((s.world.flags['old_road_wins'] as number | undefined) ?? 0) + 1;
+      s = {
+        ...s,
+        world: {
+          ...s.world,
+          flags: {
+            ...s.world.flags,
+            old_road_wins: wins,
+            ...(wins >= 3 ? { old_road_cleared: true } : {})
+          }
+        }
+      };
+    }
+
     // Fix 3: Mark encounter as defeated so it doesn't reappear.
     if (!encounter.repeatable) {
       s = {

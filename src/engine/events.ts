@@ -203,6 +203,37 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: 'the_call' } }
         };
       }
+      // Old Road auto-arrive: queue a mandatory combat while the road is uncleared;
+      // 30% voluntary combat chance after.
+      if (event.locationId === 'the_old_road' && !result.combat) {
+        const wins = (result.world.flags['old_road_wins'] as number | undefined) ?? 0;
+        const cleared = Boolean(result.world.flags['old_road_cleared']);
+        let shouldFight = false;
+        let useMandatory = false;
+        if (!cleared && wins < 3) {
+          shouldFight = true;
+          useMandatory = true;
+        } else {
+          // Voluntary combat: 30% chance via seeded rng.
+          const roll = rng.d100(result.rng);
+          result = { ...result, rng: roll.state };
+          shouldFight = roll.value <= 30;
+          useMandatory = false;
+        }
+        if (shouldFight) {
+          // 50/50 pick between Footnote and Convenience.
+          const pickRoll = rng.d100(result.rng);
+          result = { ...result, rng: pickRoll.state };
+          const pickFootnote = pickRoll.value <= 50;
+          const encounterId = useMandatory
+            ? (pickFootnote ? 'combat_wayfaring_footnote_mandatory' : 'combat_plot_convenience_mandatory')
+            : (pickFootnote ? 'combat_wayfaring_footnote' : 'combat_plot_convenience');
+          result = {
+            ...result,
+            world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: encounterId } }
+          };
+        }
+      }
       return result;
     }
 

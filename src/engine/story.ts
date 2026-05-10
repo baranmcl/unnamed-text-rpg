@@ -33,6 +33,10 @@ export function evalPredicate(state: GameState, p: Predicate): boolean {
       return state.character.currency >= p.n;
     case 'any_flag':
       return p.flags.some((f) => Boolean(state.world.flags[f]));
+    case 'flag_unset': {
+      const v = state.world.flags[p.flag];
+      return !v;
+    }
   }
 }
 

@@ -83,7 +83,8 @@ export type StatusKind =
   | 'skip_turn'              // player or monster: skips next turn(s)
   | 'weapon_suspended'       // player: weapon damage = 0 while active
   | 'armor_halved'           // player: armor halved while active
-  | 'free_retaliation';      // monster: takes a free attack now, then expires
+  | 'free_retaliation'       // monster: takes a free attack now, then expires
+  | 'plot_armor';            // incoming damage capped at 1 while active
 
 export type StatusDuration =
   | { kind: 'turns'; remaining: number }
@@ -381,7 +382,8 @@ export type Predicate =
   | { kind: 'flag_at_least'; flag: string; min: number }
   | { kind: 'level_at_least'; level: number }
   | { kind: 'currency_at_least'; n: number }
-  | { kind: 'any_flag'; flags: string[] };
+  | { kind: 'any_flag'; flags: string[] }
+  | { kind: 'flag_unset'; flag: string };
 
 export type BeatEffect =
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }

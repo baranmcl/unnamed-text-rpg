@@ -156,6 +156,31 @@ describe('checkBeats', () => {
   });
 });
 
+describe('evalPredicate flag_unset', () => {
+  it('returns true when the flag is absent', () => {
+    const s = createInitialState(1);
+    expect(evalPredicate(s, { kind: 'flag_unset', flag: 'never_set' })).toBe(true);
+  });
+
+  it('returns true when the flag is explicitly false', () => {
+    const s = createInitialState(1);
+    const s2 = { ...s, world: { ...s.world, flags: { ...s.world.flags, falsy: false } } };
+    expect(evalPredicate(s2, { kind: 'flag_unset', flag: 'falsy' })).toBe(true);
+  });
+
+  it('returns false when the flag is set truthy', () => {
+    const s = createInitialState(1);
+    const s2 = { ...s, world: { ...s.world, flags: { ...s.world.flags, set: true } } };
+    expect(evalPredicate(s2, { kind: 'flag_unset', flag: 'set' })).toBe(false);
+  });
+
+  it('returns false when the flag is a non-zero number', () => {
+    const s = createInitialState(1);
+    const s2 = { ...s, world: { ...s.world, flags: { ...s.world.flags, count: 3 } } };
+    expect(evalPredicate(s2, { kind: 'flag_unset', flag: 'count' })).toBe(false);
+  });
+});
+
 describe('milestone bump on advance_stage', () => {
   it('applies a free level-up when advance_stage fires', () => {
     let s = freshState();

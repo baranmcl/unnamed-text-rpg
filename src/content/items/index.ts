@@ -96,5 +96,12 @@ export const items: Record<ItemId, Item> = {
     name: 'an Audience Expectation',
     flavor: 'An invisible weight, surprisingly portable. Heaviest in the chest.',
     kind: 'quest'
+  },
+  [ItemId('page_of_errata')]: {
+    id: ItemId('page_of_errata'),
+    name: 'a Page of Errata',
+    flavor: "A torn page of corrections in a steady hand. Reading it carefully patches your assumptions, which patches you up a bit.",
+    kind: 'consumable',
+    effects: [{ kind: 'heal_hp', amount: 15 }]
   }
 };

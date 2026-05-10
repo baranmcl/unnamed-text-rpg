@@ -10,6 +10,8 @@ import { errant_examiner } from './errant_examiner';
 import { critic_with_notes } from './critic_with_notes';
 import { hermit_lingering } from './hermit_lingering';
 import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter, farmhand_opener_encounter } from './openings';
+import { wayfaring_footnote } from './wayfaring_footnote';
+import { plot_convenience } from './plot_convenience';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -25,5 +27,7 @@ export const encounters: Record<EncounterId, Encounter> = {
   [knight_opener_encounter.id]: knight_opener_encounter,
   [wizard_opener_encounter.id]: wizard_opener_encounter,
   [bard_opener_encounter.id]: bard_opener_encounter,
-  [farmhand_opener_encounter.id]: farmhand_opener_encounter
+  [farmhand_opener_encounter.id]: farmhand_opener_encounter,
+  [wayfaring_footnote.id]: wayfaring_footnote,
+  [plot_convenience.id]: plot_convenience
 };

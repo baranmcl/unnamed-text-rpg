@@ -183,5 +183,61 @@ export const monsters: Record<MonsterId, Monster> = {
       { itemId: ItemId('hardtack'), chance: 0.4 }
     ],
     currencyDrop: { min: 3, max: 8 }
+  },
+  [MonsterId('wayfaring_footnote')]: {
+    id: MonsterId('wayfaring_footnote'),
+    name: 'a Wayfaring Footnote',
+    flavor: 'A paragraph with legs. It pauses to cite itself.',
+    defeatedFlavor: 'The Footnote relents, returns to its citation, and clears its throat one final time.',
+    hp: 18,
+    brawn: 3,
+    bravado: 4,
+    dodge: 6,
+    armor: 1,
+    weaponDamage: 4,
+    actions: [
+      { kind: 'attack', weight: 0.7, flavor: 'The Footnote takes a fresh swing, citing itself.' },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: '(see: previous note) — the line shimmers.',
+        status: 'next_attack_misses',
+        duration: { kind: 'one_shot' },
+        appliedFlavor: 'You misread the next line. Your strike is going to go wide.',
+        expirationFlavor: 'The page settles. You see the line clearly.'
+      }
+    ],
+    loot: [
+      { itemId: ItemId('page_of_errata'), chance: 0.4 }
+    ],
+    currencyDrop: { min: 1, max: 4 }
+  },
+  [MonsterId('plot_convenience')]: {
+    id: MonsterId('plot_convenience'),
+    name: 'a Plot Convenience',
+    flavor: 'An obstacle so on-the-nose it is almost helpful. Squat, durable, ready-made for the moment.',
+    defeatedFlavor: 'The Convenience deflates into an apologetic puddle. It was, perhaps, never necessary.',
+    hp: 24,
+    brawn: 2,
+    bravado: 2,
+    dodge: 4,
+    armor: 2,
+    weaponDamage: 3,
+    actions: [
+      { kind: 'attack', weight: 0.65, flavor: 'The Convenience swings with exactly the force the scene requires.' },
+      {
+        kind: 'apply_status',
+        weight: 0.35,
+        flavor: 'The Convenience plants its feet and assumes a meaningful pose.',
+        status: 'plot_armor',
+        duration: { kind: 'turns', remaining: 2 },
+        appliedFlavor: 'Plot armor engages. The next two blows will land, but barely.',
+        expirationFlavor: 'The plot armor loosens. The Convenience grows inconvenient.'
+      }
+    ],
+    loot: [
+      { itemId: ItemId('page_of_errata'), chance: 0.6 }
+    ],
+    currencyDrop: { min: 2, max: 5 }
   }
 };

@@ -22,7 +22,7 @@ describe('content registry', () => {
 describe('apply_status action validation', () => {
   const VALID_STATUS_KINDS: StatusKind[] = [
     'weakness_revealed', 'intimidated', 'guaranteed_crit', 'next_attack_misses',
-    'skip_turn', 'weapon_suspended', 'armor_halved', 'free_retaliation'
+    'skip_turn', 'weapon_suspended', 'armor_halved', 'free_retaliation', 'plot_armor'
   ];
 
   it('every apply_status action references a valid StatusKind', () => {
@@ -45,5 +45,43 @@ describe('apply_status action validation', () => {
     const applyStatusActions = monster!.actions.filter((a) => a.kind === 'apply_status');
     expect(applyStatusActions).toHaveLength(1);
     expect(applyStatusActions[0]!.status).toBe(expectedStatus);
+  });
+});
+
+describe('Old Road monsters', () => {
+  it('wayfaring_footnote exists with apply_status next_attack_misses', () => {
+    const monster = content.monsters[MonsterId('wayfaring_footnote')];
+    expect(monster).toBeDefined();
+    const applyStatus = monster!.actions.find((a) => a.kind === 'apply_status');
+    expect(applyStatus).toBeDefined();
+    if (applyStatus?.kind === 'apply_status') {
+      expect(applyStatus.status).toBe('next_attack_misses');
+    }
+  });
+
+  it('plot_convenience exists with apply_status plot_armor', () => {
+    const monster = content.monsters[MonsterId('plot_convenience')];
+    expect(monster).toBeDefined();
+    const applyStatus = monster!.actions.find((a) => a.kind === 'apply_status');
+    expect(applyStatus).toBeDefined();
+    if (applyStatus?.kind === 'apply_status') {
+      expect(applyStatus.status).toBe('plot_armor');
+    }
+  });
+
+  it('both Old Road monsters list page_of_errata in their loot table', () => {
+    const wf = content.monsters[MonsterId('wayfaring_footnote')]!;
+    const pc = content.monsters[MonsterId('plot_convenience')]!;
+    expect(wf.loot.some((l) => l.itemId === 'page_of_errata')).toBe(true);
+    expect(pc.loot.some((l) => l.itemId === 'page_of_errata')).toBe(true);
+  });
+
+  it('page_of_errata heals 15 HP', () => {
+    const item = content.items['page_of_errata' as import('../../engine/types').ItemId];
+    expect(item).toBeDefined();
+    expect(item!.kind).toBe('consumable');
+    const healEffect = item!.effects?.find((e) => e.kind === 'heal_hp');
+    expect(healEffect).toBeDefined();
+    if (healEffect?.kind === 'heal_hp') expect(healEffect.amount).toBe(15);
   });
 });

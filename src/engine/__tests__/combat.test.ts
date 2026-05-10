@@ -501,3 +501,68 @@ describe('monsterTurn — apply_status action', () => {
     }
   });
 });
+
+describe('plot_armor status', () => {
+  it('caps incoming damage at 1 while active on a monster', () => {
+    let s = createInitialState(123);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+
+    s = applyStatus(s, { kind: 'combatant', combatantId: monsterId }, {
+      kind: 'plot_armor',
+      duration: { kind: 'turns', remaining: 2 },
+      source: 'test'
+    });
+
+    // Attack up to 5 times — every hit while plot_armor is active should deal exactly 1.
+    let damageDealt = 0;
+    for (let i = 0; i < 5; i++) {
+      const monsterBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
+      const armorActive = hasStatus(monsterBefore, 'plot_armor');
+      const before = monsterBefore.hp;
+      s = reduce(s, { kind: 'AttackTarget' });
+      if (s.combat?.kind !== 'turn-based') break;
+      const after = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
+      const dealt = before - after;
+      if (dealt > 0 && armorActive) {
+        expect(dealt).toBe(1);
+        damageDealt += dealt;
+      }
+    }
+    expect(damageDealt).toBeGreaterThan(0);
+    expect(damageDealt).toBeLessThanOrEqual(2); // 2 turns of plot_armor → ≤2 capped hits before it expires
+  });
+
+  it('Plot Convenience apply_status targets itself, not the player', () => {
+    let s = createInitialState(123);
+    s = reduce(s, { kind: 'StartNewGame', name: 'Tester', classId: 'reluctant_farmhand' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'combat_plot_convenience' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+
+    // Force monster to always pick apply_status by overriding actions during the test.
+    const monstersRecord = content.monsters as Record<string, Monster>;
+    const original = monstersRecord['plot_convenience']!.actions;
+    monstersRecord['plot_convenience'] = {
+      ...monstersRecord['plot_convenience']!,
+      actions: original.filter((a) => a.kind === 'apply_status').map((a) => ({ ...a, weight: 1.0 }))
+    };
+    try {
+      const before = s.combat.combatants;
+      const monsterBefore = before.find((c) => c.kind === 'monster')!;
+      expect(monsterBefore.statuses.some((st) => st.kind === 'plot_armor')).toBe(false);
+
+      s = monsterTurn(s);
+
+      if (s.combat?.kind === 'turn-based') {
+        const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
+        const playerAfter = s.combat.combatants.find((c) => c.kind === 'player')!;
+        expect(monsterAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(true);
+        expect(playerAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(false);
+      }
+    } finally {
+      monstersRecord['plot_convenience'] = { ...monstersRecord['plot_convenience']!, actions: original };
+    }
+  });
+});

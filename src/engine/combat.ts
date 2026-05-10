@@ -219,6 +219,12 @@ export function playerAttack(state: GameState): GameState {
     finalDamage = Math.floor(finalDamage * 1.5);
   }
 
+  // 5b. plot_armor on monster: cap incoming damage at 1.
+  const currentMonster = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
+  if (hasStatus(currentMonster, 'plot_armor')) {
+    finalDamage = Math.min(1, finalDamage);
+  }
+
   // 6. Apply damage.
   const sCombat = s.combat as TurnBasedCombatState;
   const newCombatants = sCombat.combatants.map((c) =>
@@ -347,7 +353,11 @@ export function monsterTurn(state: GameState): GameState {
 
   if (action.kind === 'apply_status') {
     s = pushLog(s, { kind: 'combat', text: action.flavor });
-    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+    // plot_armor is a self-buff; all other statuses target the player.
+    const target = action.status === 'plot_armor'
+      ? { kind: 'combatant', combatantId: monsterCombatant.id } as const
+      : { kind: 'combatant', combatantId: 'player' } as const;
+    s = applyStatus(s, target, {
       kind: action.status,
       duration: action.duration,
       source: monster.name

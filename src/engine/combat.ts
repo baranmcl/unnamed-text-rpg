@@ -1,11 +1,12 @@
 import { rng, type RngState, type RngResult } from './rng';
-import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter } from './types';
+import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter, MonsterAction } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 import { awardXp } from './progression';
 import {
   tickStatuses,
   hasStatus,
+  applyStatus,
   expireStatusByKind,
   copyWorldStatusesToPlayer,
   persistPlayerStatusesToCharacter
@@ -87,8 +88,30 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
 function tickPlayerCombatant(state: GameState): GameState {
   if (state.combat?.kind !== 'turn-based') return state;
   const combat = state.combat;
+  const playerBefore = combat.combatants.find((c) => c.kind === 'player');
+  if (!playerBefore) return state;
+
   const combatants = combat.combatants.map((c) => (c.kind === 'player' ? tickStatuses(c) : c));
-  return { ...state, combat: { ...combat, combatants } };
+  const playerAfter = combatants.find((c) => c.kind === 'player')!;
+
+  // Diff: any status present before but missing after has expired.
+  const expired = playerBefore.statuses.filter(
+    (s) => !playerAfter.statuses.some((s2) => s2.id === s.id)
+  );
+
+  let s: GameState = { ...state, combat: { ...combat, combatants } };
+  for (const status of expired) {
+    // Look up the source monster's apply_status action with matching kind to fetch expirationFlavor.
+    const sourceMonster = Object.values(content.monsters).find((m) => m.name === status.source);
+    if (!sourceMonster) continue;
+    const action = sourceMonster.actions.find(
+      (a): a is Extract<MonsterAction, { kind: 'apply_status' }> =>
+        a.kind === 'apply_status' && a.status === status.kind
+    );
+    if (!action) continue;
+    s = pushLog(s, { kind: 'combat', text: action.expirationFlavor });
+  }
+  return s;
 }
 
 function tickMonsterCombatant(state: GameState, monsterId: string): GameState {
@@ -278,6 +301,17 @@ export function monsterTurn(state: GameState): GameState {
   if (action.kind === 'flee_if_low_hp' && tickedMonster.hp <= Math.floor(monster.hp / 4)) {
     s = pushLog(s, { kind: 'combat', text: action.flavor });
     s = { ...s, combat: null };
+    return s;
+  }
+
+  if (action.kind === 'apply_status') {
+    s = pushLog(s, { kind: 'combat', text: action.flavor });
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: action.status,
+      duration: action.duration,
+      source: monster.name
+    });
+    s = pushLog(s, { kind: 'combat', text: action.appliedFlavor });
     return s;
   }
 

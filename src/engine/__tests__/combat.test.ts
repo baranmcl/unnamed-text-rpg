@@ -4,8 +4,9 @@ import { startCombat, playerAttack, monsterTurn, endCombat } from '../combat';
 import { createInitialState } from '../state';
 import { content } from '../../content';
 import { ClassId, EncounterId, ItemId, LocationId } from '../types';
-import type { CombatEncounter, GameState, TurnBasedCombatState } from '../types';
-import { applyStatus } from '../status';
+import type { CombatEncounter, GameState, MonsterId, Monster, TurnBasedCombatState } from '../types';
+import { applyStatus, hasStatus } from '../status';
+import { skipFarmhandOpener } from './testHelpers';
 import { reduce } from '../events';
 
 const rng0 = { seed: 42, step: 0 };
@@ -382,5 +383,121 @@ describe('endCombat awardXp regression', () => {
     // 100 XP crosses the level * 100 = 100 threshold: expect level-up to 2 with 0 residual XP.
     expect(after.character.level).toBe(2);
     expect(after.character.xp).toBe(0);
+  });
+});
+
+describe('monsterTurn — apply_status action', () => {
+  function setupCombatWithApplyStatusMonster(): GameState {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
+    s = skipFarmhandOpener(s);
+    // Inject a test monster with a single apply_status action (weight 1.0 = always fires).
+    // Use a real monster id (insolent_pell), but the test only relies on the action
+    // we inject; the monster definition will be updated in Task 3.
+    // Directly set up combat with the test monster.
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: EncounterId('first_tax_rat') });
+    return s;
+  }
+
+  it('applies the status to the player combatant when the action fires', () => {
+    // We construct a state with combat active, then call monsterTurn with a
+    // controlled monster action. The simplest harness: build a state where
+    // the only action available is apply_status weight 1.0, so it must fire.
+    let s = setupCombatWithApplyStatusMonster();
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+
+    // Substitute a monster with a single apply_status action for this test.
+    const testMonsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id as MonsterId;
+    const originalMonster = content.monsters[testMonsterId];
+    (content.monsters as Record<string, Monster>)[testMonsterId] = {
+      ...originalMonster,
+      actions: [{
+        kind: 'apply_status',
+        weight: 1.0,
+        flavor: 'The thing does a thing.',
+        status: 'weapon_suspended',
+        duration: { kind: 'turns', remaining: 1 },
+        appliedFlavor: 'Your weapon is held.',
+        expirationFlavor: 'You free your weapon.'
+      }]
+    };
+
+    try {
+      const result = monsterTurn(s);
+      if (result.combat?.kind !== 'turn-based') throw new Error('expected combat');
+      const player = result.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(hasStatus(player, 'weapon_suspended')).toBe(true);
+    } finally {
+      // Restore the monster so other tests aren't polluted.
+      (content.monsters as Record<string, Monster>)[testMonsterId] = originalMonster;
+    }
+  });
+
+  it('does NOT deal damage to the player on the apply_status turn', () => {
+    let s = setupCombatWithApplyStatusMonster();
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+
+    const testMonsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id as MonsterId;
+    const originalMonster = content.monsters[testMonsterId];
+    (content.monsters as Record<string, Monster>)[testMonsterId] = {
+      ...originalMonster,
+      actions: [{
+        kind: 'apply_status',
+        weight: 1.0,
+        flavor: 'X',
+        status: 'weapon_suspended',
+        duration: { kind: 'turns', remaining: 1 },
+        appliedFlavor: 'Y',
+        expirationFlavor: 'Z'
+      }]
+    };
+
+    const hpBefore = s.combat.combatants.find((c) => c.kind === 'player')!.hp;
+
+    try {
+      const result = monsterTurn(s);
+      if (result.combat?.kind !== 'turn-based') throw new Error('expected combat');
+      const playerAfter = result.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(playerAfter.hp).toBe(hpBefore);
+    } finally {
+      (content.monsters as Record<string, Monster>)[testMonsterId] = originalMonster;
+    }
+  });
+
+  it('emits the expirationFlavor log entry when the status ticks to zero', () => {
+    let s = setupCombatWithApplyStatusMonster();
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+
+    const testMonsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id as MonsterId;
+    const originalMonster = content.monsters[testMonsterId];
+    (content.monsters as Record<string, Monster>)[testMonsterId] = {
+      ...originalMonster,
+      actions: [{
+        kind: 'apply_status',
+        weight: 1.0,
+        flavor: 'X',
+        status: 'weapon_suspended',
+        duration: { kind: 'turns', remaining: 1 },
+        appliedFlavor: 'Y',
+        expirationFlavor: 'YOU FREE YOUR WEAPON'
+      }]
+    };
+
+    try {
+      // Turn 1: monster applies the status.
+      let result = monsterTurn(s);
+      if (result.combat?.kind !== 'turn-based') throw new Error('expected combat');
+      const player = result.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(hasStatus(player, 'weapon_suspended')).toBe(true);
+
+      // Turn 2: player acts (tickPlayerCombatant runs, status duration goes from 1 → 0 → removed).
+      // The expiration narration should fire as the status is removed.
+      result = playerAttack(result);
+      if (result.combat?.kind !== 'turn-based') throw new Error('expected combat');
+      const expirationLog = result.log.find((e) => e.text === 'YOU FREE YOUR WEAPON');
+      expect(expirationLog).toBeDefined();
+    } finally {
+      (content.monsters as Record<string, Monster>)[testMonsterId] = originalMonster;
+    }
   });
 });

@@ -12,6 +12,12 @@ import { hermit_lingering } from './hermit_lingering';
 import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter, farmhand_opener_encounter } from './openings';
 import { wayfaring_footnote, wayfaring_footnote_mandatory } from './wayfaring_footnote';
 import { plot_convenience, plot_convenience_mandatory } from './plot_convenience';
+import {
+  mentor_knight_first_visit,
+  mentor_wizard_first_visit,
+  mentor_bard_first_visit,
+  mentor_farmhand_first_visit
+} from './mentors';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -31,5 +37,9 @@ export const encounters: Record<EncounterId, Encounter> = {
   [wayfaring_footnote.id]: wayfaring_footnote,
   [wayfaring_footnote_mandatory.id]: wayfaring_footnote_mandatory,
   [plot_convenience.id]: plot_convenience,
-  [plot_convenience_mandatory.id]: plot_convenience_mandatory
+  [plot_convenience_mandatory.id]: plot_convenience_mandatory,
+  [mentor_knight_first_visit.id]: mentor_knight_first_visit,
+  [mentor_wizard_first_visit.id]: mentor_wizard_first_visit,
+  [mentor_bard_first_visit.id]: mentor_bard_first_visit,
+  [mentor_farmhand_first_visit.id]: mentor_farmhand_first_visit,
 };

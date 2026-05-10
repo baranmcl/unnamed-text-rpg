@@ -1,11 +1,12 @@
 import { rng, type RngState, type RngResult } from './rng';
-import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter, MonsterAction } from './types';
+import type { GameState, TurnBasedCombatState, MonsterId, ItemId, CombatEncounter, MonsterAction, Status } from './types';
 import { MAX_LOG_ENTRIES } from './types';
 import { content } from '../content';
 import { awardXp } from './progression';
 import {
   tickStatuses,
   hasStatus,
+  findStatus,
   applyStatus,
   expireStatusByKind,
   copyWorldStatusesToPlayer,
@@ -85,6 +86,24 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
   return s;
 }
 
+/**
+ * Emit the expirationFlavor log entry for an expired player status, by
+ * looking up the source monster's apply_status action with matching kind.
+ * Silent if the source monster or matching action can't be found (e.g.,
+ * a skill-applied status with no matching monster action).
+ */
+function emitPlayerStatusExpiration(state: GameState, status: Status): GameState {
+  if (!status.source) return state;
+  const sourceMonster = Object.values(content.monsters).find((m) => m.name === status.source);
+  if (!sourceMonster) return state;
+  const action = sourceMonster.actions.find(
+    (a): a is Extract<MonsterAction, { kind: 'apply_status' }> =>
+      a.kind === 'apply_status' && a.status === status.kind
+  );
+  if (!action) return state;
+  return pushLog(state, { kind: 'combat', text: action.expirationFlavor });
+}
+
 function tickPlayerCombatant(state: GameState): GameState {
   if (state.combat?.kind !== 'turn-based') return state;
   const combat = state.combat;
@@ -101,15 +120,7 @@ function tickPlayerCombatant(state: GameState): GameState {
 
   let s: GameState = { ...state, combat: { ...combat, combatants } };
   for (const status of expired) {
-    // Look up the source monster's apply_status action with matching kind to fetch expirationFlavor.
-    const sourceMonster = Object.values(content.monsters).find((m) => m.name === status.source);
-    if (!sourceMonster) continue;
-    const action = sourceMonster.actions.find(
-      (a): a is Extract<MonsterAction, { kind: 'apply_status' }> =>
-        a.kind === 'apply_status' && a.status === status.kind
-    );
-    if (!action) continue;
-    s = pushLog(s, { kind: 'combat', text: action.expirationFlavor });
+    s = emitPlayerStatusExpiration(s, status);
   }
   return s;
 }
@@ -142,6 +153,8 @@ export function playerAttack(state: GameState): GameState {
 
   // 1. next_attack_misses forces miss (and also clears guaranteed_crit — wasted prophecy).
   if (hasStatus(playerCombatant, 'next_attack_misses')) {
+    // Capture the status before consuming it so we can emit expirationFlavor.
+    const missStatus = findStatus(playerCombatant, 'next_attack_misses');
     const sCombat = s.combat;
     const combatants = sCombat.combatants.map((c) => {
       if (c.kind !== 'player') return c;
@@ -151,6 +164,7 @@ export function playerAttack(state: GameState): GameState {
     });
     s = { ...s, combat: { ...sCombat, combatants } };
     s = pushLog(s, { kind: 'combat', text: 'Your strike goes wide — exactly as foretold.' });
+    if (missStatus) s = emitPlayerStatusExpiration(s, missStatus);
     return s;
   }
 

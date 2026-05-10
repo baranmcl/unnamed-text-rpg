@@ -163,6 +163,10 @@ describe('combat status e2e', () => {
       gameStore.dispatch({ kind: 'AttackTarget' });
       const missLog = gameStore.state.log.find((e) => e.text.includes('Your strike goes wide'));
       expect(missLog).toBeDefined();
+      // After the forced-miss attack, the next_attack_misses status is consumed
+      // and the expirationFlavor fires.
+      const expirationLog = gameStore.state.log.find((e) => e.text.includes('vision settles'));
+      expect(expirationLog).toBeDefined();
       // Status is gone after firing (monster attacked this turn, not re-applied).
       if (gameStore.state.combat?.kind === 'turn-based') {
         const playerAfter = gameStore.state.combat.combatants.find((c) => c.kind === 'player')!;

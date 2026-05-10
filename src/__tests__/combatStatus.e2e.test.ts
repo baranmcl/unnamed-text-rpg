@@ -177,7 +177,7 @@ describe('combat status e2e', () => {
     }
   });
 
-  it('Pointed Heckler applies skip_turn; expires after 1 turn', () => {
+  it('Pointed Heckler applies skip_turn; player turn suppressed; expires after 1 turn', () => {
     clearAllAndStart(ClassId('bard'));
     gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 });
     const restore = forceApplyStatusOnly(MonsterId('pointed_heckler'));
@@ -189,10 +189,41 @@ describe('combat status e2e', () => {
       const player = combat.combatants.find((c) => c.kind === 'player')!;
       expect(player.statuses.some((s) => s.kind === 'skip_turn')).toBe(true);
 
-      // Second attack: tickPlayerCombatant fires, skip_turn ticks 1→0 → expires and logs
-      // expirationFlavor. Monster then re-applies (forceApplyStatusOnly still active) but the tick
-      // already fired.
+      // Boost HP so neither side dies during the skip turn.
+      if (gameStore.state.combat?.kind === 'turn-based') {
+        gameStore.state = {
+          ...gameStore.state,
+          character: { ...gameStore.state.character, hp: { ...gameStore.state.character.hp, current: 100 } },
+          combat: {
+            ...gameStore.state.combat,
+            combatants: gameStore.state.combat.combatants.map((c) => {
+              if (c.kind === 'player') return { ...c, hp: 100 };
+              if (c.kind === 'monster') return { ...c, hp: 50 };
+              return c;
+            })
+          }
+        };
+      }
+
+      // Capture monster HP before the skipped attack.
+      const monsterHpBeforeSkip = (gameStore.state.combat as Extract<typeof gameStore.state.combat, { kind: 'turn-based' }>)
+        ?.combatants.find((c) => c.kind === 'monster')?.hp ?? -1;
+
+      // Second AttackTarget: player's turn is suppressed by skip_turn.
+      // tickPlayerCombatant fires (skip_turn ticks 1→0 → removed, expirationFlavor emitted).
+      // Player action is suppressed; monster still gets its turn.
       gameStore.dispatch({ kind: 'AttackTarget' });
+
+      // skip_turn enforcement: the "can't act" log must appear.
+      const skipLog = gameStore.state.log.find((e) => e.text === "You can't act this turn.");
+      expect(skipLog).toBeDefined();
+
+      // Monster HP must be unchanged (player's attack was suppressed).
+      const monsterHpAfterSkip = (gameStore.state.combat as Extract<typeof gameStore.state.combat, { kind: 'turn-based' }>)
+        ?.combatants.find((c) => c.kind === 'monster')?.hp ?? -1;
+      expect(monsterHpAfterSkip).toBe(monsterHpBeforeSkip);
+
+      // Expiration flavor fires when skip_turn ticks to 0.
       const expirationLog = gameStore.state.log.find((e) => e.text.includes('find your line again'));
       expect(expirationLog).toBeDefined();
     } finally {

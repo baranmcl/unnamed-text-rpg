@@ -135,8 +135,17 @@ function tickMonsterCombatant(state: GameState, monsterId: string): GameState {
 export function playerAttack(state: GameState): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
 
+  // Check skip_turn BEFORE ticking, so `remaining: 1` means "active this turn".
+  const preTickPlayer = state.combat.combatants.find((c) => c.kind === 'player');
+  const shouldSkip = preTickPlayer ? hasStatus(preTickPlayer, 'skip_turn') : false;
+
   let s: GameState = tickPlayerCombatant(state);
   if (s.combat?.kind !== 'turn-based') return s;
+
+  if (shouldSkip) {
+    s = pushLog(s, { kind: 'combat', text: "You can't act this turn." });
+    return s;
+  }
 
   const monsterCombatant = s.combat.combatants.find((c) => c.kind === 'monster');
   if (!monsterCombatant) return s;
@@ -226,8 +235,17 @@ export function playerAttack(state: GameState): GameState {
 
 export function playerUseItem(state: GameState, itemId: ItemId): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
+
+  // Check skip_turn BEFORE ticking, so `remaining: 1` means "active this turn".
+  const preTickPlayer = state.combat.combatants.find((c) => c.kind === 'player');
+  const shouldSkip = preTickPlayer ? hasStatus(preTickPlayer, 'skip_turn') : false;
+
   state = tickPlayerCombatant(state);
   if (state.combat?.kind !== 'turn-based') return state;
+
+  if (shouldSkip) {
+    return pushLog(state, { kind: 'combat', text: "You can't act this turn." });
+  }
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;
 
@@ -267,8 +285,17 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
 
 export function playerFlee(state: GameState): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
+
+  // Check skip_turn BEFORE ticking, so `remaining: 1` means "active this turn".
+  const preTickPlayer = state.combat.combatants.find((c) => c.kind === 'player');
+  const shouldSkip = preTickPlayer ? hasStatus(preTickPlayer, 'skip_turn') : false;
+
   state = tickPlayerCombatant(state);
   if (state.combat?.kind !== 'turn-based') return state;
+
+  if (shouldSkip) {
+    return pushLog(state, { kind: 'combat', text: "You can't act this turn." });
+  }
   const enc = content.encounters[state.combat.encounterId];
   if (enc?.kind === 'combat' && enc.noFlee) {
     return pushLog(state, { kind: 'combat', text: 'There is no fleeing this.' });

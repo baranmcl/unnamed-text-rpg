@@ -6,6 +6,10 @@ import { burning_library } from './burning_library';
 import { tavern_dressing_room } from './tavern_dressing_room';
 import { the_old_road } from './the_old_road';
 import { the_threshold } from './the_threshold';
+import { veterans_chapel } from './veterans_chapel';
+import { quiet_tower } from './quiet_tower';
+import { laureates_salon } from './laureates_salon';
+import { hedgerow_lane } from './hedgerow_lane';
 
 export const locations: Record<LocationId, Location> = {
   [family_farm.id]: family_farm,
@@ -15,4 +19,8 @@ export const locations: Record<LocationId, Location> = {
   [tavern_dressing_room.id]: tavern_dressing_room,
   [the_old_road.id]: the_old_road,
   [the_threshold.id]: the_threshold,
+  [veterans_chapel.id]: veterans_chapel,
+  [quiet_tower.id]: quiet_tower,
+  [laureates_salon.id]: laureates_salon,
+  [hedgerow_lane.id]: hedgerow_lane,
 };

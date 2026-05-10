@@ -127,7 +127,7 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
         world: {
           currentLocation: state.world.currentLocation,
           visited: [],
-          flags: {}
+          flags: { [`class.${event.classId}`]: true }
         },
         story: {
           stage: 'chapter_1',

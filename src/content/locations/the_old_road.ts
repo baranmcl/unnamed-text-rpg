@@ -23,6 +23,33 @@ export const the_old_road: Location = {
       enabledIfFlag: 'old_road_cleared',
       disabledTooltip: 'The road has not earned you yet.'
     },
-    // Class-specific mentor exits are added in Task 6.
+    {
+      label: "Off the road, to the Veteran's Chapel",
+      targetId: LocationId('veterans_chapel'),
+      visibleIfFlag: 'class.disgraced_knight',
+      enabledIfFlag: 'old_road_cleared',
+      disabledTooltip: 'The road has not earned you yet.'
+    },
+    {
+      label: 'Off the road, to the Quiet Tower',
+      targetId: LocationId('quiet_tower'),
+      visibleIfFlag: 'class.accidental_wizard',
+      enabledIfFlag: 'old_road_cleared',
+      disabledTooltip: 'The road has not earned you yet.'
+    },
+    {
+      label: "Off the road, to the Laureate's Salon",
+      targetId: LocationId('laureates_salon'),
+      visibleIfFlag: 'class.bard',
+      enabledIfFlag: 'old_road_cleared',
+      disabledTooltip: 'The road has not earned you yet.'
+    },
+    {
+      label: 'Off the road, to the Hedgerow Lane',
+      targetId: LocationId('hedgerow_lane'),
+      visibleIfFlag: 'class.reluctant_farmhand',
+      enabledIfFlag: 'old_road_cleared',
+      disabledTooltip: 'The road has not earned you yet.'
+    }
   ]
 };

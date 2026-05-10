@@ -37,10 +37,8 @@ export const dusty_crossroads: Location = {
       targetId: LocationId('tavern_dressing_room'),
       visibleIfVisited: LocationId('tavern_dressing_room')
     },
-    // The threshold exit is gated behind accepted_call (visibleIfFlag); the
-    // destination location is added in Plan 5.
     {
-      label: 'Cross the threshold',
+      label: 'Onto the Old Road',
       targetId: LocationId('the_old_road'),
       visibleIfFlag: 'accepted_call',
       enabledIfFlag: 'crossed_threshold',

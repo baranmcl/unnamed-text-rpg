@@ -126,6 +126,15 @@ export type Item = {
 export type MonsterAction =
   | { kind: 'attack'; weight: number; flavor: string }
   | { kind: 'special'; weight: number; flavor: string; damageBonus: number }
+  | {
+      kind: 'apply_status';
+      weight: number;
+      flavor: string;
+      status: StatusKind;
+      duration: StatusDuration;
+      appliedFlavor: string;
+      expirationFlavor: string;
+    }
   | { kind: 'flee_if_low_hp'; weight: number; flavor: string };
 
 export type LootTableEntry = { itemId: ItemId; chance: number };

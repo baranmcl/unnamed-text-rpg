@@ -30,7 +30,15 @@ export const monsters: Record<MonsterId, Monster> = {
     weaponDamage: 3,
     actions: [
       { kind: 'attack', weight: 0.6, flavor: 'The rat strikes you with a clipboard, citing subsection 4.2(b).' },
-      { kind: 'special', weight: 0.3, flavor: 'The rat invokes an obscure agricultural ordinance. You feel mildly fined.', damageBonus: 2 },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: 'The Tax Rat slips a fee-notice between two scales of your armor. The paperwork lodges.',
+        status: 'armor_halved',
+        duration: { kind: 'turns', remaining: 2 },
+        appliedFlavor: 'Your armor is halved while the levy is in effect.',
+        expirationFlavor: 'The levy lapses. Your guard returns.'
+      },
       { kind: 'flee_if_low_hp', weight: 0.1, flavor: 'The rat threatens to file a complaint and scurries off.' }
     ],
     loot: [
@@ -50,7 +58,16 @@ export const monsters: Record<MonsterId, Monster> = {
     armor: 0,
     weaponDamage: 3,
     actions: [
-      { kind: 'attack', weight: 1, flavor: 'The pell sways meaningfully in your direction.' }
+      { kind: 'attack', weight: 0.7, flavor: 'The pell sways meaningfully in your direction.' },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: 'The pell tilts to catch your blade between its bracing-rails.',
+        status: 'weapon_suspended',
+        duration: { kind: 'turns', remaining: 1 },
+        appliedFlavor: 'Your weapon is suspended.',
+        expirationFlavor: 'You wrench your blade free.'
+      }
     ],
     loot: []
   },
@@ -66,7 +83,16 @@ export const monsters: Record<MonsterId, Monster> = {
     armor: 0,
     weaponDamage: 2,
     actions: [
-      { kind: 'attack', weight: 1, flavor: 'The footnote nips at the punctuation around your sentences.' }
+      { kind: 'attack', weight: 0.7, flavor: 'The footnote nips at the punctuation around your sentences.' },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: 'The footnote zigzags into three positions simultaneously, then settles into none of them.',
+        status: 'next_attack_misses',
+        duration: { kind: 'one_shot' },
+        appliedFlavor: 'You see triple. Your next attack is going to miss.',
+        expirationFlavor: 'Your vision settles.'
+      }
     ],
     loot: []
   },
@@ -82,7 +108,16 @@ export const monsters: Record<MonsterId, Monster> = {
     armor: 0,
     weaponDamage: 3,
     actions: [
-      { kind: 'attack', weight: 1, flavor: 'The heckler delivers a precisely-timed sigh.' }
+      { kind: 'attack', weight: 0.7, flavor: 'The heckler delivers a precisely-timed sigh.' },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: 'The heckler delivers a precisely-timed shout. You lose your line.',
+        status: 'skip_turn',
+        duration: { kind: 'turns', remaining: 1 },
+        appliedFlavor: "You can't recover this turn.",
+        expirationFlavor: 'You find your line again.'
+      }
     ],
     loot: []
   },

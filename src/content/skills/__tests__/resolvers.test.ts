@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { reduce } from '../../../engine/events';
 import { createInitialState } from '../../../engine/state';
 import { registerSkillResolver, skillResolvers } from '../resolvers';
-import type { ClassId, EncounterId, SkillId, SkillResolverId } from '../../../engine/types';
+import type { ClassId, EncounterId, SkillId, SkillResolverId, TurnBasedCombatState } from '../../../engine/types';
 import { content } from '../../../content';
+import { applyStatus } from '../../../engine/status';
 
 describe('UseSkill MP gating', () => {
   it('does nothing if the player does not know the skill', () => {
@@ -55,6 +56,43 @@ describe('Brute Force resolver', () => {
       (t) => t.includes('with all your weight') || t.includes('bites only the dust')
     );
     expect(hadAttackLog).toBe(true);
+  });
+
+  it('caps Brute Force damage at 1 when the monster has plot_armor', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as EncounterId });
+    s = { ...s, character: { ...s.character, knownSkills: ['brute_force' as SkillId] } };
+
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const monsterId = s.combat.combatants.find((c) => c.kind === 'monster')!.id;
+
+    s = applyStatus(s, { kind: 'combatant', combatantId: monsterId }, {
+      kind: 'plot_armor',
+      duration: { kind: 'until_end_of_fight' },
+      source: 'test'
+    });
+
+    // Try a handful of attempts — even if Brute Force's reduced-accuracy miss
+    // fires on some, at least one should land, and any landed damage must be 1.
+    let landedDamage: number | null = null;
+    for (let i = 0; i < 10; i++) {
+      const monsterBefore = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
+      const before = monsterBefore.hp;
+      s = reduce(s, { kind: 'UseSkill', skillId: 'brute_force' as SkillId });
+      if (s.combat?.kind !== 'turn-based') break;
+      const after = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.hp;
+      const dealt = before - after;
+      if (dealt > 0) {
+        // Once landed, assert the cap and stop — Brute Force shouldn't deal more than 1
+        // while plot_armor is active.
+        landedDamage = dealt;
+        break;
+      }
+      // Top up MP so the loop can keep firing.
+      s = { ...s, character: { ...s.character, mp: { ...s.character.mp, current: s.character.mp.max } } };
+    }
+    expect(landedDamage).toBe(1);
   });
 });
 

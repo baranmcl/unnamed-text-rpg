@@ -220,8 +220,8 @@ export function playerAttack(state: GameState): GameState {
   }
 
   // 5b. plot_armor on monster: cap incoming damage at 1.
-  const currentMonster = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
-  if (hasStatus(currentMonster, 'plot_armor')) {
+  // Safe to use the pre-attack monsterCombatant: playerAttack only mutates player statuses.
+  if (hasStatus(monsterCombatant, 'plot_armor')) {
     finalDamage = Math.min(1, finalDamage);
   }
 

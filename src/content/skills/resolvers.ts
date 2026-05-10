@@ -3,7 +3,7 @@ import { MAX_LOG_ENTRIES } from '../../engine/types';
 import { content } from '..';
 import { rollHit, rollDamage, rollCrit, monsterFreeRetaliation } from '../../engine/combat';
 import { rng } from '../../engine/rng';
-import { applyStatus } from '../../engine/status';
+import { applyStatus, hasStatus } from '../../engine/status';
 
 export const skillResolvers: Record<SkillResolverId, SkillResolver> = {};
 
@@ -49,21 +49,25 @@ registerSkillResolver('brute_force', (state) => {
   const baseDamage = Math.floor(dmgRoll.value * multiplier);
   const finalDamage = critRoll.value ? Math.floor(baseDamage * 2.2) : baseDamage;
 
+  // plot_armor on monster: cap incoming damage at 1 (mirrors playerAttack).
+  const monsterForCap = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!;
+  const cappedDamage = hasStatus(monsterForCap, 'plot_armor') ? Math.min(1, finalDamage) : finalDamage;
+
   const sCombat = s.combat as TurnBasedCombatState;
   s = {
     ...s,
     combat: {
       ...sCombat,
       combatants: sCombat.combatants.map((c) =>
-        c.kind === 'monster' ? { ...c, hp: Math.max(0, c.hp - finalDamage) } : c
+        c.kind === 'monster' ? { ...c, hp: Math.max(0, c.hp - cappedDamage) } : c
       )
     }
   };
   return pushLog(s, {
     kind: 'combat',
     text: critRoll.value
-      ? `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. **Critical!** Damage: ${finalDamage}.`
-      : `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. Damage: ${finalDamage}.`
+      ? `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. **Critical!** Damage: ${cappedDamage}.`
+      : `The ${weapon?.name ?? 'weapon'} comes down with all your weight behind it. Damage: ${cappedDamage}.`
   });
 });
 

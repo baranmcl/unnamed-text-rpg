@@ -516,6 +516,15 @@ describe('plot_armor status', () => {
       source: 'test'
     });
 
+    // Determinism trick: apply permanent guaranteed_crit to the player so every
+    // attack is forced to hit (and won't be consumed one-shot-style). This removes
+    // the seed-dependence of "did the swing connect" — we only care about the cap.
+    s = applyStatus(s, { kind: 'combatant', combatantId: 'player' }, {
+      kind: 'guaranteed_crit',
+      duration: { kind: 'permanent' },
+      source: 'test-forced-hit'
+    });
+
     // Attack up to 5 times — every hit while plot_armor is active should deal exactly 1.
     let damageDealt = 0;
     for (let i = 0; i < 5; i++) {
@@ -555,12 +564,11 @@ describe('plot_armor status', () => {
 
       s = monsterTurn(s);
 
-      if (s.combat?.kind === 'turn-based') {
-        const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
-        const playerAfter = s.combat.combatants.find((c) => c.kind === 'player')!;
-        expect(monsterAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(true);
-        expect(playerAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(false);
-      }
+      if (s.combat?.kind !== 'turn-based') throw new Error('expected combat to continue');
+      const monsterAfter = s.combat.combatants.find((c) => c.kind === 'monster')!;
+      const playerAfter = s.combat.combatants.find((c) => c.kind === 'player')!;
+      expect(monsterAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(true);
+      expect(playerAfter.statuses.some((st) => st.kind === 'plot_armor')).toBe(false);
     } finally {
       monstersRecord['plot_convenience'] = { ...monstersRecord['plot_convenience']!, actions: original };
     }

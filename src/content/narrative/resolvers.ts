@@ -4,6 +4,7 @@ import type {
 } from '../../engine/types';
 import { MAX_LOG_ENTRIES, NarrativeNodeId } from '../../engine/types';
 import { classes } from '../classes';
+import { mentorResolvers } from './mentor_resolvers';
 
 function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameState {
   let nextId = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
@@ -244,5 +245,6 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   wizard_opener_engage_c,
   bard_opener_engage_lute,
   farmhand_opener_engage_jar,
-  farmhand_to_back_field
+  farmhand_to_back_field,
+  ...mentorResolvers
 };

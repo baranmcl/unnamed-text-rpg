@@ -1,5 +1,4 @@
-import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, LogEntry, SkillId } from './types';
-import { MAX_LOG_ENTRIES } from './types';
+import type { GameState, ClassId, ItemId, LocationId, EncounterId, EquipSlot, SkillId } from './types';
 import { content } from '../content';
 import { startCombat, playerAttack, playerFlee, playerUseItem, monsterTurn, endCombat } from './combat';
 import { skillResolvers } from '../content/skills/resolvers';
@@ -7,8 +6,7 @@ import { checkBeats } from './story';
 import { checkQuests } from './quests';
 import { startNarrativeEncounter, chooseNarrativeOption } from './narrative';
 import { rng } from './rng';
-
-// MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
+import { appendLogs } from './log';
 
 // Maps each mentor location ID to the class that owns it (for auto-arrive routing
 // in EnterLocation). Module-level constant — allocated once.
@@ -18,16 +16,6 @@ const MENTOR_LOCATION_TO_CLASS: Record<string, { cls: string; key: string }> = {
   laureates_salon: { cls: 'bard', key: 'bard' },
   hedgerow_lane: { cls: 'reluctant_farmhand', key: 'farmhand' }
 };
-
-// Append entries to the log, deriving sequential ids from the existing log
-// tail. This MUST match the id-generation pattern in combat.ts so the two
-// modules never produce a colliding id.
-function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameState {
-  let nextId = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
-  const withIds: LogEntry[] = entries.map((e) => ({ ...e, id: nextId++ }));
-  const merged = [...state.log, ...withIds];
-  return { ...state, log: merged.length > MAX_LOG_ENTRIES ? merged.slice(-MAX_LOG_ENTRIES) : merged };
-}
 
 export type GameEvent =
   | { kind: 'SetTheme'; theme: 'parchment' | 'moonlit' }
@@ -227,7 +215,6 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           const roll = rng.d100(result.rng);
           result = { ...result, rng: roll.state };
           shouldFight = roll.value <= 30;
-          useMandatory = false;
         }
         if (shouldFight) {
           // 50/50 pick between Footnote and Convenience.

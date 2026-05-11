@@ -1,20 +1,11 @@
 import type {
-  GameState, LogEntry,
+  GameState,
   NarrativeResolver, NarrativeResolverId
 } from '../../engine/types';
-import { MAX_LOG_ENTRIES, NarrativeNodeId } from '../../engine/types';
+import { NarrativeNodeId } from '../../engine/types';
 import { classes } from '../classes';
 import { mentorResolvers } from './mentor_resolvers';
-
-function appendLogs(state: GameState, entries: Omit<LogEntry, 'id'>[]): GameState {
-  let nextId = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
-  const withIds: LogEntry[] = entries.map((e) => ({ ...e, id: nextId++ }));
-  const merged = [...state.log, ...withIds];
-  return {
-    ...state,
-    log: merged.length > MAX_LOG_ENTRIES ? merged.slice(-MAX_LOG_ENTRIES) : merged
-  };
-}
+import { appendLogs } from '../../engine/log';
 
 const ROOT = NarrativeNodeId('call_root');
 

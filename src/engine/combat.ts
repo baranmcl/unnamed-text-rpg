@@ -52,6 +52,15 @@ export function rollFlee(state: RngState, bluck: number, bravado: number): RngRe
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
+// Encounter IDs whose victories advance the Old Road's win counter. Includes
+// both the mandatory and voluntary variants of the two Old Road monsters.
+const OLD_ROAD_ENCOUNTER_IDS: ReadonlySet<string> = new Set([
+  'combat_wayfaring_footnote',
+  'combat_wayfaring_footnote_mandatory',
+  'combat_plot_convenience',
+  'combat_plot_convenience_mandatory'
+]);
+
 function pushLog(state: GameState, entry: { kind: GameState['log'][number]['kind']; text: string; speaker?: string; systemLabel?: string }): GameState {
   const id = state.log.length === 0 ? 1 : state.log[state.log.length - 1]!.id + 1;
   const newLog = [...state.log, { id, ...entry }];
@@ -517,13 +526,7 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
     }
 
     // Old Road win counter: increment for the two Old Road monsters (mandatory or voluntary).
-    const oldRoadEncounterIds = new Set<string>([
-      'combat_wayfaring_footnote',
-      'combat_wayfaring_footnote_mandatory',
-      'combat_plot_convenience',
-      'combat_plot_convenience_mandatory'
-    ]);
-    if (oldRoadEncounterIds.has(encounter.id)) {
+    if (OLD_ROAD_ENCOUNTER_IDS.has(encounter.id)) {
       const wins = ((s.world.flags['old_road_wins'] as number | undefined) ?? 0) + 1;
       s = {
         ...s,

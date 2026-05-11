@@ -31,7 +31,7 @@ const call_accept: NarrativeResolver = (state) => {
     state: {
       ...s,
       story: { ...s.story, stage: 'chapter_4' },
-      world: { ...s.world, flags: { ...s.world.flags, accepted_call: true } }
+      world: { ...s.world, flags: { ...s.world.flags, accepted_call: true, crossed_threshold: true } }
     },
     next: null
   };

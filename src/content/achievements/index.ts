@@ -104,6 +104,17 @@ const glimpsed_the_editor: Achievement = {
   hidden: true
 };
 
+const an_unsigned_tale: Achievement = {
+  id: AchievementId('an_unsigned_tale'),
+  name: 'An Unsigned Tale',
+  description: 'You reached the end without ever learning your class signature. The page closes without a mark.',
+  preconditions: [
+    { kind: 'stage', stage: 'chapter_9' },
+    { kind: 'flag_unset', flag: 'ever_learned_signature' }
+  ],
+  hidden: true
+};
+
 export const achievements: Record<AchievementId, Achievement> = {
   [first_blood.id]: first_blood,
   [degree_of_heroism.id]: degree_of_heroism,
@@ -118,5 +129,6 @@ export const achievements: Record<AchievementId, Achievement> = {
   [the_tetralogy.id]: the_tetralogy,
   [on_schedule.id]: on_schedule,
   [page_counted.id]: page_counted,
-  [glimpsed_the_editor.id]: glimpsed_the_editor
+  [glimpsed_the_editor.id]: glimpsed_the_editor,
+  [an_unsigned_tale.id]: an_unsigned_tale
 };

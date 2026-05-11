@@ -36,33 +36,23 @@ describe('applyLevelUp', () => {
     expect(after.character.stats.bluck).toBe(before + 1);
   });
 
-  it('unlocks the class signature move at the configured unlockLevel', () => {
+  it('does NOT auto-unlock the class signature move at level 3 (mentor encounter is the canonical unlock)', () => {
     let s = farmhandAtLevel1();
     s = applyLevelUp(s);  // level 2
     expect(s.character.knownSkills).not.toContain('tempt_fate');
     s = applyLevelUp(s);  // level 3
-    expect(s.character.knownSkills).toContain('tempt_fate' as SkillId);
-  });
-
-  it('does not duplicate a skill if already known', () => {
-    let s = farmhandAtLevel1();
-    s = applyLevelUp(s);
-    s = applyLevelUp(s);
-    s = applyLevelUp(s);
-    s = applyLevelUp(s);
-    const count = s.character.knownSkills.filter((k) => k === 'tempt_fate').length;
-    expect(count).toBeLessThanOrEqual(1);
+    expect(s.character.knownSkills).not.toContain('tempt_fate' as SkillId);
   });
 });
 
 describe('applyLevelUp signature_unlocked side-effect', () => {
-  it('sets achievements.signature_unlocked when signature skill unlocks', () => {
+  it('does NOT set achievements.signature_unlocked on level-up (mentor encounter is the canonical unlock)', () => {
     let s = createInitialState(1);
     s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: ClassId('reluctant_farmhand') });
     s = applyLevelUp(s); // 1 -> 2
-    s = applyLevelUp(s); // 2 -> 3 — signature unlocks
-    expect(s.character.knownSkills.length).toBeGreaterThan(0);
-    expect(s.world.flags['achievements.signature_unlocked']).toBe(true);
+    s = applyLevelUp(s); // 2 -> 3 — signature no longer unlocks here
+    expect(s.character.knownSkills).not.toContain('tempt_fate' as SkillId);
+    expect(s.world.flags['achievements.signature_unlocked']).toBeUndefined();
   });
 });
 

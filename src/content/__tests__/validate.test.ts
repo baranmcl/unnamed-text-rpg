@@ -85,3 +85,18 @@ describe('Old Road monsters', () => {
     if (healEffect?.kind === 'heal_hp') expect(healEffect.amount).toBe(15);
   });
 });
+
+describe('an_unsigned_tale achievement', () => {
+  it('is registered', () => {
+    const ach = content.achievements['an_unsigned_tale' as import('../../engine/types').AchievementId];
+    expect(ach).toBeDefined();
+    expect(ach!.hidden).toBe(true);
+  });
+
+  it("preconditions: stage chapter_9 AND ever_learned_signature flag_unset", () => {
+    const ach = content.achievements['an_unsigned_tale' as import('../../engine/types').AchievementId]!;
+    const kinds = ach.preconditions.map((p) => p.kind);
+    expect(kinds).toContain('stage');
+    expect(kinds).toContain('flag_unset');
+  });
+});

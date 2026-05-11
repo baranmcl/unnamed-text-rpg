@@ -62,29 +62,6 @@ export function applyLevelUp(state: GameState): GameState {
     }
   };
 
-  // Skill unlock check.
-  if (cls) {
-    const skill = content.skills[cls.signatureMove];
-    if (skill && skill.unlockLevel === newLevel && !s.character.knownSkills.includes(cls.signatureMove)) {
-      s = {
-        ...s,
-        character: { ...s.character, knownSkills: [...s.character.knownSkills, cls.signatureMove] }
-      };
-      s = appendLog(s, {
-        kind: 'system',
-        systemLabel: 'SKILL',
-        text: `You learn **${skill.name}**. (Level ${newLevel} signature move.)`
-      });
-      s = {
-        ...s,
-        world: {
-          ...s.world,
-          flags: { ...s.world.flags, 'achievements.signature_unlocked': true }
-        }
-      };
-    }
-  }
-
   const gains: string[] = [];
   if (bumpedStat) gains.push(`**+1 ${STAT_DISPLAY[bumpedStat]}**`);
   if (hpDelta > 0) gains.push(`**+${hpDelta} max ${hpLabel}**`);

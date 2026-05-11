@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { evalPredicate, applyEffect, checkBeats } from '../story';
 import { createInitialState } from '../state';
-import { ClassId, LocationId, BeatId, ItemId, type GameState, type Predicate, type BeatEffect } from '../types';
+import { ClassId, LocationId, BeatId, ItemId, EncounterId, type GameState, type Predicate, type BeatEffect } from '../types';
+import { reduce } from '../events';
 
 function freshState(): GameState {
   let s = createInitialState(1);
@@ -192,5 +193,19 @@ describe('milestone bump on advance_stage', () => {
     expect(s.character.level).toBe(before + 1);
     const entry = s.log.find((e) => e.text.includes('Degree of Heroism') || e.text.includes('chapter turn'));
     expect(entry).toBeDefined();
+  });
+});
+
+describe('call_accept side effects', () => {
+  it('sets accepted_call and crossed_threshold', () => {
+    let s = createInitialState(1);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    // Trigger the call encounter and pick "Accept Quest" (choice index 0 on call_root).
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'the_call' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.world.flags['accepted_call']).toBe(true);
+    expect(s.world.flags['crossed_threshold']).toBe(true);
+    expect(s.story.stage).toBe('chapter_4');
   });
 });

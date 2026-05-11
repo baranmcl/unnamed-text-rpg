@@ -259,3 +259,84 @@ export const mentor_farmhand_deflect: NarrativeNode = {
     { label: '(return to the teaching)', resolve: 'mentor_farmhand_return_to_teaching' }
   ]
 };
+
+// =====================================================================
+// Post-acceptance flavor (one node per class)
+// =====================================================================
+
+export const mentor_knight_post_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_knight_post_root'),
+  prose:
+    'The Veteran nods when you cross the threshold. He has lit a fresh candle since you last came. The bench is empty.',
+  choices: [
+    { label: 'Leave.', resolve: 'mentor_leave' }
+  ]
+};
+
+export const mentor_wizard_post_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_wizard_post_root'),
+  prose:
+    'The Archmage glances from the window. They say nothing, but they smile at some private point above the lectern. The tome is closed.',
+  choices: [
+    { label: 'Leave.', resolve: 'mentor_leave' }
+  ]
+};
+
+export const mentor_bard_post_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_bard_post_root'),
+  prose:
+    'The Laureate raises their glass when you appear in the doorway. They are humming something different now.',
+  choices: [
+    { label: 'Leave.', resolve: 'mentor_leave' }
+  ]
+};
+
+export const mentor_farmhand_post_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_farmhand_post_root'),
+  prose:
+    'The lane is empty. The stile is just a stile. The kettle is cold, and gone.',
+  choices: [
+    { label: 'Leave.', resolve: 'mentor_leave' }
+  ]
+};
+
+// =====================================================================
+// Return-after-refusal (second chance) — Knight/Wizard/Bard only.
+// Single node: softened prose, two choices (Accept, Walk on).
+// =====================================================================
+
+export const mentor_knight_return_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_knight_return_root'),
+  speaker: 'The Veteran',
+  prose:
+    "He is, as he said, here. 'I expected you, in time.' The bench is in the same place. " +
+    "'Will you have the lesson?'",
+  choices: [
+    { label: 'Yes — teach me.', resolve: 'mentor_knight_accept' },
+    { label: 'No, not yet.', resolve: 'mentor_leave' }
+  ]
+};
+
+export const mentor_wizard_return_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_wizard_return_root'),
+  speaker: 'The Archmage',
+  prose:
+    "The Archmage looks up. 'Back, then.' The tome is open at the same line. " +
+    "'Will you have the lesson?'",
+  choices: [
+    { label: 'Yes — teach me.', resolve: 'mentor_wizard_accept' },
+    { label: 'No, not yet.', resolve: 'mentor_leave' }
+  ]
+};
+
+export const mentor_bard_return_root: NarrativeNode = {
+  id: NarrativeNodeId('mentor_bard_return_root'),
+  speaker: 'The Laureate',
+  prose:
+    "They are humming the same air. 'There you are.' The chaise is in the same place. " +
+    "'Will you have the lesson?'",
+  choices: [
+    { label: 'Yes — teach me.', resolve: 'mentor_bard_accept' },
+    { label: 'No, not yet.', resolve: 'mentor_leave' }
+  ]
+};

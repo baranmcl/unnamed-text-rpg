@@ -13,10 +13,9 @@ import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter
 import { wayfaring_footnote, wayfaring_footnote_mandatory } from './wayfaring_footnote';
 import { plot_convenience, plot_convenience_mandatory } from './plot_convenience';
 import {
-  mentor_knight_first_visit,
-  mentor_wizard_first_visit,
-  mentor_bard_first_visit,
-  mentor_farmhand_first_visit
+  mentor_knight_first_visit, mentor_wizard_first_visit, mentor_bard_first_visit, mentor_farmhand_first_visit,
+  mentor_knight_post_acceptance, mentor_wizard_post_acceptance, mentor_bard_post_acceptance, mentor_farmhand_post_acceptance,
+  mentor_knight_return_unlearned, mentor_wizard_return_unlearned, mentor_bard_return_unlearned
 } from './mentors';
 
 export const encounters: Record<EncounterId, Encounter> = {
@@ -42,4 +41,11 @@ export const encounters: Record<EncounterId, Encounter> = {
   [mentor_wizard_first_visit.id]: mentor_wizard_first_visit,
   [mentor_bard_first_visit.id]: mentor_bard_first_visit,
   [mentor_farmhand_first_visit.id]: mentor_farmhand_first_visit,
+  [mentor_knight_post_acceptance.id]: mentor_knight_post_acceptance,
+  [mentor_wizard_post_acceptance.id]: mentor_wizard_post_acceptance,
+  [mentor_bard_post_acceptance.id]: mentor_bard_post_acceptance,
+  [mentor_farmhand_post_acceptance.id]: mentor_farmhand_post_acceptance,
+  [mentor_knight_return_unlearned.id]: mentor_knight_return_unlearned,
+  [mentor_wizard_return_unlearned.id]: mentor_wizard_return_unlearned,
+  [mentor_bard_return_unlearned.id]: mentor_bard_return_unlearned,
 };

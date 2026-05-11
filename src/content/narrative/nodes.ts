@@ -4,7 +4,9 @@ import {
   mentor_knight_arrival, mentor_knight_teaching, mentor_knight_motivation, mentor_knight_deflect,
   mentor_wizard_arrival, mentor_wizard_teaching, mentor_wizard_motivation, mentor_wizard_deflect,
   mentor_bard_arrival, mentor_bard_teaching, mentor_bard_motivation, mentor_bard_deflect,
-  mentor_farmhand_arrival, mentor_farmhand_teaching, mentor_farmhand_motivation, mentor_farmhand_deflect
+  mentor_farmhand_arrival, mentor_farmhand_teaching, mentor_farmhand_motivation, mentor_farmhand_deflect,
+  mentor_knight_post_root, mentor_wizard_post_root, mentor_bard_post_root, mentor_farmhand_post_root,
+  mentor_knight_return_root, mentor_wizard_return_root, mentor_bard_return_root
 } from './mentor_nodes';
 
 const callRoot: NarrativeNode = {
@@ -74,4 +76,11 @@ export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [mentor_farmhand_teaching.id]: mentor_farmhand_teaching,
   [mentor_farmhand_motivation.id]: mentor_farmhand_motivation,
   [mentor_farmhand_deflect.id]: mentor_farmhand_deflect,
+  [mentor_knight_post_root.id]: mentor_knight_post_root,
+  [mentor_wizard_post_root.id]: mentor_wizard_post_root,
+  [mentor_bard_post_root.id]: mentor_bard_post_root,
+  [mentor_farmhand_post_root.id]: mentor_farmhand_post_root,
+  [mentor_knight_return_root.id]: mentor_knight_return_root,
+  [mentor_wizard_return_root.id]: mentor_wizard_return_root,
+  [mentor_bard_return_root.id]: mentor_bard_return_root,
 };

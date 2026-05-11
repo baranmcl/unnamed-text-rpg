@@ -210,11 +210,18 @@ const mentor_farmhand_return_to_teaching: NarrativeResolver = (state) => ({
 });
 
 // =====================================================================
+// Shared exit resolver for post-acceptance and second-chance "Leave" choices.
+// =====================================================================
+
+const mentor_leave: NarrativeResolver = (state) => ({ state, next: null });
+
+// =====================================================================
 // Export
 // =====================================================================
 
 export const mentorResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   mentor_advance_to_teaching,
+  mentor_leave,
 
   mentor_knight_accept,
   mentor_knight_refuse,

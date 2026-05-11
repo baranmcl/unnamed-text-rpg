@@ -36,3 +36,22 @@ describe('Mentor first-visit encounters', () => {
     expect(enc!.kind).toBe('narrative');
   });
 });
+
+describe('Mentor return-state encounters', () => {
+  it.each(['knight', 'wizard', 'bard', 'farmhand'])('%s post-acceptance encounter is registered', (cls) => {
+    const enc = content.encounters[EncounterId(`mentor_${cls}_post_acceptance`)];
+    expect(enc).toBeDefined();
+    expect(enc!.kind).toBe('narrative');
+  });
+
+  it.each(['knight', 'wizard', 'bard'])('%s second-chance encounter is registered (Farmhand omitted)', (cls) => {
+    const enc = content.encounters[EncounterId(`mentor_${cls}_return_unlearned`)];
+    expect(enc).toBeDefined();
+    expect(enc!.kind).toBe('narrative');
+  });
+
+  it('mentor_farmhand_return_unlearned does NOT exist (Farmhand cannot be in unlearned-return state)', () => {
+    const enc = content.encounters[EncounterId('mentor_farmhand_return_unlearned')];
+    expect(enc).toBeUndefined();
+  });
+});

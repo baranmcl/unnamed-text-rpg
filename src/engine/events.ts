@@ -10,6 +10,15 @@ import { rng } from './rng';
 
 // MAX_LOG_ENTRIES is imported from ./types — do not redefine locally.
 
+// Maps each mentor location ID to the class that owns it (for auto-arrive routing
+// in EnterLocation). Module-level constant — allocated once.
+const MENTOR_LOCATION_TO_CLASS: Record<string, { cls: string; key: string }> = {
+  veterans_chapel: { cls: 'disgraced_knight', key: 'knight' },
+  quiet_tower: { cls: 'accidental_wizard', key: 'wizard' },
+  laureates_salon: { cls: 'bard', key: 'bard' },
+  hedgerow_lane: { cls: 'reluctant_farmhand', key: 'farmhand' }
+};
+
 // Append entries to the log, deriving sequential ids from the existing log
 // tail. This MUST match the id-generation pattern in combat.ts so the two
 // modules never produce a colliding id.
@@ -233,6 +242,26 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
             world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: encounterId } }
           };
         }
+      }
+      // Mentor location auto-arrive: queue the appropriate encounter for the player's class
+      // and history (first visit, post-acceptance, or return-after-refusal).
+      const mentorMeta = MENTOR_LOCATION_TO_CLASS[event.locationId];
+      if (mentorMeta && !result.combat && result.character.classId === mentorMeta.cls) {
+        const mentorClass = content.classes[mentorMeta.cls as ClassId];
+        const hasLearned = mentorClass ? result.character.knownSkills.includes(mentorClass.signatureMove) : false;
+        const hasRefused = Boolean(result.world.flags[`refused_mentor_${mentorMeta.key}`]);
+        let encounterId: string;
+        if (hasLearned) {
+          encounterId = `mentor_${mentorMeta.key}_post_acceptance`;
+        } else if (hasRefused) {
+          encounterId = `mentor_${mentorMeta.key}_return_unlearned`;
+        } else {
+          encounterId = `mentor_${mentorMeta.key}_first_visit`;
+        }
+        result = {
+          ...result,
+          world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: encounterId } }
+        };
       }
       return result;
     }

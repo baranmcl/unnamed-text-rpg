@@ -92,6 +92,25 @@ describe.each(Object.entries(CLASS_KEY))('Ch 4 mentor flow — %s', (key, { cls,
     const motivationChoice = teaching.choices[1];
     expect(motivationChoice?.disabledIfFlag).toBe(`asked_motivation_${key}`);
   });
+
+  it('Returning from motivation -> teaching does NOT re-push teaching prose (silent loop-back)', () => {
+    let s = preparedAtOldRoad(cls);
+    s = reduce(s, { kind: 'EnterLocation', locationId: loc });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // arrival → teaching
+    // Count how many times the teaching prose appears in the log so far (should be 1).
+    const teaching = content.narrativeNodes[(`mentor_${key}_teaching`) as import('../engine/types').NarrativeNodeId]!;
+    const teachingProse = teaching.prose;
+    const beforeCount = s.log.filter((e) => e.text === teachingProse).length;
+    expect(beforeCount).toBe(1);
+
+    // Ask motivation, then return to teaching.
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 1 }); // motivation node
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // (return to teaching)
+
+    // Teaching prose count must still be 1 — the silent flag suppressed the re-push.
+    const afterCount = s.log.filter((e) => e.text === teachingProse).length;
+    expect(afterCount).toBe(1);
+  });
 });
 
 describe('Knight refuse → return → accept', () => {

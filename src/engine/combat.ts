@@ -90,6 +90,7 @@ export function startCombat(state: GameState, encounter: CombatEncounter): GameS
 
   let s: GameState = { ...state, rng: monsterInitRoll.state, combat };
   s = copyWorldStatusesToPlayer(s);
+  s = pushLog(s, { kind: 'scene-divider', text: '' });
   s = pushLog(s, { kind: 'combat', text: `${monster.name} appears.` });
   s = pushLog(s, { kind: 'combat', text: monster.flavor });
   return s;
@@ -571,5 +572,7 @@ export function endCombat(state: GameState, result: 'victory' | 'defeat' | 'flee
       }
     };
   }
+  // Close the fight block with a divider so subsequent narration starts cleanly.
+  s = pushLog(s, { kind: 'scene-divider', text: '' });
   return s;
 }

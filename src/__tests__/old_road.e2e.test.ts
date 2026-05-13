@@ -76,3 +76,41 @@ describe('Old Road win counter', () => {
     expect(s.world.flags['old_road_cleared']).toBe(true);
   });
 });
+
+describe('Old Road patrol button', () => {
+  it('is registered on the_old_road location', () => {
+    const loc = content.locations[LocationId('the_old_road')];
+    expect(loc!.encounterIds).toContain('patrol_old_road');
+  });
+
+  it('Press on -> queues a fleeable Old Road combat', () => {
+    let s = startFarmhandAtOldRoad();
+    // Clear the auto-arrive combat to simulate "player has finished a fight and is back at the location".
+    if (s.combat) s = { ...s, combat: null };
+
+    // Now click the patrol encounter.
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'patrol_old_road' as import('../engine/types').EncounterId });
+    expect(s.combat?.kind).toBe('narrative');
+
+    // "Press on" is choice 0.
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+
+    // After draining the pending encounter, combat should be a fleeable Old Road combat.
+    expect(s.combat?.kind).toBe('turn-based');
+    const monsterId = (s.combat as TurnBasedCombatState).combatants.find((c) => c.kind === 'monster')!.id;
+    expect([MonsterId('wayfaring_footnote'), MonsterId('plot_convenience')]).toContain(monsterId);
+    // Must be a fleeable variant (not the mandatory variant — the patrol is voluntary).
+    const enc = content.encounters[(s.combat as TurnBasedCombatState).encounterId] as CombatEncounter;
+    expect(enc.noFlee).toBeFalsy();
+  });
+
+  it('Turn back -> exits cleanly with no combat queued', () => {
+    let s = startFarmhandAtOldRoad();
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'patrol_old_road' as import('../engine/types').EncounterId });
+    expect(s.combat?.kind).toBe('narrative');
+    // "Turn back" is choice 1.
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 1 });
+    expect(s.combat).toBeNull();
+  });
+});

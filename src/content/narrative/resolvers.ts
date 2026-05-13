@@ -6,6 +6,7 @@ import { NarrativeNodeId } from '../../engine/types';
 import { classes } from '../classes';
 import { mentorResolvers } from './mentor_resolvers';
 import { appendLogs } from '../../engine/log';
+import { rng } from '../../engine/rng';
 
 const ROOT = NarrativeNodeId('call_root');
 
@@ -220,6 +221,27 @@ const farmhand_to_back_field: NarrativeResolver = (state) => ({
   next: null
 });
 
+// Voluntary patrol on the Old Road. Player-clickable encounter button picks one
+// of the two Old Road monsters via seeded RNG and queues it. Always uses the
+// fleeable variants (the mandatory ones are reserved for auto-arrive pre-clear).
+const patrol_old_road_press_on: NarrativeResolver = (state) => {
+  const roll = rng.d100(state.rng);
+  const pickFootnote = roll.value <= 50;
+  const encounterId = pickFootnote
+    ? 'combat_wayfaring_footnote'
+    : 'combat_plot_convenience';
+  return {
+    state: {
+      ...state,
+      rng: roll.state,
+      world: { ...state.world, flags: { ...state.world.flags, __pending_encounter: encounterId } }
+    },
+    next: null
+  };
+};
+
+const patrol_old_road_turn_back: NarrativeResolver = (state) => ({ state, next: null });
+
 export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   call_accept,
   call_refuse,
@@ -237,5 +259,7 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   bard_opener_engage_lute,
   farmhand_opener_engage_jar,
   farmhand_to_back_field,
+  patrol_old_road_press_on,
+  patrol_old_road_turn_back,
   ...mentorResolvers
 };

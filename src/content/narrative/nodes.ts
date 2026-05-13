@@ -47,9 +47,21 @@ const hermitLingering: NarrativeNode = {
   ]
 };
 
+const patrolOldRoadRoot: NarrativeNode = {
+  id: NarrativeNodeId('patrol_old_road_root'),
+  prose:
+    'You walk a little further along the Old Road. The hedgerow thickens. A footer in the margin of a milestone ' +
+    'lengthens by one numeral. Somewhere ahead, a citation clears its throat.',
+  choices: [
+    { label: 'Press on along the page.', resolve: 'patrol_old_road_press_on' },
+    { label: 'Turn back.', resolve: 'patrol_old_road_turn_back' }
+  ]
+};
+
 export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [callRoot.id]: callRoot,
   [hermitLingering.id]: hermitLingering,
+  [patrolOldRoadRoot.id]: patrolOldRoadRoot,
   [knight_opener_a.id]: knight_opener_a,
   [knight_opener_b.id]: knight_opener_b,
   [wizard_opener_a.id]: wizard_opener_a,

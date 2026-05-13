@@ -1,9 +1,10 @@
-import { LocationId, type Location } from '../../engine/types';
+import { LocationId, EncounterId, type Location } from '../../engine/types';
 
 export const the_old_road: Location = {
   id: LocationId('the_old_road'),
   name: 'The Old Road',
   chapter: 'chapter_4',
+  encounterIds: [EncounterId('patrol_old_road')],
   description:
     'The road climbs gently away from the crossroads. A milestone bears a chapter heading you do not recognise. ' +
     'A faint footer runs along the base of a roadside sign. The wind smells of paper and minor weather.',

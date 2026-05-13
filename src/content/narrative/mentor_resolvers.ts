@@ -79,7 +79,8 @@ const mentor_knight_motivation: NarrativeResolver = (state) => ({
 
 const mentor_knight_return_to_teaching: NarrativeResolver = (state) => ({
   state,
-  next: NarrativeNodeId('mentor_knight_teaching')
+  next: NarrativeNodeId('mentor_knight_teaching'),
+  silent: true
 });
 
 // =====================================================================
@@ -117,7 +118,8 @@ const mentor_wizard_motivation: NarrativeResolver = (state) => ({
 
 const mentor_wizard_return_to_teaching: NarrativeResolver = (state) => ({
   state,
-  next: NarrativeNodeId('mentor_wizard_teaching')
+  next: NarrativeNodeId('mentor_wizard_teaching'),
+  silent: true
 });
 
 // =====================================================================
@@ -155,7 +157,8 @@ const mentor_bard_motivation: NarrativeResolver = (state) => ({
 
 const mentor_bard_return_to_teaching: NarrativeResolver = (state) => ({
   state,
-  next: NarrativeNodeId('mentor_bard_teaching')
+  next: NarrativeNodeId('mentor_bard_teaching'),
+  silent: true
 });
 
 // =====================================================================
@@ -200,7 +203,8 @@ const mentor_farmhand_motivation: NarrativeResolver = (state) => ({
 
 const mentor_farmhand_return_to_teaching: NarrativeResolver = (state) => ({
   state,
-  next: NarrativeNodeId('mentor_farmhand_teaching')
+  next: NarrativeNodeId('mentor_farmhand_teaching'),
+  silent: true
 });
 
 // =====================================================================

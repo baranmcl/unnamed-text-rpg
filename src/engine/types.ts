@@ -264,7 +264,10 @@ export type NarrativeEncounter = {
   visibleIfFlag?: string;       // if set, encounter button only appears when flag is truthy
 };
 
-export type NarrativeResolver = (state: GameState) => { state: GameState; next: NarrativeNodeId | null };
+// `silent: true` navigates to `next` without re-pushing that node's prose to the
+// log. Use for loop-back transitions where the destination's prose was already
+// spoken earlier in the scene (e.g. mentor probe → return to teaching).
+export type NarrativeResolver = (state: GameState) => { state: GameState; next: NarrativeNodeId | null; silent?: boolean };
 
 export type Encounter = CombatEncounter | NarrativeEncounter;
 

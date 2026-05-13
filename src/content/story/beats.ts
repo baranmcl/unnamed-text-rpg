@@ -31,7 +31,12 @@ const hermit_beckons: StoryBeat = {
       kind: 'log',
       entry: {
         kind: 'narration',
-        text: 'A figure waves at you from the road. He looks important. Or, at least, he looks at you in a way that strongly implies he ought to be important.'
+        text:
+          'You step out the kitchen door. The back field is there, where it has always been. But the gate, this morning, ' +
+          'faces the wrong way. The cow has positioned herself against the latch with what you must concede is intent. ' +
+          'Beyond her, the hedgerow ends at a stile that was, you would have sworn, on the OTHER side of the field. ' +
+          'A small board nailed to its post reads, in a careful hand: **"DUSTY CROSSROADS — that way."** ' +
+          'The man in tweed who passed earlier is leaning on the stile. He sees you, raises a polite hand, and walks on.'
       }
     },
     { kind: 'set_flag', flag: 'unlocked_crossroads', value: true },
@@ -70,7 +75,10 @@ const knight_setting_out: StoryBeat = {
       kind: 'log',
       entry: {
         kind: 'narration',
-        text: 'An aide-de-camp leans through the doorway with the haste of a man whose superior has just stepped out for tea, and points, urgently, toward the King’s Road.'
+        text:
+          'The wind takes the dismissal-notice. It tumbles, settles, and is at your feet, somehow, when you turn. ' +
+          "There is fresh ink on it now, in a hand that is not yours and not the Quartermaster's, in the margin: " +
+          '**"Crossroads. Sunrise. Bring what is left."** You do not remember anyone passing close enough to write it.'
       }
     },
     { kind: 'set_flag', flag: 'unlocked_kings_road', value: true },
@@ -97,7 +105,12 @@ const wizard_setting_out: StoryBeat = {
       kind: 'log',
       entry: {
         kind: 'narration',
-        text: 'A junior librarian pokes her head around a slightly-charred shelf and gestures, urgently and apologetically, toward the Cobbled Walk.'
+        text:
+          'The Tome falls open at a page you have never seen. All three margins, for the first time in your memory ' +
+          'of the book, say the same thing: a single line of careful script. ' +
+          '**"Dusty Crossroads. Bring the Tome. You will be expected."** ' +
+          'The junior librarian, you note, is not in the stacks. The cantrip-bell on her satchel is, however, ' +
+          'ringing softly, somewhere out of sight.'
       }
     },
     { kind: 'set_flag', flag: 'unlocked_cobbled_walk', value: true },
@@ -124,7 +137,11 @@ const bard_setting_out: StoryBeat = {
       kind: 'log',
       entry: {
         kind: 'narration',
-        text: 'The stage manager appears at the door, a clipboard quivering, and waves you discreetly but firmly toward the back-alley.'
+        text:
+          'The audience has, you note, left between numbers. On the empty stage is your set-list — but it has been ' +
+          'rewritten in a hand you do not know. The last line of every verse now ends: ' +
+          '**"Now, on the road. Crossroads first."** A single folded program lies on the front bench. ' +
+          'Inside, a venue you do not recognise: the Dusty Crossroads, tonight.'
       }
     },
     { kind: 'set_flag', flag: 'unlocked_back_alley', value: true },

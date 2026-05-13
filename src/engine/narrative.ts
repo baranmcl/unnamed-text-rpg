@@ -79,7 +79,8 @@ export function chooseNarrativeOption(state: GameState, choiceIndex: number): Ga
   if (result.next === null) {
     s = { ...s, combat: null };
   } else if (result.next !== currentNodeId) {
-    // Move to a new node and push its prose.
+    // Move to a new node. Push its prose unless the resolver asked for a silent
+    // navigation (e.g. loop-back to a node whose prose was already spoken).
     s = {
       ...s,
       combat: {
@@ -88,7 +89,9 @@ export function chooseNarrativeOption(state: GameState, choiceIndex: number): Ga
         currentNodeId: result.next
       }
     };
-    s = pushNode(s, result.next);
+    if (!result.silent) {
+      s = pushNode(s, result.next);
+    }
   }
   // If result.next === currentNodeId, we self-loop:
   // - Combat state already points to currentNodeId; no update needed.

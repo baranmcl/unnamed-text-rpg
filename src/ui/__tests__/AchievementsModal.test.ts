@@ -28,9 +28,9 @@ describe('AchievementsModal', () => {
     expect(getByText(/Achievements\s*\(/)).toBeInTheDocument();
   });
 
-  it('shows hidden footer counter "0 of 4 remaining"', () => {
+  it('shows hidden footer counter "0 of 5 remaining"', () => {
     const { getByText } = render(AchievementsModal, { props: { open: true, onClose: () => {} } });
-    expect(getByText(/Hidden\s+—\s+0 of 4 remaining/)).toBeInTheDocument();
+    expect(getByText(/Hidden\s+—\s+0 of 5 remaining/)).toBeInTheDocument();
   });
 
   it('renders earned achievements with gilt glyph at the top, in earn order', () => {
@@ -58,6 +58,7 @@ describe('AchievementsModal', () => {
     expect(queryByText(/Page Counted/)).toBeNull();
     expect(queryByText(/Glimpsed the Editor/)).toBeNull();
     expect(queryByText(/An Unsigned Tale/)).toBeNull();
+    expect(queryByText(/Read the Signs/)).toBeNull();
   });
 
   it('calls onClose when close button is clicked', async () => {

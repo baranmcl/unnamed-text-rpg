@@ -239,5 +239,27 @@ export const monsters: Record<MonsterId, Monster> = {
       { itemId: ItemId('page_of_errata'), chance: 0.6 }
     ],
     currencyDrop: { min: 2, max: 5 }
+  },
+  [MonsterId('unsigned_direction')]: {
+    id: MonsterId('unsigned_direction'),
+    name: 'an Unsigned Direction',
+    flavor:
+      'A weather-worn fingerpost has dislodged itself from the signpost and is investigating you for being ' +
+      'something to point at. You do not understand why a signpost would come to life. The smart move, you sense, ' +
+      'is not to think too hard about it.',
+    defeatedFlavor: 'The arrow droops, sighs, and points half-heartedly at the ground.',
+    hp: 14,
+    brawn: 2,
+    bravado: 3,
+    dodge: 4,
+    armor: 0,
+    weaponDamage: 3,
+    actions: [
+      { kind: 'attack', weight: 1.0, flavor: 'The Direction swings, splinter-end first, and gestures at you emphatically.' }
+    ],
+    loot: [
+      { itemId: ItemId('crooked_arrow'), chance: 0.5 }
+    ],
+    currencyDrop: { min: 2, max: 5 }
   }
 };

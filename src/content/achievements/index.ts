@@ -115,6 +115,14 @@ const an_unsigned_tale: Achievement = {
   hidden: true
 };
 
+const read_the_signs: Achievement = {
+  id: AchievementId('read_the_signs'),
+  name: 'Read the Signs',
+  description: 'You answered the signpost honestly. The wind agreed.',
+  preconditions: [{ kind: 'flag', flag: 'achievements.read_the_signs' }],
+  hidden: true
+};
+
 export const achievements: Record<AchievementId, Achievement> = {
   [first_blood.id]: first_blood,
   [degree_of_heroism.id]: degree_of_heroism,
@@ -130,5 +138,6 @@ export const achievements: Record<AchievementId, Achievement> = {
   [on_schedule.id]: on_schedule,
   [page_counted.id]: page_counted,
   [glimpsed_the_editor.id]: glimpsed_the_editor,
-  [an_unsigned_tale.id]: an_unsigned_tale
+  [an_unsigned_tale.id]: an_unsigned_tale,
+  [read_the_signs.id]: read_the_signs
 };

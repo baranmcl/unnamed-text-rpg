@@ -13,6 +13,8 @@ import { knight_opener_encounter, wizard_opener_encounter, bard_opener_encounter
 import { wayfaring_footnote, wayfaring_footnote_mandatory } from './wayfaring_footnote';
 import { plot_convenience, plot_convenience_mandatory } from './plot_convenience';
 import { patrol_old_road } from './patrol_old_road';
+import { unsigned_direction } from './unsigned_direction';
+import { crossroads_signpost } from './crossroads_signpost';
 import {
   mentor_knight_first_visit, mentor_wizard_first_visit, mentor_bard_first_visit, mentor_farmhand_first_visit,
   mentor_knight_post_acceptance, mentor_wizard_post_acceptance, mentor_bard_post_acceptance, mentor_farmhand_post_acceptance,
@@ -39,6 +41,8 @@ export const encounters: Record<EncounterId, Encounter> = {
   [plot_convenience.id]: plot_convenience,
   [plot_convenience_mandatory.id]: plot_convenience_mandatory,
   [patrol_old_road.id]: patrol_old_road,
+  [unsigned_direction.id]: unsigned_direction,
+  [crossroads_signpost.id]: crossroads_signpost,
   [mentor_knight_first_visit.id]: mentor_knight_first_visit,
   [mentor_wizard_first_visit.id]: mentor_wizard_first_visit,
   [mentor_bard_first_visit.id]: mentor_bard_first_visit,

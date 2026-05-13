@@ -221,6 +221,107 @@ const farmhand_to_back_field: NarrativeResolver = (state) => ({
   next: null
 });
 
+// =====================================================================
+// Crossroads signpost riddle. Wrong answers grey themselves out via per-answer
+// flags and loop back silently to the same node. The right answer ("onion")
+// pays out currency, sets the achievement seed, and exits. "Step back" exits
+// with the flag set but no reward.
+// =====================================================================
+
+const SIGNPOST_ROOT = NarrativeNodeId('crossroads_signpost_root');
+
+const signpost_answer_prophecy: NarrativeResolver = (state) => ({
+  state: appendLogs(state, [
+    {
+      kind: 'system',
+      systemLabel: 'NARRATOR',
+      text: 'The signpost creaks, disappointed. The note rearranges itself. "Closer than the others," it now reads. "But no."'
+    }
+  ]),
+  next: SIGNPOST_ROOT,
+  silent: true
+});
+
+const signpost_answer_memory: NarrativeResolver = (state) => ({
+  state: appendLogs(state, [
+    {
+      kind: 'system',
+      systemLabel: 'NARRATOR',
+      text: 'The signpost creaks, neutral. "A common guess," the note suggests, generously. "But no."'
+    }
+  ]),
+  next: SIGNPOST_ROOT,
+  silent: true
+});
+
+const signpost_answer_grief: NarrativeResolver = (state) => ({
+  state: appendLogs(state, [
+    {
+      kind: 'system',
+      systemLabel: 'NARRATOR',
+      text: 'The signpost creaks, slightly impressed. "Sharper than expected — but no."'
+    }
+  ]),
+  next: SIGNPOST_ROOT,
+  silent: true
+});
+
+// Right answer — exits the encounter with reward.
+const signpost_answer_onion: NarrativeResolver = (state) => {
+  const reward = 3;
+  const s = appendLogs(state, [
+    {
+      kind: 'narration',
+      text:
+        'The signpost creaks, satisfied. The wind catches a peel-edge of something that was, until a moment ago, ' +
+        'simply faint. A coin clinks against your boot — a leaf, actually, but full-weight. The riddle dissolves.'
+    },
+    { kind: 'loot', text: `You pocket ${reward} leaves.` }
+  ]);
+  return {
+    state: {
+      ...s,
+      character: { ...s.character, currency: s.character.currency + reward },
+      world: {
+        ...s.world,
+        flags: {
+          ...s.world.flags,
+          crossroads_explored: true,
+          'achievements.read_the_signs': true
+        }
+      }
+    },
+    next: null
+  };
+};
+
+// Soft exit — flag set, no reward. Player may have skipped after wrong guesses.
+const signpost_step_back: NarrativeResolver = (state) => ({
+  state: {
+    ...appendLogs(state, [
+      {
+        kind: 'narration',
+        text: 'You step back from the signpost. The wind has rearranged the dust in your absence.'
+      }
+    ]),
+    world: { ...state.world, flags: { ...state.world.flags, crossroads_explored: true } }
+  },
+  next: null
+});
+
+// Per-resolver flag-setters need to fire BEFORE the resolver returns so that
+// the disabledIfFlag on the chosen answer takes effect on the very next render.
+// We bake that into each wrong-answer resolver inline.
+function withTriedFlag(resolver: NarrativeResolver, flag: string): NarrativeResolver {
+  return (state) => {
+    const stamped: GameState = {
+      ...state,
+      world: { ...state.world, flags: { ...state.world.flags, [flag]: true } }
+    };
+    return resolver(stamped);
+  };
+}
+
 // Voluntary patrol on the Old Road. Player-clickable encounter button picks one
 // of the two Old Road monsters via seeded RNG and queues it. Always uses the
 // fleeable variants (the mandatory ones are reserved for auto-arrive pre-clear).
@@ -261,5 +362,10 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   farmhand_to_back_field,
   patrol_old_road_press_on,
   patrol_old_road_turn_back,
+  signpost_answer_prophecy: withTriedFlag(signpost_answer_prophecy, 'riddle_tried_prophecy'),
+  signpost_answer_memory: withTriedFlag(signpost_answer_memory, 'riddle_tried_memory'),
+  signpost_answer_grief: withTriedFlag(signpost_answer_grief, 'riddle_tried_grief'),
+  signpost_answer_onion,
+  signpost_step_back,
   ...mentorResolvers
 };

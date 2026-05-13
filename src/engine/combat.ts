@@ -287,6 +287,21 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
       const newMp = Math.min(s.character.mp.max, s.character.mp.current + effect.amount);
       s = { ...s, character: { ...s.character, mp: { ...s.character.mp, current: newMp } } };
       s = pushLog(s, { kind: 'combat', text: `You feel mentally refreshed. (+${effect.amount} MP)` });
+    } else if (effect.kind === 'deal_damage') {
+      // Thrown/projectile use — ignores monster armor by design.
+      if (s.combat && s.combat.kind === 'turn-based') {
+        const sCombat = s.combat;
+        s = {
+          ...s,
+          combat: {
+            ...sCombat,
+            combatants: sCombat.combatants.map((c) =>
+              c.kind === 'monster' ? { ...c, hp: Math.max(0, c.hp - effect.amount) } : c
+            )
+          }
+        };
+        s = pushLog(s, { kind: 'combat', text: `You hurl ${item.name}. It strikes for ${effect.amount}.` });
+      }
     }
   }
 

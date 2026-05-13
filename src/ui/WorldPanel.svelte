@@ -99,6 +99,7 @@
     const enc = content.encounters[encId];
     if (!enc) return false;
     if (enc.visibleIfFlag && !gameStore.state.world.flags[enc.visibleIfFlag]) return false;
+    if (enc.hiddenIfFlag && gameStore.state.world.flags[enc.hiddenIfFlag]) return false;
     return true;
   }
 

@@ -68,8 +68,12 @@ describe('save slots e2e', () => {
     let autos = summaries[0]!.bookmarks.filter((b) => b.kind === 'auto-chapter');
     expect(autos).toHaveLength(0);
 
-    // Visit the crossroads — Hermit appears, advances to chapter_2.
+    // Visit the crossroads, then engage the signpost (cheapest pre-Call path)
+    // to satisfy the crossroads_explored gate. The Hermit then appears and
+    // advances the story to chapter_2.
     gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('dusty_crossroads') });
+    gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'crossroads_signpost' as import('../engine/types').EncounterId });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 4 }); // 4 = "Step back"
     summaries = gameStore.getSlotSummaries();
     autos = summaries[0]!.bookmarks.filter((b) => b.kind === 'auto-chapter');
     expect(autos.length).toBeGreaterThanOrEqual(1);

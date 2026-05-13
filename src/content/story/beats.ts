@@ -51,11 +51,25 @@ const hermit_beckons: StoryBeat = {
   ]
 };
 
+// Defeating the Unsigned Direction is the combat path to the crossroads gate.
+// (The puzzle path is the signpost resolvers setting crossroads_explored directly.)
+const unsigned_direction_defeated: StoryBeat = {
+  id: BeatId('unsigned_direction_defeated'),
+  stage: 'chapter_1',
+  preconditions: [
+    { kind: 'flag', flag: 'defeated:combat_unsigned_direction' }
+  ],
+  onTrigger: [
+    { kind: 'set_flag', flag: 'crossroads_explored', value: true }
+  ]
+};
+
 const call_received: StoryBeat = {
   id: BeatId('call_received'),
   stage: 'chapter_1',
   preconditions: [
-    { kind: 'visited', locationId: LocationId('dusty_crossroads') }
+    { kind: 'visited', locationId: LocationId('dusty_crossroads') },
+    { kind: 'flag', flag: 'crossroads_explored' }
   ],
   onTrigger: [
     { kind: 'trigger_encounter', encounterId: EncounterId('the_call') }
@@ -159,6 +173,7 @@ const bard_setting_out: StoryBeat = {
 export const beats: Record<BeatId, StoryBeat> = {
   [ordinary_world_established.id]: ordinary_world_established,
   [hermit_beckons.id]: hermit_beckons,
+  [unsigned_direction_defeated.id]: unsigned_direction_defeated,
   [call_received.id]: call_received,
   [knight_setting_out.id]: knight_setting_out,
   [wizard_setting_out.id]: wizard_setting_out,

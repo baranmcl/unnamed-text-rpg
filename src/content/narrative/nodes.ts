@@ -47,6 +47,41 @@ const hermitLingering: NarrativeNode = {
   ]
 };
 
+const crossroadsSignpostRoot: NarrativeNode = {
+  id: NarrativeNodeId('crossroads_signpost_root'),
+  prose:
+    'You step up to the signpost. It leans drunkenly. The small note tacked to its side has more words on it now ' +
+    'than you remembered — but "now" is doing some work in that sentence. In the same careful hand that wrote your ' +
+    'Fate-push earlier, a riddle.\n\n' +
+    '**"I keep my secrets in skins, each one heavier than the last."**\n' +
+    '**"To know me, you must weep through every layer."**\n' +
+    '**"At my heart there is no answer — only more of me."**\n' +
+    '**"The wind that knows the way carries me, faintly, before any traveler arrives."**\n\n' +
+    '**"What am I?"**',
+  choices: [
+    {
+      label: 'A prophecy.',
+      resolve: 'signpost_answer_prophecy',
+      disabledIfFlag: 'riddle_tried_prophecy',
+      disabledTooltip: 'The signpost already heard you out on this one.'
+    },
+    {
+      label: 'Memory.',
+      resolve: 'signpost_answer_memory',
+      disabledIfFlag: 'riddle_tried_memory',
+      disabledTooltip: 'The signpost already heard you out on this one.'
+    },
+    {
+      label: 'Grief.',
+      resolve: 'signpost_answer_grief',
+      disabledIfFlag: 'riddle_tried_grief',
+      disabledTooltip: 'The signpost already heard you out on this one.'
+    },
+    { label: 'An onion.', resolve: 'signpost_answer_onion' },
+    { label: 'Step back.', resolve: 'signpost_step_back' }
+  ]
+};
+
 const patrolOldRoadRoot: NarrativeNode = {
   id: NarrativeNodeId('patrol_old_road_root'),
   prose:
@@ -61,6 +96,7 @@ const patrolOldRoadRoot: NarrativeNode = {
 export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [callRoot.id]: callRoot,
   [hermitLingering.id]: hermitLingering,
+  [crossroadsSignpostRoot.id]: crossroadsSignpostRoot,
   [patrolOldRoadRoot.id]: patrolOldRoadRoot,
   [knight_opener_a.id]: knight_opener_a,
   [knight_opener_b.id]: knight_opener_b,

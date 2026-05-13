@@ -282,6 +282,12 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
     case 'UseItem': {
       let s = state.combat ? playerUseItem(state, event.itemId) : useItemOutOfCombat(state, event.itemId);
       if (state.combat && s.combat) {
+        // A damage-dealing item may have KO'd the monster — resolve victory before the monster turn.
+        const monster = s.combat.kind === 'turn-based' ? s.combat.combatants.find((c) => c.kind === 'monster') : undefined;
+        if (monster && monster.hp <= 0) {
+          const enc = content.encounters[s.combat.encounterId];
+          return enc?.kind === 'combat' ? endCombat(s, 'victory', enc) : { ...s, combat: null };
+        }
         s = monsterTurn(s);
         if (s.character.hp.current <= 0) {
           const enc = content.encounters[s.combat!.encounterId];

@@ -110,7 +110,8 @@ export type ItemKind = 'weapon' | 'armor' | 'trinket' | 'consumable' | 'quest';
 export type ItemEffect =
   | { kind: 'heal_hp'; amount: number }
   | { kind: 'heal_mp'; amount: number }
-  | { kind: 'set_flag'; flag: string; value: boolean | number | string };
+  | { kind: 'set_flag'; flag: string; value: boolean | number | string }
+  | { kind: 'deal_damage'; amount: number };   // thrown/used in combat; ignores monster armor
 
 export type Item = {
   id: ItemId;
@@ -232,6 +233,7 @@ export type CombatEncounter = {
   repeatable?: boolean;
   endsByReasoning?: boolean;   // NEW: Out-Think It auto-resolves the fight as victory
   visibleIfFlag?: string;      // if set, encounter button only appears when flag is truthy
+  hiddenIfFlag?: string;       // if set, encounter button is hidden once flag is truthy
 };
 
 // =====================================================================
@@ -262,6 +264,7 @@ export type NarrativeEncounter = {
   noFlee?: boolean;
   label?: string;               // optional button label; defaults to "Investigate"
   visibleIfFlag?: string;       // if set, encounter button only appears when flag is truthy
+  hiddenIfFlag?: string;        // if set, encounter button is hidden once flag is truthy
 };
 
 // `silent: true` navigates to `next` without re-pushing that node's prose to the

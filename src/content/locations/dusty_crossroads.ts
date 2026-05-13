@@ -45,5 +45,9 @@ export const dusty_crossroads: Location = {
       disabledTooltip: 'The road is yet unwritten.'
     }
   ],
-  encounterIds: [EncounterId('hermit_lingering')]
+  encounterIds: [
+    EncounterId('crossroads_signpost'),
+    EncounterId('combat_unsigned_direction'),
+    EncounterId('hermit_lingering')
+  ]
 };

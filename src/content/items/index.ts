@@ -103,5 +103,12 @@ export const items: Record<ItemId, Item> = {
     flavor: "A torn page of corrections in a steady hand. Reading it carefully patches your assumptions, which patches you up a bit.",
     kind: 'consumable',
     effects: [{ kind: 'heal_hp', amount: 15 }]
+  },
+  [ItemId('crooked_arrow')]: {
+    id: ItemId('crooked_arrow'),
+    name: 'a Crooked Arrow',
+    flavor: 'A weather-worn fingerpost-arrow, slightly bent. It points, mostly, away from you. Throwable, in a pinch.',
+    kind: 'consumable',
+    effects: [{ kind: 'deal_damage', amount: 6 }]
   }
 };

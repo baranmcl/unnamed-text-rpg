@@ -46,9 +46,15 @@ describe('quests e2e', () => {
     gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('dusty_crossroads') });
     expect(gameStore.state.story.completedObjectives[QuestId('answer_the_call')]).toContain('travel_to_crossroads');
 
-    // The call_received beat fires on visiting the crossroads, which queues
-    // the_call encounter. The drainPendingEncounter loop runs it. After that,
-    // started_call_encounter is set and the hear_the_hermit objective completes.
+    // Engage the signpost and step back — sets crossroads_explored, which
+    // unlocks the call_received beat. The cheapest pre-Call path; equivalent
+    // to defeating the Unsigned Direction or solving the riddle.
+    gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'crossroads_signpost' as import('../engine/types').EncounterId });
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 4 }); // 4 = "Step back"
+
+    // call_received beat now fires, which queues the_call encounter. The
+    // drainPendingEncounter loop runs it. After that, started_call_encounter
+    // is set and the hear_the_hermit objective completes.
     expect(gameStore.state.story.completedObjectives[QuestId('answer_the_call')]).toContain('hear_the_hermit');
 
     // Find the "Accept" choice in the_call narrative encounter and pick it.

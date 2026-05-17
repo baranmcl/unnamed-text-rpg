@@ -1,3 +1,0 @@
-# Cloudflare Pages SPA fallback: serve index.html for any non-asset path,
-# preserving the URL in the browser bar. Lets deep-link refreshes work.
-/*  /index.html  200

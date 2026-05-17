@@ -280,8 +280,14 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
     }
 
     case 'UseItem': {
-      let s = state.combat ? playerUseItem(state, event.itemId) : useItemOutOfCombat(state, event.itemId);
-      if (state.combat && s.combat) {
+      // Route by combat KIND, not mere existence: narrative encounters are
+      // "in a scene" but not in turn-based combat, so they share semantics
+      // with the world map (use = heal/refresh; throwables need a target).
+      const inTurnBasedCombat = state.combat?.kind === 'turn-based';
+      let s = inTurnBasedCombat
+        ? playerUseItem(state, event.itemId)
+        : useItemOutOfCombat(state, event.itemId);
+      if (inTurnBasedCombat && s.combat) {
         // A damage-dealing item may have KO'd the monster — resolve victory before the monster turn.
         const monster = s.combat.kind === 'turn-based' ? s.combat.combatants.find((c) => c.kind === 'monster') : undefined;
         if (monster && monster.hp <= 0) {
@@ -404,12 +410,29 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
 function useItemOutOfCombat(state: GameState, itemId: ItemId): GameState {
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;
+
+  // Damage-dealing items need a combat target. Refuse with a diegetic line
+  // and DO NOT consume the item — losing a Crooked Arrow to a misclick on
+  // the world map (or during a dialogue) would be unkind.
+  if (item.effects?.some((e) => e.kind === 'deal_damage')) {
+    return appendLogs(state, [
+      {
+        kind: 'narration',
+        text: `You consider throwing ${item.name}. There is nothing here to throw it at.`
+      }
+    ]);
+  }
+
   let s = state;
   for (const effect of item.effects ?? []) {
     if (effect.kind === 'heal_hp') {
       const newHp = Math.min(s.character.hp.max, s.character.hp.current + effect.amount);
       s = { ...s, character: { ...s.character, hp: { ...s.character.hp, current: newHp } } };
       s = appendLogs(s, [{ kind: 'system', text: `You eat ${item.name}. (+${effect.amount} HP)`, systemLabel: 'ITEM' }]);
+    } else if (effect.kind === 'heal_mp') {
+      const newMp = Math.min(s.character.mp.max, s.character.mp.current + effect.amount);
+      s = { ...s, character: { ...s.character, mp: { ...s.character.mp, current: newMp } } };
+      s = appendLogs(s, [{ kind: 'system', text: `You feel mentally refreshed. (+${effect.amount} MP)`, systemLabel: 'ITEM' }]);
     }
   }
   // Decrement

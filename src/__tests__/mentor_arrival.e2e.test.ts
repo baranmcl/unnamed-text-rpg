@@ -48,4 +48,19 @@ describe('mentor location auto-arrive routing', () => {
     expect(s.combat?.kind).toBe('narrative');
     expect((s.combat as NarrativeCombatState).encounterId).toBe('mentor_farmhand_post_acceptance');
   });
+
+  it("Wrong-class entry to a mentor location does NOT trigger an encounter (guard holds)", () => {
+    // A Knight directly EnterLocation'd into the Hedgerow Lane (Farmhand's mentor
+    // location) should NOT auto-queue any encounter. Class-flagged exits make this
+    // impossible via normal navigation, but the engine's guard is the last line of
+    // defense if a direct event slips through.
+    let s = setupAtMentorLocationDoor('disgraced_knight' as ClassId);
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('hedgerow_lane') });
+    expect(s.combat).toBeNull();
+    // Other mentor locations (mismatched class) also no-op.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('quiet_tower') });
+    expect(s.combat).toBeNull();
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('laureates_salon') });
+    expect(s.combat).toBeNull();
+  });
 });

@@ -249,6 +249,19 @@ export function playerAttack(state: GameState): GameState {
   return s;
 }
 
+/**
+ * In-turn-based-combat item use. Sibling: `useItemOutOfCombat` in events.ts.
+ *
+ * Intentional divergences from the out-of-combat sibling:
+ *   - Runs a skip_turn check + ticks the player's statuses (combat-only mechanics).
+ *   - heal_hp mirrors the new HP to combat.combatants[player].hp so the combat
+ *     display syncs (the out-of-combat sibling only updates character.hp).
+ *   - deal_damage applies to the active monster (out-of-combat would have no
+ *     target, so its sibling refuses to consume damage-only items).
+ *   - Log entries use kind: 'combat' (out-of-combat uses kind: 'system' / ITEM).
+ *
+ * Both handlers loop over item.effects in order and decrement inventory on use.
+ */
 export function playerUseItem(state: GameState, itemId: ItemId): GameState {
   if (!state.combat || state.combat.kind !== 'turn-based') return state;
 

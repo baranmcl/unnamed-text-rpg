@@ -86,23 +86,31 @@
   }
 
   // Flash-highlight stats and vital maxes when they change (e.g. after a level-up).
-  // `prevSnapshot` is a plain (non-reactive) holder so writing to it inside the effect
-  // does not retrigger the effect. `flashing` is reactive — toggled to apply the CSS.
-  let prevSnapshot = {
-    brawn: c.stats.brawn, brains: c.stats.brains,
-    bravado: c.stats.bravado, bluck: c.stats.bluck,
-    hpMax: c.hp.max, mpMax: c.mp.max
+  // `prevSnapshot` is a plain (non-reactive) holder; the first effect run initializes
+  // it, subsequent runs diff against it. Initializing lazily inside the effect (rather
+  // than at top-level) keeps every read of `c.stats.*` inside a reactive scope, which
+  // is what Svelte 5 expects — top-level reads of derived sources would capture only
+  // the initial value and never update.
+  type StatSnapshot = {
+    brawn: number; brains: number; bravado: number; bluck: number;
+    hpMax: number; mpMax: number;
   };
+  let prevSnapshot: StatSnapshot | null = null;
   let flashing = $state<Record<string, boolean>>({});
 
   $effect(() => {
-    const cur = {
+    const cur: StatSnapshot = {
       brawn: c.stats.brawn, brains: c.stats.brains,
       bravado: c.stats.bravado, bluck: c.stats.bluck,
       hpMax: c.hp.max, mpMax: c.mp.max
     };
-    const changed = (Object.keys(cur) as Array<keyof typeof cur>)
-      .filter((k) => cur[k] !== prevSnapshot[k]);
+    if (prevSnapshot === null) {
+      prevSnapshot = cur;
+      return;
+    }
+    const prev = prevSnapshot;
+    const changed = (Object.keys(cur) as Array<keyof StatSnapshot>)
+      .filter((k) => cur[k] !== prev[k]);
     prevSnapshot = cur;
     if (changed.length > 0) {
       flashing = { ...flashing, ...Object.fromEntries(changed.map((k) => [k, true])) };

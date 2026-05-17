@@ -407,6 +407,24 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
   }
 }
 
+/**
+ * Out-of-combat (and narrative-encounter) item use. Sibling: `playerUseItem`
+ * in combat.ts.
+ *
+ * Intentional divergences from the in-combat sibling:
+ *   - No skip_turn / status tick (those are turn-based-combat concepts).
+ *   - heal_hp updates character.hp only; no combat-combatant sync needed
+ *     since we're not in turn-based combat.
+ *   - deal_damage has no valid target. If an item carries ANY deal_damage
+ *     effect, we refuse the WHOLE item (log a diegetic line, do NOT consume)
+ *     so a misclick on the world map or during a dialogue can't waste a
+ *     Crooked Arrow. This is "refuse the whole intent," not "partial apply":
+ *     items with mixed [heal_hp, deal_damage] effects would not apply the
+ *     heal here. No current item has such a combination, but the behavior
+ *     is deliberate.
+ *   - Log entries use kind: 'system' / systemLabel: 'ITEM' (in-combat uses
+ *     kind: 'combat' for visual distinction with the fight log).
+ */
 function useItemOutOfCombat(state: GameState, itemId: ItemId): GameState {
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;

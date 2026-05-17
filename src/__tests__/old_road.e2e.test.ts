@@ -114,3 +114,66 @@ describe('Old Road patrol button', () => {
     expect(s.combat).toBeNull();
   });
 });
+
+describe('Old Road post-clear voluntary combat (30% gate)', () => {
+  // Use a spread of seeds. Consecutive small seeds produce highly correlated
+  // d100 outputs at low step counts (the LCG's A=1664525 means seed+1 shifts
+  // the output by only ~0.000388 — below d100's quantization), so loop over
+  // varied seeds to sample different parts of the output space.
+  const PROBE_SEEDS = [1, 7, 42, 100, 999, 1337, 5000, 12345, 88888, 314159, 999999, 7777777];
+
+  function preparedPostClear(seed: number): GameState {
+    let s = createInitialState(seed);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: {
+          ...s.world.flags,
+          accepted_call: true,
+          crossed_threshold: true,
+          old_road_cleared: true,
+          old_road_wins: 3
+        }
+      }
+    };
+    return s;
+  }
+
+  it('SOME seeds trigger voluntary combat on re-entry (the 30% branch fires)', () => {
+    let foundFight = false;
+    for (const seed of PROBE_SEEDS) {
+      let s = preparedPostClear(seed);
+      s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('the_old_road') });
+      if (s.combat?.kind === 'turn-based') { foundFight = true; break; }
+    }
+    expect(foundFight).toBe(true);
+  });
+
+  it('SOME seeds produce no combat on re-entry (the 70% branch holds)', () => {
+    let foundPeace = false;
+    for (const seed of PROBE_SEEDS) {
+      let s = preparedPostClear(seed);
+      s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('the_old_road') });
+      if (s.combat === null) { foundPeace = true; break; }
+    }
+    expect(foundPeace).toBe(true);
+  });
+
+  it('Post-clear voluntary combat uses the fleeable variant (not the mandatory one)', () => {
+    let s: GameState | null = null;
+    for (const seed of PROBE_SEEDS) {
+      let probe = preparedPostClear(seed);
+      probe = reduce(probe, { kind: 'EnterLocation', locationId: LocationId('the_old_road') });
+      if (probe.combat?.kind === 'turn-based') { s = probe; break; }
+    }
+    expect(s).not.toBeNull();
+    const enc = content.encounters[(s!.combat as TurnBasedCombatState).encounterId] as CombatEncounter;
+    // Voluntary post-clear combats use combat_wayfaring_footnote or combat_plot_convenience
+    // (NOT the _mandatory variants — those are reserved for pre-clear auto-arrive).
+    expect(enc.noFlee).toBeFalsy();
+    expect(enc.id).not.toMatch(/_mandatory$/);
+  });
+});

@@ -70,6 +70,8 @@ function drainPendingLocation(state: GameState): GameState {
   s = reduceInner(s, { kind: 'EnterLocation', locationId: pending as LocationId });
   s = checkBeats(s);
   s = checkQuests(s);
+  // Drain any encounter that the location entry may have queued (e.g., post-tornado auto-arrive).
+  s = drainPendingEncounter(s);
   return s;
 }
 
@@ -230,6 +232,20 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
           };
         }
       }
+      // Farmhand Ch 1 spoke tracking — set per-spoke visit flags (only on first visit).
+      const FARMHAND_SPOKE_FLAGS: Record<string, string> = {
+        back_field: 'visited_back_field',
+        chicken_coop: 'visited_chicken_coop',
+        old_well: 'visited_old_well',
+        family_kitchen: 'visited_family_kitchen'
+      };
+      const spokeFlag = FARMHAND_SPOKE_FLAGS[event.locationId];
+      if (spokeFlag && !result.world.flags[spokeFlag]) {
+        result = {
+          ...result,
+          world: { ...result.world, flags: { ...result.world.flags, [spokeFlag]: true } }
+        };
+      }
       // Mentor location auto-arrive: queue the appropriate encounter for the player's class
       // and history (first visit, post-acceptance, or return-after-refusal).
       const mentorMeta = MENTOR_LOCATION_TO_CLASS[event.locationId];
@@ -248,6 +264,23 @@ function reduceInner(state: GameState, event: GameEvent): GameState {
         result = {
           ...result,
           world: { ...result.world, flags: { ...result.world.flags, __pending_encounter: encounterId } }
+        };
+      }
+      // Family Kitchen post-tornado auto-arrive — queue the Mother culmination scene.
+      if (event.locationId === 'family_kitchen'
+          && result.world.flags['farmhand_post_tornado']
+          && !result.world.flags['farmhand_culmination_played']
+          && !result.combat) {
+        result = {
+          ...result,
+          world: {
+            ...result.world,
+            flags: {
+              ...result.world.flags,
+              __pending_encounter: 'mother_kitchen_post_tornado',
+              farmhand_culmination_played: true
+            }
+          }
         };
       }
       return result;

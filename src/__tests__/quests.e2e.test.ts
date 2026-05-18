@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { gameStore } from '../ui/store.svelte';
-import { ClassId, EncounterId, LocationId, QuestId, type GameState } from '../engine/types';
+import { ClassId, LocationId, QuestId } from '../engine/types';
 
 describe('quests e2e', () => {
   beforeEach(() => {
@@ -20,25 +20,21 @@ describe('quests e2e', () => {
 
     const startLevel = gameStore.state.character.level;
 
-    // Defeat the first_tax_rat to satisfy survive_your_morning.
-    gameStore.dispatch({ kind: 'TriggerEncounter', encounterId: 'first_tax_rat' as EncounterId });
-    if (gameStore.state.combat?.kind !== 'turn-based') throw new Error('expected combat');
-    const monsterId = gameStore.state.combat.combatants.find((c) => c.kind === 'monster')!.id;
-    const wounded: GameState = {
-      ...gameStore.state,
-      combat: {
-        ...gameStore.state.combat,
-        combatants: gameStore.state.combat.combatants.map((c) => {
-          if (c.id === monsterId) return { ...c, hp: 1 };
-          // Guarantee a hit so the test is deterministic regardless of RNG seed.
-          if (c.kind === 'player') return { ...c, statuses: [{ id: 1, kind: 'guaranteed_crit' as const, duration: { kind: 'one_shot' as const }, source: 'test' }] };
-          return c;
-        })
-      }
-    };
-    gameStore.state = wounded;
-    gameStore.dispatch({ kind: 'AttackTarget' });
-    // After defeat, the hermit_beckons beat fires, setting unlocked_crossroads.
+    // Visit 3 of 4 spokes to trigger the farmhand tornado beat, which (after the
+    // Mother culmination scene) sets unlocked_crossroads and satisfies survive_your_morning.
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('back_field') });
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('family_farm') });
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('chicken_coop') });
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('family_farm') });
+    gameStore.dispatch({ kind: 'EnterLocation', locationId: LocationId('old_well') });
+    // After the 3rd spoke visit, the tornado beat fires. The engine auto-routes to
+    // family_kitchen and queues the mother_kitchen_post_tornado encounter.
+    expect(gameStore.state.world.flags['farmhand_tornado_fired']).toBe(true);
+    expect(gameStore.state.combat?.kind).toBe('narrative');
+    // Step through Mother's post-tornado culmination.
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // approach Mother
+    gameStore.dispatch({ kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // take the Note + exit
+    // mother_post_tornado_exit sets unlocked_crossroads and queues EnterLocation family_farm.
     // checkQuests then completes survive_your_morning.
     expect(gameStore.state.story.completedObjectives[QuestId('answer_the_call')]).toContain('survive_your_morning');
 

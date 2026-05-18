@@ -166,3 +166,34 @@ export const mother_look_at_note: NarrativeNode = {
     { label: '(turn back to Mother.)', resolve: 'mother_return_to_root' }
   ]
 };
+
+// =====================================================================
+// Mother — post-tornado culmination
+// =====================================================================
+
+export const mother_post_tornado_root: NarrativeNode = {
+  id: NarrativeNodeId('mother_post_tornado_root'),
+  prose:
+    'The kitchen smells of kettle steam and a faint draft from a window that has shifted half an inch in its frame. ' +
+    'Mother stands at the window, looking out at where the barn used to be, the way someone looks at an old photograph they have been carrying for a while.',
+  choices: [
+    { label: '(approach Mother)', resolve: 'mother_post_tornado_speak' }
+  ]
+};
+
+export const mother_post_tornado_speech: NarrativeNode = {
+  id: NarrativeNodeId('mother_post_tornado_speech'),
+  speaker: 'Mother',
+  prose:
+    'Mother does not turn around immediately.\n\n' +
+    '"Barn\'s down, dear. Mostly. The big beam\'s a write-off. The roof\'s just kindling now."\n\n' +
+    'She turns, finally, and her eyes find yours.\n\n' +
+    '"I can\'t make the walk anymore. I haven\'t been able to for a year. Town\'s two days; the crossroads is closer — ' +
+    'there\'s always something at the crossroads, on a Tuesday, the gods know why. You\'ll need beams, nails, hands. ' +
+    'Three days, maybe four. The chickens will keep. Henwald will see to them."\n\n' +
+    'She slides the Note across the kitchen table.\n\n' +
+    '"I wrote this list a while ago. I was hoping I wouldn\'t need it."',
+  choices: [
+    { label: '(take the Note and step outside)', resolve: 'mother_post_tornado_exit' }
+  ]
+};

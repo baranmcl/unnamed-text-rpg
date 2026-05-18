@@ -17,7 +17,7 @@ export const family_farm: Location = {
     'Somewhere, a fence post leans into the labour movement.'
   ],
   exits: [
-    // Crossroads exit unlocks via the hermit_beckons beat.
+    // Crossroads exit unlocks via the farmhand tornado culmination (mother_post_tornado_exit resolver).
     { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' },
     { label: 'Out to the back field', targetId: LocationId('back_field'), visibleIfFlag: 'class.reluctant_farmhand' },
     { label: 'Over to the chicken coop', targetId: LocationId('chicken_coop'), visibleIfFlag: 'class.reluctant_farmhand' },

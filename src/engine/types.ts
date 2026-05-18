@@ -390,7 +390,8 @@ export type Predicate =
   | { kind: 'level_at_least'; level: number }
   | { kind: 'currency_at_least'; n: number }
   | { kind: 'any_flag'; flags: string[] }
-  | { kind: 'flag_unset'; flag: string };
+  | { kind: 'flag_unset'; flag: string }
+  | { kind: 'flag_count_at_least'; flags: string[]; min: number };
 
 export type BeatEffect =
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }

@@ -19,35 +19,42 @@ const ordinary_world_established: StoryBeat = {
   ]
 };
 
-const hermit_beckons: StoryBeat = {
-  id: BeatId('hermit_beckons'),
+const farmhand_tornado_strikes: StoryBeat = {
+  id: BeatId('farmhand_tornado_strikes'),
   stage: 'chapter_1',
   preconditions: [
     { kind: 'stage', stage: 'chapter_1' },
-    { kind: 'flag', flag: 'defeated:first_tax_rat' }
+    { kind: 'flag', flag: 'class.reluctant_farmhand' },
+    {
+      kind: 'flag_count_at_least',
+      flags: ['visited_back_field', 'visited_chicken_coop', 'visited_old_well', 'visited_family_kitchen'],
+      min: 3
+    },
+    { kind: 'flag_unset', flag: 'farmhand_tornado_fired' }
   ],
   onTrigger: [
     {
       kind: 'log',
       entry: {
-        kind: 'narration',
-        text:
-          'You step out the kitchen door. The back field is there, where it has always been. But the gate, this morning, ' +
-          'faces the wrong way. The cow has positioned herself against the latch with what you must concede is intent. ' +
-          'Beyond her, the hedgerow ends at a stile that was, you would have sworn, on the OTHER side of the field. ' +
-          'A small board nailed to its post reads, in a careful hand: **"DUSTY CROSSROADS — that way."** ' +
-          'The man in tweed who passed earlier is leaning on the stile. He sees you, raises a polite hand, and walks on.'
+        kind: 'scene-divider',
+        text: ''
       }
     },
-    { kind: 'set_flag', flag: 'unlocked_crossroads', value: true },
     {
       kind: 'log',
       entry: {
-        kind: 'system',
-        systemLabel: 'PATH',
-        text: 'A new exit opens at the family farm: the Dusty Crossroads.'
+        kind: 'narration',
+        text:
+          'Outside, the wind has been holding its breath all morning. It exhales, suddenly, in the wrong direction.\n\n' +
+          'Then a column of air the wrong color drops between the silo and the cow\'s paddock. The cow, finally proved correct, runs. ' +
+          'The chickens — Henwald loudest among them — make a sound no folk-tale prepared anyone for.\n\n' +
+          'The barn, which has stood since your grandfather built it, considers its options and decides to lie down.\n\n' +
+          'The farmhouse holds. The kettle does not even fall off the stove.'
       }
-    }
+    },
+    { kind: 'set_flag', flag: 'farmhand_tornado_fired', value: true },
+    { kind: 'set_flag', flag: 'farmhand_post_tornado', value: true },
+    { kind: 'set_flag', flag: '__pending_enter_location', value: 'family_kitchen' }
   ]
 };
 
@@ -191,7 +198,7 @@ const henwald_awards_eggs: StoryBeat = {
 
 export const beats: Record<BeatId, StoryBeat> = {
   [ordinary_world_established.id]: ordinary_world_established,
-  [hermit_beckons.id]: hermit_beckons,
+  [farmhand_tornado_strikes.id]: farmhand_tornado_strikes,
   [unsigned_direction_defeated.id]: unsigned_direction_defeated,
   [call_received.id]: call_received,
   [knight_setting_out.id]: knight_setting_out,

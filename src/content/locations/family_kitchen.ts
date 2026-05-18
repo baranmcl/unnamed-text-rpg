@@ -18,5 +18,5 @@ export const family_kitchen: Location = {
   exits: [
     { label: 'Back outside, to the farm', targetId: LocationId('family_farm') }
   ],
-  encounterIds: [EncounterId('mother_kitchen')]
+  encounterIds: [EncounterId('mother_kitchen'), EncounterId('mother_kitchen_post_tornado')]
 };

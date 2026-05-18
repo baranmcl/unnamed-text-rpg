@@ -142,3 +142,36 @@ describe('Back Field and Old Well spokes', () => {
     expect(s.combat).toBeNull();
   });
 });
+
+describe('Tornado culmination', () => {
+  it('tornado fires after 3 spoke visits; player auto-arrives at kitchen; Mother culmination plays', () => {
+    let s = createInitialState(19);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+
+    // Visit 3 spokes in any order. Clear any incidental combat after each visit
+    // except the last, where the tornado fires and we expect a narrative encounter.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('back_field') });
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('chicken_coop') });
+    if (s.combat) s = { ...s, combat: null };
+    // After the 3rd spoke visit the tornado fires and routes to family_kitchen with
+    // the Mother culmination encounter queued — do NOT clear combat here.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('old_well') });
+
+    // At this point, the tornado beat should have fired.
+    expect(s.world.flags['farmhand_tornado_fired']).toBe(true);
+    expect(s.world.flags['farmhand_post_tornado']).toBe(true);
+    // Player has been auto-routed to family_kitchen with the post-tornado encounter queued.
+    expect(s.world.currentLocation).toBe('family_kitchen');
+    expect(s.combat?.kind).toBe('narrative');
+
+    // Step through the culmination dialogue.
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // approach Mother
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // take the Note + exit
+
+    expect(s.world.flags['unlocked_crossroads']).toBe(true);
+    expect(s.world.currentLocation).toBe('family_farm');
+    expect(s.combat).toBeNull();
+  });
+});

@@ -25,6 +25,7 @@ import { henwald, henwald_thanks } from './henwald';
 import { back_field_weed } from './back_field_weed';
 import { old_well_inspect } from './old_well_inspect';
 import { mother_kitchen } from './mother_kitchen';
+import { mother_kitchen_post_tornado } from './mother_kitchen_post_tornado';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -65,4 +66,5 @@ export const encounters: Record<EncounterId, Encounter> = {
   [back_field_weed.id]: back_field_weed,
   [old_well_inspect.id]: old_well_inspect,
   [mother_kitchen.id]: mother_kitchen,
+  [mother_kitchen_post_tornado.id]: mother_kitchen_post_tornado,
 };

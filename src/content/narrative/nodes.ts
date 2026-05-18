@@ -3,7 +3,8 @@ import { knight_opener_a, knight_opener_b, wizard_opener_a, wizard_opener_b_a, w
 import {
   henwald_intro, henwald_levy_response, henwald_post_victory,
   back_field_weed, old_well_intro, old_well_drop_stone, old_well_look_down,
-  mother_kitchen_root, mother_sit_animal_talk, mother_sit_rat_thanks, mother_sit_cow, mother_look_at_note
+  mother_kitchen_root, mother_sit_animal_talk, mother_sit_rat_thanks, mother_sit_cow, mother_look_at_note,
+  mother_post_tornado_root, mother_post_tornado_speech
 } from './farmhand_ch1_nodes';
 import {
   mentor_knight_arrival, mentor_knight_teaching, mentor_knight_motivation, mentor_knight_deflect,
@@ -148,4 +149,6 @@ export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [mother_sit_rat_thanks.id]: mother_sit_rat_thanks,
   [mother_sit_cow.id]: mother_sit_cow,
   [mother_look_at_note.id]: mother_look_at_note,
+  [mother_post_tornado_root.id]: mother_post_tornado_root,
+  [mother_post_tornado_speech.id]: mother_post_tornado_speech,
 };

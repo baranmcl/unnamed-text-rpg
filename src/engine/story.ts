@@ -37,6 +37,10 @@ export function evalPredicate(state: GameState, p: Predicate): boolean {
       const v = state.world.flags[p.flag];
       return !v;
     }
+    case 'flag_count_at_least': {
+      const count = p.flags.filter((f) => Boolean(state.world.flags[f])).length;
+      return count >= p.min;
+    }
   }
 }
 

@@ -261,5 +261,31 @@ export const monsters: Record<MonsterId, Monster> = {
       { itemId: ItemId('crooked_arrow'), chance: 0.5 }
     ],
     currencyDrop: { min: 2, max: 5 }
+  },
+  [MonsterId('anxious_allium')]: {
+    id: MonsterId('anxious_allium'),
+    name: 'an Anxious Allium',
+    flavor: 'A bulb with feelings. Has been growing in the back field for some time and has developed strong opinions about being weeded. Its layers compose what could charitably be called a face.',
+    defeatedFlavor: 'The Allium splits into three smaller, sadder Alliums, each of which decides, on reflection, to go quietly back to being onions.',
+    hp: 10,
+    brawn: 2,
+    bravado: 1,
+    dodge: 3,
+    armor: 0,
+    weaponDamage: 2,
+    actions: [
+      { kind: 'attack', weight: 0.7, flavor: 'The Allium lunges forward, smelling extremely pungent.' },
+      {
+        kind: 'apply_status',
+        weight: 0.3,
+        flavor: 'The Allium releases a pungent burst.',
+        status: 'next_attack_misses',
+        duration: { kind: 'one_shot' },
+        appliedFlavor: 'Your eyes water. Your next swing is going to go a little wide.',
+        expirationFlavor: 'Your eyes clear. The world un-blurs.'
+      }
+    ],
+    loot: [],
+    currencyDrop: { min: 1, max: 3 }
   }
 };

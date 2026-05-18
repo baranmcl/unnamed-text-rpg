@@ -86,6 +86,18 @@ describe('Old Road monsters', () => {
   });
 });
 
+describe('Anxious Allium', () => {
+  it('exists with apply_status next_attack_misses (the eye-water effect)', () => {
+    const m = content.monsters[MonsterId('anxious_allium')];
+    expect(m).toBeDefined();
+    const applyStatus = m!.actions.find((a) => a.kind === 'apply_status');
+    expect(applyStatus).toBeDefined();
+    if (applyStatus?.kind === 'apply_status') {
+      expect(applyStatus.status).toBe('next_attack_misses');
+    }
+  });
+});
+
 describe('an_unsigned_tale achievement', () => {
   it('is registered', () => {
     const ach = content.achievements['an_unsigned_tale' as import('../../engine/types').AchievementId];

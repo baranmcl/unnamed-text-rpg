@@ -100,6 +100,24 @@ describe('Mother kitchen (pre-tornado)', () => {
     expect(log).toMatch(/talking to them since you could walk/);
     expect(log).toMatch(/I just wish I heard it too/);
   });
+
+  it('with defeated:first_tax_rat flag: Mother uses the rat_thanks branch', () => {
+    let s = createInitialState(17);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = {
+      ...s,
+      world: {
+        ...s.world,
+        flags: { ...s.world.flags, talked_to_henwald: true, 'defeated:first_tax_rat': true }
+      }
+    };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_kitchen') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'mother_kitchen' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    const log = s.log.map((e) => e.text).join('\n');
+    expect(log).toMatch(/Henwald clucked at me/);
+  });
 });
 
 describe('Back Field and Old Well spokes', () => {

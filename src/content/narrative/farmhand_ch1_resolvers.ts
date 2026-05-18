@@ -63,6 +63,7 @@ const mother_sit: NarrativeResolver = (state) => {
     world: { ...state.world, flags: { ...state.world.flags, visited_family_kitchen: true } }
   };
   // Choose a sub-node based on flags:
+  // rat_thanks supersedes animal_talk: defeating the rat implies talked_to_henwald.
   if (s.world.flags['defeated:first_tax_rat']) {
     return { state: s, next: NarrativeNodeId('mother_sit_rat_thanks') };
   }

@@ -109,7 +109,7 @@ export const old_well_look_down: NarrativeNode = {
 // Mother — pre-tornado kitchen dialogue
 // =====================================================================
 
-// Root node: branches based on flags via `visible` predicates on choices.
+// Root node: branches based on flags via the `mother_sit` resolver.
 export const mother_kitchen_root: NarrativeNode = {
   id: NarrativeNodeId('mother_kitchen_root'),
   prose:
@@ -166,4 +166,3 @@ export const mother_look_at_note: NarrativeNode = {
     { label: '(turn back to Mother.)', resolve: 'mother_return_to_root' }
   ]
 };
-

@@ -21,6 +21,16 @@ export const items: Record<ItemId, Item> = {
     id: ItemId('note_from_mother'),
     name: 'a Note from Mother',
     flavor: 'Folded twice. The handwriting is firm and the advice is mostly about onions.',
+    flavorIfFlag: {
+      flag: 'farmhand_post_tornado',
+      flavor:
+        'Folded twice. The handwriting is firm and the advice is, in this list, about beams and nails. It reads:\n\n' +
+        '— A strong beam (the big one, ten-foot if you can manage it). Oak, if you can. Pine if you must.\n' +
+        '— A sack of nails. Iron. Not too rusty.\n' +
+        "— A strong-backed neighbor. We're short of hands and the roof can't wait.\n" +
+        "— My tea. I'm almost out.\n\n" +
+        'Come home when you can. The chickens will keep. — Mother'
+    },
     kind: 'quest'
   },
   [ItemId('hardtack')]: {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { content, validateContent } from '../index';
-import { MonsterId, type StatusKind } from '../../engine/types';
+import { ItemId, MonsterId, type StatusKind } from '../../engine/types';
 
 describe('content registry', () => {
   it('exports non-empty registries for items, monsters, encounters, locations, classes, skills, achievements, quests', () => {
@@ -123,5 +123,17 @@ describe('Officious Tax Rat (reframed)', () => {
   it('defeatedFlavor stamps "On Schedule"', () => {
     const m = content.monsters[MonsterId('officious_tax_rat')]!;
     expect(m.defeatedFlavor).toMatch(/On Schedule/);
+  });
+});
+
+describe('Note from Mother', () => {
+  it('has a base flavor and a post-tornado flavor with the supplies list', () => {
+    const item = content.items[ItemId('note_from_mother')]!;
+    expect(item.flavor).toMatch(/onions/);
+    expect(item.flavorIfFlag?.flag).toBe('farmhand_post_tornado');
+    expect(item.flavorIfFlag?.flavor).toMatch(/beam/);
+    expect(item.flavorIfFlag?.flavor).toMatch(/nails/);
+    expect(item.flavorIfFlag?.flavor).toMatch(/neighbor/);
+    expect(item.flavorIfFlag?.flavor).toMatch(/tea/);
   });
 });

@@ -5,9 +5,10 @@
     "test": "vitest run --passWithNoTests",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "npm run build && wrangler dev",
     "test:watch": "vitest",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "deploy": "npm run build && wrangler deploy"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/baranmcl/unnamed-text-rpg#readme",
   "private": "true",
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.37.1",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
@@ -31,6 +33,7 @@
     "svelte-check": "^4.4.6",
     "typescript": "^5.9.3",
     "vite": "^6.4.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.92.0"
   }
 }

@@ -175,3 +175,53 @@ describe('Tornado culmination', () => {
     expect(s.combat).toBeNull();
   });
 });
+
+describe('Farmhand Ch 1 — full happy-path flow', () => {
+  it('opener → all 4 spokes (with Tax Rat defeat) → tornado → Mother → crossroads unlocked', () => {
+    let s = createInitialState(23);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null }; // skip opener narrative
+
+    // Visit the Back Field, optionally fight the Allium (skip — narrative encounter not required).
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('back_field') });
+    if (s.combat) s = { ...s, combat: null };
+    expect(s.world.flags['visited_back_field']).toBe(true);
+
+    // Visit the Chicken Coop, engage Henwald, defeat the Tax Rat.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('chicken_coop') });
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // I'll see to him
+    // Force Tax Rat to 0 HP and attack.
+    if (s.combat?.kind === 'turn-based') {
+      const sCombat = s.combat;
+      s = { ...s, combat: { ...sCombat, combatants: sCombat.combatants.map((c) => c.kind === 'monster' ? { ...c, hp: 0 } : c) } };
+    }
+    s = reduce(s, { kind: 'AttackTarget' });
+    expect(s.world.flags['defeated:first_tax_rat']).toBe(true);
+    // The henwald_awards_eggs beat fires; player gets 3 eggs.
+    expect(s.character.inventory.find((e) => e.itemId === 'farm_fresh_egg')?.qty).toBe(3);
+
+    // Visit the Old Well.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('old_well') });
+    // do NOT clear combat — the tornado fires here and queues the Mother culmination
+    expect(s.world.flags['visited_old_well']).toBe(true);
+
+    // Now 3-of-4 spokes visited. The tornado beat fires on the NEXT reduce — let's verify
+    // by checking if it's already fired (since checkBeats runs after the EnterLocation).
+    expect(s.world.flags['farmhand_tornado_fired']).toBe(true);
+    expect(s.world.currentLocation).toBe('family_kitchen');
+
+    // Step through Mother's culmination.
+    expect(s.combat?.kind).toBe('narrative');
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // approach
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // take Note & exit
+    expect(s.world.flags['unlocked_crossroads']).toBe(true);
+    expect(s.world.currentLocation).toBe('family_farm');
+
+    // The crossroads exit should now be visible at family_farm. (Encoded as visibleIfFlag.)
+    // Move there.
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('dusty_crossroads') });
+    expect(s.world.currentLocation).toBe('dusty_crossroads');
+  });
+});

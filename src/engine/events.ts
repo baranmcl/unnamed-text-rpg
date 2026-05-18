@@ -429,10 +429,18 @@ function useItemOutOfCombat(state: GameState, itemId: ItemId): GameState {
   const item = content.items[itemId];
   if (!item || item.kind !== 'consumable') return state;
 
-  // Damage-dealing items need a combat target. Refuse with a diegetic line
-  // and DO NOT consume the item — losing a Crooked Arrow to a misclick on
-  // the world map (or during a dialogue) would be unkind.
-  if (item.effects?.some((e) => e.kind === 'deal_damage')) {
+  // Filter to effects applicable out of combat:
+  // - deal_damage is always combat-only (needs a target)
+  // - heal_hp/heal_mp with context: 'in_combat' is combat-only
+  // - everything else applies
+  const applicable = (item.effects ?? []).filter((e) => {
+    if (e.kind === 'deal_damage') return false;
+    if ((e.kind === 'heal_hp' || e.kind === 'heal_mp') && e.context === 'in_combat') return false;
+    return true;
+  });
+
+  // If the item has effects but NONE apply here, refuse with diegetic prose and do NOT consume.
+  if ((item.effects ?? []).length > 0 && applicable.length === 0) {
     return appendLogs(state, [
       {
         kind: 'narration',
@@ -442,7 +450,7 @@ function useItemOutOfCombat(state: GameState, itemId: ItemId): GameState {
   }
 
   let s = state;
-  for (const effect of item.effects ?? []) {
+  for (const effect of applicable) {
     if (effect.kind === 'heal_hp') {
       const newHp = Math.min(s.character.hp.max, s.character.hp.current + effect.amount);
       s = { ...s, character: { ...s.character, hp: { ...s.character.hp, current: newHp } } };
@@ -453,7 +461,7 @@ function useItemOutOfCombat(state: GameState, itemId: ItemId): GameState {
       s = appendLogs(s, [{ kind: 'system', text: `You feel mentally refreshed. (+${effect.amount} MP)`, systemLabel: 'ITEM' }]);
     }
   }
-  // Decrement
+
   const inv = s.character.inventory
     .map((e) => (e.itemId === itemId ? { ...e, qty: e.qty - 1 } : e))
     .filter((e) => e.qty > 0);

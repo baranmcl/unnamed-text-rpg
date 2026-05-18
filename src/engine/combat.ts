@@ -281,6 +281,8 @@ export function playerUseItem(state: GameState, itemId: ItemId): GameState {
   // Apply each effect.
   let s = state;
   for (const effect of item.effects ?? []) {
+    // Filter by context: in combat, skip effects marked out_of_combat-only.
+    if ((effect.kind === 'heal_hp' || effect.kind === 'heal_mp') && effect.context === 'out_of_combat') continue;
     if (effect.kind === 'heal_hp') {
       const newHp = Math.min(s.character.hp.max, s.character.hp.current + effect.amount);
       s = {

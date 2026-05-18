@@ -108,8 +108,8 @@ export type Status = {
 export type ItemKind = 'weapon' | 'armor' | 'trinket' | 'consumable' | 'quest';
 
 export type ItemEffect =
-  | { kind: 'heal_hp'; amount: number }
-  | { kind: 'heal_mp'; amount: number }
+  | { kind: 'heal_hp'; amount: number; context?: 'in_combat' | 'out_of_combat' }
+  | { kind: 'heal_mp'; amount: number; context?: 'in_combat' | 'out_of_combat' }
   | { kind: 'set_flag'; flag: string; value: boolean | number | string }
   | { kind: 'deal_damage'; amount: number };   // thrown/used in combat; ignores monster armor
 
@@ -117,6 +117,7 @@ export type Item = {
   id: ItemId;
   name: string;
   flavor: string;
+  flavorIfFlag?: { flag: string; flavor: string };   // alternate flavor when this flag is truthy
   kind: ItemKind;
   slot?: EquipSlot;
   damage?: number;       // weapons only

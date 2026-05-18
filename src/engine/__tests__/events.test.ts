@@ -3,6 +3,7 @@ import { reduce } from '../events';
 import { createInitialState } from '../state';
 import { ClassId, EncounterId, ItemId } from '../types';
 import type { GameState } from '../types';
+import { content } from '../../content';
 
 describe('SetTheme moonlit achievement seed', () => {
   it('sets achievements.theme_moonlit when theme switches to moonlit', () => {
@@ -86,5 +87,83 @@ describe('UseItem out of combat on the world map', () => {
     const qtyAfter = s.character.inventory.find((e) => e.itemId === 'crooked_arrow')?.qty ?? 0;
     expect(qtyAfter).toBe(qtyBefore);
     expect(s.log.at(-1)?.text).toMatch(/nothing here to throw it at/i);
+  });
+});
+
+describe('ItemEffect context filtering', () => {
+  it('in combat: applies effects with context=in_combat or undefined; skips out_of_combat', () => {
+    const items = content.items as Record<string, import('../types').Item>;
+    items['ctx_test_egg'] = {
+      id: 'ctx_test_egg' as import('../types').ItemId,
+      name: 'a context-test egg',
+      flavor: 'test',
+      kind: 'consumable',
+      effects: [
+        { kind: 'heal_hp', amount: 5, context: 'out_of_combat' },
+        { kind: 'deal_damage', amount: 3 }
+      ]
+    };
+    try {
+      let s = createInitialState(3);
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+      if (s.combat) s = { ...s, combat: null };
+      s = {
+        ...s,
+        character: {
+          ...s.character,
+          inventory: [...s.character.inventory, { itemId: 'ctx_test_egg' as import('../types').ItemId, qty: 1 }],
+          hp: { ...s.character.hp, current: 5 }
+        }
+      };
+      s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'practice_dummy' as import('../types').EncounterId });
+      if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+      const monsterHpBefore = s.combat.combatants.find((c) => c.kind === 'monster')!.hp;
+      const playerHpBefore = s.character.hp.current;
+
+      s = reduce(s, { kind: 'UseItem', itemId: 'ctx_test_egg' as import('../types').ItemId });
+
+      if (s.combat?.kind === 'turn-based') {
+        const monsterHpAfter = s.combat.combatants.find((c) => c.kind === 'monster')!.hp;
+        expect(monsterHpBefore - monsterHpAfter).toBe(3);
+      }
+      expect(s.character.hp.current).toBe(playerHpBefore);
+    } finally {
+      delete items['ctx_test_egg'];
+    }
+  });
+
+  it('out of combat: applies effects with context=out_of_combat or undefined; skips in_combat', () => {
+    const items = content.items as Record<string, import('../types').Item>;
+    items['ctx_test_egg'] = {
+      id: 'ctx_test_egg' as import('../types').ItemId,
+      name: 'a context-test egg',
+      flavor: 'test',
+      kind: 'consumable',
+      effects: [
+        { kind: 'heal_hp', amount: 5, context: 'out_of_combat' },
+        { kind: 'deal_damage', amount: 3 }
+      ]
+    };
+    try {
+      let s = createInitialState(3);
+      s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+      if (s.combat) s = { ...s, combat: null };
+      s = {
+        ...s,
+        character: {
+          ...s.character,
+          inventory: [...s.character.inventory, { itemId: 'ctx_test_egg' as import('../types').ItemId, qty: 1 }],
+          hp: { ...s.character.hp, current: 5 }
+        }
+      };
+      const hpBefore = s.character.hp.current;
+
+      s = reduce(s, { kind: 'UseItem', itemId: 'ctx_test_egg' as import('../types').ItemId });
+
+      expect(s.character.hp.current).toBe(hpBefore + 5);
+      expect(s.character.inventory.find((e) => e.itemId === 'ctx_test_egg')).toBeUndefined();
+    } finally {
+      delete items['ctx_test_egg'];
+    }
   });
 });

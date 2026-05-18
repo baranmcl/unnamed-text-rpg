@@ -34,6 +34,14 @@
     if (e.target === e.currentTarget) onClose();
   }
 
+  let displayFlavor = $derived.by(() => {
+    if (!item) return '';
+    if (item.flavorIfFlag && gameStore.state.world.flags[item.flavorIfFlag.flag]) {
+      return item.flavorIfFlag.flavor;
+    }
+    return item.flavor;
+  });
+
   let upgradeBadge = $derived.by(() => {
     if (!item || !item.slot) return null;
     // Don't show flag if this IS the currently equipped item.
@@ -65,7 +73,7 @@
   <div class="backdrop" role="presentation" onclick={onBackdrop}>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="inspect-title">
       <header><h2 id="inspect-title">{item.name}</h2><button class="close" onclick={onClose} aria-label="Close">×</button></header>
-      <p class="flavor">{item.flavor}</p>
+      <p class="flavor">{displayFlavor}</p>
       <div class="meta">
         <span class="kind">{item.kind}</span>
         {#if item.damage}<span class="stat">Damage {item.damage}</span>{/if}

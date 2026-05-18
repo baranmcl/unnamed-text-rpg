@@ -112,3 +112,16 @@ describe('an_unsigned_tale achievement', () => {
     expect(kinds).toContain('flag_unset');
   });
 });
+
+describe('Officious Tax Rat (reframed)', () => {
+  it('flavor includes the monogram and page-footer foreshadowing seeds', () => {
+    const m = content.monsters[MonsterId('officious_tax_rat')]!;
+    expect(m.flavor).toMatch(/monogram/);
+    expect(m.flavor).toMatch(/p\. 47/);
+  });
+
+  it('defeatedFlavor stamps "On Schedule"', () => {
+    const m = content.monsters[MonsterId('officious_tax_rat')]!;
+    expect(m.defeatedFlavor).toMatch(/On Schedule/);
+  });
+});

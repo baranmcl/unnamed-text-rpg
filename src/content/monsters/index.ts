@@ -20,8 +20,8 @@ export const monsters: Record<MonsterId, Monster> = {
   [MonsterId('officious_tax_rat')]: {
     id: MonsterId('officious_tax_rat'),
     name: 'the Officious Tax Rat',
-    flavor: 'Wears a tiny vest. Carries a clipboard. Collects an unspecified levy on behalf of an unspecified authority.',
-    defeatedFlavor: 'The Tax Rat collapses dramatically, citing burnout. It scurries off under a stack of important-looking papers, muttering vague threats about an audit.',
+    flavor: 'Wears a tiny vest, embroidered at the breast with a small monogram you do not recognise yet. Carries a clipboard, the bottom corner of which bears a footer reading "p. 47" — for what document is unclear. Collects an unspecified levy on behalf of an unspecified authority. Has been hounding Henwald for three weeks; the chickens have started leaving threatening notes in unbroken eggshells.',
+    defeatedFlavor: 'The Tax Rat collapses dramatically, citing burnout. He scurries off under a stack of important-looking papers stamped "On Schedule" — though for what schedule remains, as always, unspecified.',
     hp: 14,
     brawn: 4,
     bravado: 6,

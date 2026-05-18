@@ -2,7 +2,8 @@ import { NarrativeNodeId, type NarrativeNode } from '../../engine/types';
 import { knight_opener_a, knight_opener_b, wizard_opener_a, wizard_opener_b_a, wizard_opener_b_b, wizard_opener_b_c, bard_opener_a, bard_opener_b, farmhand_opener_a, farmhand_opener_b } from './openings';
 import {
   henwald_intro, henwald_levy_response, henwald_post_victory,
-  back_field_weed, old_well_intro, old_well_drop_stone, old_well_look_down
+  back_field_weed, old_well_intro, old_well_drop_stone, old_well_look_down,
+  mother_kitchen_root, mother_sit_animal_talk, mother_sit_rat_thanks, mother_sit_cow, mother_look_at_note
 } from './farmhand_ch1_nodes';
 import {
   mentor_knight_arrival, mentor_knight_teaching, mentor_knight_motivation, mentor_knight_deflect,
@@ -142,4 +143,9 @@ export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [old_well_intro.id]: old_well_intro,
   [old_well_drop_stone.id]: old_well_drop_stone,
   [old_well_look_down.id]: old_well_look_down,
+  [mother_kitchen_root.id]: mother_kitchen_root,
+  [mother_sit_animal_talk.id]: mother_sit_animal_talk,
+  [mother_sit_rat_thanks.id]: mother_sit_rat_thanks,
+  [mother_sit_cow.id]: mother_sit_cow,
+  [mother_look_at_note.id]: mother_look_at_note,
 };

@@ -1,4 +1,4 @@
-import { LocationId, type Location } from '../../engine/types';
+import { LocationId, EncounterId, type Location } from '../../engine/types';
 
 export const family_kitchen: Location = {
   id: LocationId('family_kitchen'),
@@ -18,5 +18,5 @@ export const family_kitchen: Location = {
   exits: [
     { label: 'Back outside, to the farm', targetId: LocationId('family_farm') }
   ],
-  encounterIds: []  // mother_kitchen encounter wired in Task 9
+  encounterIds: [EncounterId('mother_kitchen')]
 };

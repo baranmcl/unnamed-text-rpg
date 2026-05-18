@@ -75,6 +75,33 @@ describe('Henwald and the Tax Rat (chicken coop)', () => {
   });
 });
 
+describe('Mother kitchen (pre-tornado)', () => {
+  it('default: Mother mentions the cow watching the sky', () => {
+    let s = createInitialState(17);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_kitchen') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'mother_kitchen' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // Sit with Mother
+    const log = s.log.map((e) => e.text).join('\n');
+    expect(log).toMatch(/cow\'s been watching the sky/);
+    expect(s.world.flags['visited_family_kitchen']).toBe(true);
+  });
+
+  it('with talked_to_henwald flag: Mother does the animal-talk seam', () => {
+    let s = createInitialState(17);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = { ...s, world: { ...s.world, flags: { ...s.world.flags, talked_to_henwald: true } } };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('family_kitchen') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'mother_kitchen' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    const log = s.log.map((e) => e.text).join('\n');
+    expect(log).toMatch(/talking to them since you could walk/);
+    expect(log).toMatch(/I just wish I heard it too/);
+  });
+});
+
 describe('Back Field and Old Well spokes', () => {
   it('weeding the back field returns to the location cleanly', () => {
     let s = createInitialState(13);

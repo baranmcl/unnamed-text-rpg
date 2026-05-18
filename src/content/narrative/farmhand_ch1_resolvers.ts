@@ -1,4 +1,4 @@
-import type { NarrativeResolver, NarrativeResolverId } from '../../engine/types';
+import type { NarrativeResolver, NarrativeResolverId, GameState } from '../../engine/types';
 import { NarrativeNodeId } from '../../engine/types';
 
 // "Maybe later" / "Step away" — exit cleanly.
@@ -55,6 +55,37 @@ const old_well_return_to_intro: NarrativeResolver = (state) => ({
   silent: true
 });
 
+// Mother "sit with" branches based on which spoke-flags are set.
+const mother_sit: NarrativeResolver = (state) => {
+  // Mark the kitchen as visited (this resolver fires the first time the player engages Mother in dialogue).
+  const s: GameState = {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, visited_family_kitchen: true } }
+  };
+  // Choose a sub-node based on flags:
+  if (s.world.flags['defeated:first_tax_rat']) {
+    return { state: s, next: NarrativeNodeId('mother_sit_rat_thanks') };
+  }
+  if (s.world.flags['talked_to_henwald']) {
+    return { state: s, next: NarrativeNodeId('mother_sit_animal_talk') };
+  }
+  return { state: s, next: NarrativeNodeId('mother_sit_cow') };
+};
+
+const mother_look_at_note: NarrativeResolver = (state) => ({
+  state: {
+    ...state,
+    world: { ...state.world, flags: { ...state.world.flags, visited_family_kitchen: true } }
+  },
+  next: NarrativeNodeId('mother_look_at_note')
+});
+
+const mother_return_to_root: NarrativeResolver = (state) => ({
+  state,
+  next: NarrativeNodeId('mother_kitchen_root'),
+  silent: true
+});
+
 export const farmhandCh1Resolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   henwald_dismiss,
   henwald_levy,
@@ -63,5 +94,8 @@ export const farmhandCh1Resolvers: Record<NarrativeResolverId, NarrativeResolver
   farmhand_ch1_exit,
   old_well_drop_stone,
   old_well_look_down,
-  old_well_return_to_intro
+  old_well_return_to_intro,
+  mother_sit,
+  mother_look_at_note,
+  mother_return_to_root
 };

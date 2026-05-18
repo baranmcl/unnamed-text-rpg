@@ -105,3 +105,65 @@ export const old_well_look_down: NarrativeNode = {
   ]
 };
 
+// =====================================================================
+// Mother — pre-tornado kitchen dialogue
+// =====================================================================
+
+// Root node: branches based on flags via `visible` predicates on choices.
+export const mother_kitchen_root: NarrativeNode = {
+  id: NarrativeNodeId('mother_kitchen_root'),
+  prose:
+    'Mother looks up. "There y\'are, dear. Pull up the bench."',
+  choices: [
+    { label: 'Sit with Mother.', resolve: 'mother_sit' },
+    { label: 'Look at the Note on the table.', resolve: 'mother_look_at_note' },
+    { label: 'Step outside.', resolve: 'farmhand_ch1_exit' }
+  ]
+};
+
+// Sub-node: Mother's response branches based on flags. We use three variants and pick via resolver.
+export const mother_sit_animal_talk: NarrativeNode = {
+  id: NarrativeNodeId('mother_sit_animal_talk'),
+  speaker: 'Mother',
+  prose:
+    'She returns to her knitting. A pause. Then — "You been at the coop, dear? Henwald run his mouth about the rat again?"\n\n' +
+    'She smiles, returns to her work. "You and your chickens. You\'ve been talking to them since you could walk — your father always ' +
+    'said you had an ear for it. I wonder, sometimes, what they say back to you."\n\n' +
+    'She pauses, considers.\n\n' +
+    '"They\'ve never said anything to me. Not a word. A \'cluck-cluck,\' yes. Words, no." The smile is gentle, not contradicting. ' +
+    'Just describing. "Whatever you hear, dear — I believe you. I just wish I heard it too."',
+  choices: [
+    { label: '(stand up.)', resolve: 'mother_return_to_root' }
+  ]
+};
+
+export const mother_sit_rat_thanks: NarrativeNode = {
+  id: NarrativeNodeId('mother_sit_rat_thanks'),
+  speaker: 'Mother',
+  prose:
+    '"That rat won\'t be back. Henwald told me. ...well, Henwald clucked at me, and I assumed." She pats your hand.',
+  choices: [
+    { label: '(stand up.)', resolve: 'mother_return_to_root' }
+  ]
+};
+
+export const mother_sit_cow: NarrativeNode = {
+  id: NarrativeNodeId('mother_sit_cow'),
+  speaker: 'Mother',
+  prose:
+    '"You been out and about. Good. The cow\'s been watching the sky. I don\'t like it when the cow watches the sky."',
+  choices: [
+    { label: '(stand up.)', resolve: 'mother_return_to_root' }
+  ]
+};
+
+export const mother_look_at_note: NarrativeNode = {
+  id: NarrativeNodeId('mother_look_at_note'),
+  prose:
+    'The Note from Mother sits where it always sits. The paper is older than the writing. You cannot quite remember what it says — ' +
+    'only that it is for you, and that one day you will know what it is for. You leave it on the table.',
+  choices: [
+    { label: '(turn back to Mother.)', resolve: 'mother_return_to_root' }
+  ]
+};
+

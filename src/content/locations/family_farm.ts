@@ -18,7 +18,11 @@ export const family_farm: Location = {
   ],
   exits: [
     // Crossroads exit unlocks via the hermit_beckons beat.
-    { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' }
+    { label: 'Walk to the crossroads', targetId: LocationId('dusty_crossroads'), visibleIfFlag: 'unlocked_crossroads' },
+    { label: 'Out to the back field', targetId: LocationId('back_field'), visibleIfFlag: 'class.reluctant_farmhand' },
+    { label: 'Over to the chicken coop', targetId: LocationId('chicken_coop'), visibleIfFlag: 'class.reluctant_farmhand' },
+    { label: 'Around to the old well', targetId: LocationId('old_well'), visibleIfFlag: 'class.reluctant_farmhand' },
+    { label: 'Inside, to the kitchen', targetId: LocationId('family_kitchen'), visibleIfFlag: 'class.reluctant_farmhand' }
   ],
   encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')],
   restSpots: [

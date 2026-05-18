@@ -10,6 +10,10 @@ import { veterans_chapel } from './veterans_chapel';
 import { quiet_tower } from './quiet_tower';
 import { laureates_salon } from './laureates_salon';
 import { hedgerow_lane } from './hedgerow_lane';
+import { back_field } from './back_field';
+import { chicken_coop } from './chicken_coop';
+import { old_well } from './old_well';
+import { family_kitchen } from './family_kitchen';
 
 export const locations: Record<LocationId, Location> = {
   [family_farm.id]: family_farm,
@@ -23,4 +27,8 @@ export const locations: Record<LocationId, Location> = {
   [quiet_tower.id]: quiet_tower,
   [laureates_salon.id]: laureates_salon,
   [hedgerow_lane.id]: hedgerow_lane,
+  [back_field.id]: back_field,
+  [chicken_coop.id]: chicken_coop,
+  [old_well.id]: old_well,
+  [family_kitchen.id]: family_kitchen,
 };

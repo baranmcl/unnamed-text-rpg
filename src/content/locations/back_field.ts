@@ -19,7 +19,7 @@ export const back_field: Location = {
     { label: 'Back to the farm', targetId: LocationId('family_farm') }
   ],
   encounterIds: [
-    EncounterId('combat_anxious_allium')
-    // back_field_weed wired in Task 8
+    EncounterId('combat_anxious_allium'),
+    EncounterId('back_field_weed')
   ]
 };

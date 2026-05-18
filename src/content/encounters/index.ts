@@ -22,6 +22,8 @@ import {
   mentor_knight_return_unlearned, mentor_wizard_return_unlearned, mentor_bard_return_unlearned
 } from './mentors';
 import { henwald, henwald_thanks } from './henwald';
+import { back_field_weed } from './back_field_weed';
+import { old_well_inspect } from './old_well_inspect';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -59,4 +61,6 @@ export const encounters: Record<EncounterId, Encounter> = {
   [mentor_bard_return_unlearned.id]: mentor_bard_return_unlearned,
   [henwald.id]: henwald,
   [henwald_thanks.id]: henwald_thanks,
+  [back_field_weed.id]: back_field_weed,
+  [old_well_inspect.id]: old_well_inspect,
 };

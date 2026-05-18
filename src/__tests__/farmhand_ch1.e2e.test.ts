@@ -74,3 +74,26 @@ describe('Henwald and the Tax Rat (chicken coop)', () => {
     expect(s.world.flags['asked_henwald_levy']).toBe(true);
   });
 });
+
+describe('Back Field and Old Well spokes', () => {
+  it('weeding the back field returns to the location cleanly', () => {
+    let s = createInitialState(13);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('back_field') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'back_field_weed' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.combat).toBeNull();
+  });
+
+  it('Old Well: drop a stone, then step back', () => {
+    let s = createInitialState(13);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('old_well') });
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'old_well_inspect' as EncounterId });
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 }); // drop stone
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 1 }); // step back
+    expect(s.combat).toBeNull();
+  });
+});

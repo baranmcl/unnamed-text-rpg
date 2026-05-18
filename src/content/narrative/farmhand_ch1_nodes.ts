@@ -54,3 +54,54 @@ export const henwald_post_victory: NarrativeNode = {
   ]
 };
 
+// =====================================================================
+// Back Field — weed action
+// =====================================================================
+
+export const back_field_weed: NarrativeNode = {
+  id: NarrativeNodeId('back_field_weed'),
+  prose:
+    'You weed. For about twenty minutes, you make exactly the kind of progress that explains why the field has been ' +
+    'un-weeded for a week. The thistle wins. The dandelion takes notes.',
+  choices: [
+    { label: '(Step back and survey the field.)', resolve: 'farmhand_ch1_exit' }
+  ]
+};
+
+// =====================================================================
+// Old Well — inspect actions
+// =====================================================================
+
+export const old_well_intro: NarrativeNode = {
+  id: NarrativeNodeId('old_well_intro'),
+  prose:
+    'You step up to the well. The lid is closer than it looks, somehow. The bucket has not moved, but neither has it stayed entirely still.',
+  choices: [
+    { label: 'Drop a stone down.', resolve: 'old_well_drop_stone' },
+    { label: 'Look down into the well.', resolve: 'old_well_look_down' },
+    { label: 'Step back from the well.', resolve: 'farmhand_ch1_exit' }
+  ]
+};
+
+export const old_well_drop_stone: NarrativeNode = {
+  id: NarrativeNodeId('old_well_drop_stone'),
+  prose:
+    'You drop a stone down. You count to three. The splash comes on two. The echo, after the splash, sounds like a \'no\' — ' +
+    'not yours, and not anybody\'s you recognise.',
+  choices: [
+    { label: '(Try again.)', resolve: 'old_well_return_to_intro' },
+    { label: 'Step back from the well.', resolve: 'farmhand_ch1_exit' }
+  ]
+};
+
+export const old_well_look_down: NarrativeNode = {
+  id: NarrativeNodeId('old_well_look_down'),
+  prose:
+    'You lean over. The light at the bottom is brighter than it should be at this hour. The bucket is, you note, full. ' +
+    'You did not draw it up.',
+  choices: [
+    { label: '(Pull back.)', resolve: 'old_well_return_to_intro' },
+    { label: 'Step back from the well.', resolve: 'farmhand_ch1_exit' }
+  ]
+};
+

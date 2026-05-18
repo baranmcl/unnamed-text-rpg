@@ -36,9 +36,32 @@ const henwald_engage_rat: NarrativeResolver = (state) => ({
   next: null
 });
 
+// Shared exit resolver for back field, old well, and farm-side optional encounters.
+const farmhand_ch1_exit: NarrativeResolver = (state) => ({ state, next: null });
+
+const old_well_drop_stone: NarrativeResolver = (state) => ({
+  state,
+  next: NarrativeNodeId('old_well_drop_stone')
+});
+
+const old_well_look_down: NarrativeResolver = (state) => ({
+  state,
+  next: NarrativeNodeId('old_well_look_down')
+});
+
+const old_well_return_to_intro: NarrativeResolver = (state) => ({
+  state,
+  next: NarrativeNodeId('old_well_intro'),
+  silent: true
+});
+
 export const farmhandCh1Resolvers: Record<NarrativeResolverId, NarrativeResolver> = {
   henwald_dismiss,
   henwald_levy,
   henwald_return_to_intro,
-  henwald_engage_rat
+  henwald_engage_rat,
+  farmhand_ch1_exit,
+  old_well_drop_stone,
+  old_well_look_down,
+  old_well_return_to_intro
 };

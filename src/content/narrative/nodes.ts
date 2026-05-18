@@ -1,6 +1,9 @@
 import { NarrativeNodeId, type NarrativeNode } from '../../engine/types';
 import { knight_opener_a, knight_opener_b, wizard_opener_a, wizard_opener_b_a, wizard_opener_b_b, wizard_opener_b_c, bard_opener_a, bard_opener_b, farmhand_opener_a, farmhand_opener_b } from './openings';
-import { henwald_intro, henwald_levy_response, henwald_post_victory } from './farmhand_ch1_nodes';
+import {
+  henwald_intro, henwald_levy_response, henwald_post_victory,
+  back_field_weed, old_well_intro, old_well_drop_stone, old_well_look_down
+} from './farmhand_ch1_nodes';
 import {
   mentor_knight_arrival, mentor_knight_teaching, mentor_knight_motivation, mentor_knight_deflect,
   mentor_wizard_arrival, mentor_wizard_teaching, mentor_wizard_motivation, mentor_wizard_deflect,
@@ -135,4 +138,8 @@ export const narrativeNodes: Record<NarrativeNodeId, NarrativeNode> = {
   [henwald_intro.id]: henwald_intro,
   [henwald_levy_response.id]: henwald_levy_response,
   [henwald_post_victory.id]: henwald_post_victory,
+  [back_field_weed.id]: back_field_weed,
+  [old_well_intro.id]: old_well_intro,
+  [old_well_drop_stone.id]: old_well_drop_stone,
+  [old_well_look_down.id]: old_well_look_down,
 };

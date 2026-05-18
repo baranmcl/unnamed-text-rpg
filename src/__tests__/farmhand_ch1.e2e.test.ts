@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { reduce } from '../engine/events';
 import { createInitialState } from '../engine/state';
-import { ClassId, LocationId, EncounterId } from '../engine/types';
+import { ClassId, ItemId, LocationId, EncounterId } from '../engine/types';
 import type { GameState, TurnBasedCombatState } from '../engine/types';
+import { content } from '../content';
 
 function newFarmhandAtCoop(seed = 11): GameState {
   let s = createInitialState(seed);
@@ -11,8 +12,6 @@ function newFarmhandAtCoop(seed = 11): GameState {
   s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('chicken_coop') });
   return s;
 }
-
-import { content } from '../content';
 
 describe('Henwald and the Tax Rat (chicken coop)', () => {
   it('Tax Rat is not in family_farm encounterIds (Henwald is the trigger now)', () => {
@@ -45,11 +44,12 @@ describe('Henwald and the Tax Rat (chicken coop)', () => {
     expect(s.world.flags['talked_to_henwald']).toBe(true);
     expect(s.combat).toBeNull();
 
-    // Now trigger henwald_thanks for the egg award.
-    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald_thanks' as EncounterId });
-    // (For this test, Henwald's egg-award is handled by the resolver of his thanks dialogue.
-    //  Actually, simpler: the egg award is a side effect of defeating the Tax Rat. Let's verify.)
-    // We'll defer the egg-grant to the resolver layer in step 8.
+    // The henwald_awards_eggs beat fires automatically during the same reduce() call
+    // (checkBeats runs after every reduceInner). Both preconditions are now true, so
+    // 3 farm_fresh_egg should already be in inventory.
+    const eggs = s.character.inventory.find((e) => e.itemId === ItemId('farm_fresh_egg'));
+    expect(eggs).toBeDefined();
+    expect(eggs!.qty).toBe(3);
   });
 
   it('Henwald: "Maybe later" exits cleanly with no flag set', () => {

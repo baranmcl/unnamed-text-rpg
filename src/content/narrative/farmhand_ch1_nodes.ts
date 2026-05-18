@@ -54,12 +54,3 @@ export const henwald_post_victory: NarrativeNode = {
   ]
 };
 
-export const henwald_post_dismiss: NarrativeNode = {
-  id: NarrativeNodeId('henwald_post_dismiss'),
-  speaker: 'Henwald',
-  prose:
-    'Henwald looks at the coop with quiet satisfaction. "The girls are layin\' easier today. They know, son. They know."',
-  choices: [
-    { label: '(Step away.)', resolve: 'henwald_dismiss' }
-  ]
-};

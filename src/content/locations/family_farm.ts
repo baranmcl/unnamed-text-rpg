@@ -24,7 +24,7 @@ export const family_farm: Location = {
     { label: 'Around to the old well', targetId: LocationId('old_well'), visibleIfFlag: 'class.reluctant_farmhand' },
     { label: 'Inside, to the kitchen', targetId: LocationId('family_kitchen'), visibleIfFlag: 'class.reluctant_farmhand' }
   ],
-  encounterIds: [EncounterId('first_tax_rat'), EncounterId('practice_dummy')],
+  encounterIds: [EncounterId('practice_dummy')],
   restSpots: [
     {
       id: 'farm_haystack',

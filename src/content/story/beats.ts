@@ -1,4 +1,4 @@
-import { BeatId, EncounterId, LocationId, type StoryBeat } from '../../engine/types';
+import { BeatId, EncounterId, ItemId, LocationId, type StoryBeat } from '../../engine/types';
 
 const ordinary_world_established: StoryBeat = {
   id: BeatId('ordinary_world_established'),
@@ -170,6 +170,25 @@ const bard_setting_out: StoryBeat = {
   ]
 };
 
+const henwald_awards_eggs: StoryBeat = {
+  id: BeatId('henwald_awards_eggs'),
+  stage: 'chapter_1',
+  preconditions: [
+    { kind: 'flag', flag: 'defeated:first_tax_rat' },
+    { kind: 'flag', flag: 'talked_to_henwald' }
+  ],
+  onTrigger: [
+    { kind: 'grant_item', itemId: ItemId('farm_fresh_egg'), qty: 3 },
+    {
+      kind: 'log',
+      entry: {
+        kind: 'loot',
+        text: 'You find: 3× a Farm-Fresh Egg.'
+      }
+    }
+  ]
+};
+
 export const beats: Record<BeatId, StoryBeat> = {
   [ordinary_world_established.id]: ordinary_world_established,
   [hermit_beckons.id]: hermit_beckons,
@@ -177,5 +196,6 @@ export const beats: Record<BeatId, StoryBeat> = {
   [call_received.id]: call_received,
   [knight_setting_out.id]: knight_setting_out,
   [wizard_setting_out.id]: wizard_setting_out,
-  [bard_setting_out.id]: bard_setting_out
+  [bard_setting_out.id]: bard_setting_out,
+  [henwald_awards_eggs.id]: henwald_awards_eggs
 };

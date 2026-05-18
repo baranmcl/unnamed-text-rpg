@@ -21,6 +21,7 @@ import {
   mentor_knight_post_acceptance, mentor_wizard_post_acceptance, mentor_bard_post_acceptance, mentor_farmhand_post_acceptance,
   mentor_knight_return_unlearned, mentor_wizard_return_unlearned, mentor_bard_return_unlearned
 } from './mentors';
+import { henwald, henwald_thanks } from './henwald';
 
 export const encounters: Record<EncounterId, Encounter> = {
   [first_tax_rat.id]: first_tax_rat,
@@ -56,4 +57,6 @@ export const encounters: Record<EncounterId, Encounter> = {
   [mentor_knight_return_unlearned.id]: mentor_knight_return_unlearned,
   [mentor_wizard_return_unlearned.id]: mentor_wizard_return_unlearned,
   [mentor_bard_return_unlearned.id]: mentor_bard_return_unlearned,
+  [henwald.id]: henwald,
+  [henwald_thanks.id]: henwald_thanks,
 };

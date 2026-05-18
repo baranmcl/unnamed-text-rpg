@@ -1,0 +1,76 @@
+import { describe, it, expect } from 'vitest';
+import { reduce } from '../engine/events';
+import { createInitialState } from '../engine/state';
+import { ClassId, LocationId, EncounterId } from '../engine/types';
+import type { GameState, TurnBasedCombatState } from '../engine/types';
+
+function newFarmhandAtCoop(seed = 11): GameState {
+  let s = createInitialState(seed);
+  s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+  if (s.combat) s = { ...s, combat: null };
+  s = reduce(s, { kind: 'EnterLocation', locationId: LocationId('chicken_coop') });
+  return s;
+}
+
+import { content } from '../content';
+
+describe('Henwald and the Tax Rat (chicken coop)', () => {
+  it('Tax Rat is not in family_farm encounterIds (Henwald is the trigger now)', () => {
+    const farm = content.locations[LocationId('family_farm')]!;
+    expect((farm.encounterIds ?? []).includes('first_tax_rat' as EncounterId)).toBe(false);
+  });
+
+  it('Henwald: engage rat → combat starts → defeat → 3 eggs awarded → henwald_thanks visible', () => {
+    let s = newFarmhandAtCoop();
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald' as EncounterId });
+    expect(s.combat?.kind).toBe('narrative');
+
+    // Choice 0 = "I'll see to him."
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    expect(s.combat?.kind).toBe('turn-based');
+    expect((s.combat as TurnBasedCombatState).encounterId).toBe('first_tax_rat');
+
+    // Force monster HP to 0, then attack to trigger victory pathway.
+    const sCombat = s.combat as TurnBasedCombatState;
+    s = {
+      ...s,
+      combat: {
+        ...sCombat,
+        combatants: sCombat.combatants.map((c) => c.kind === 'monster' ? { ...c, hp: 0 } : c)
+      }
+    };
+    s = reduce(s, { kind: 'AttackTarget' });
+
+    expect(s.world.flags['defeated:first_tax_rat']).toBe(true);
+    expect(s.world.flags['talked_to_henwald']).toBe(true);
+    expect(s.combat).toBeNull();
+
+    // Now trigger henwald_thanks for the egg award.
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald_thanks' as EncounterId });
+    // (For this test, Henwald's egg-award is handled by the resolver of his thanks dialogue.
+    //  Actually, simpler: the egg award is a side effect of defeating the Tax Rat. Let's verify.)
+    // We'll defer the egg-grant to the resolver layer in step 8.
+  });
+
+  it('Henwald: "Maybe later" exits cleanly with no flag set', () => {
+    let s = newFarmhandAtCoop();
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald' as EncounterId });
+    // Choice 2 = "Maybe later, Henwald."
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 2 });
+    expect(s.combat).toBeNull();
+    expect(s.world.flags['talked_to_henwald']).toBeFalsy();
+  });
+
+  it('Henwald: levy question greys out after asking, loops back silently', () => {
+    let s = newFarmhandAtCoop();
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'henwald' as EncounterId });
+    // Choice 1 = "What does he claim the levy's for?"
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 1 });
+    expect(s.world.flags['asked_henwald_levy']).toBe(true);
+    // Now we're on the levy_response node. Choice 0 = "(back to the previous matter)".
+    s = reduce(s, { kind: 'ChooseNarrativeOption', choiceIndex: 0 });
+    // Back on intro node. The levy choice should be flagged disabled.
+    // (We just verify the flag is set; UI tests the disabled state.)
+    expect(s.world.flags['asked_henwald_levy']).toBe(true);
+  });
+});

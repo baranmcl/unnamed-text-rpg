@@ -5,6 +5,7 @@ import type {
 import { NarrativeNodeId } from '../../engine/types';
 import { classes } from '../classes';
 import { mentorResolvers } from './mentor_resolvers';
+import { farmhandCh1Resolvers } from './farmhand_ch1_resolvers';
 import { appendLogs } from '../../engine/log';
 import { rng } from '../../engine/rng';
 
@@ -367,5 +368,6 @@ export const narrativeResolvers: Record<NarrativeResolverId, NarrativeResolver> 
   signpost_answer_grief: withTriedFlag(signpost_answer_grief, 'riddle_tried_grief'),
   signpost_answer_onion,
   signpost_step_back,
-  ...mentorResolvers
+  ...mentorResolvers,
+  ...farmhandCh1Resolvers
 };

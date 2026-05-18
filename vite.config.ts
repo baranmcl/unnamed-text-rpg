@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [svelte(), cloudflare()],
   server: { port: 5173 }
 });

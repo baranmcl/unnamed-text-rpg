@@ -182,6 +182,36 @@ describe('evalPredicate flag_unset', () => {
   });
 });
 
+describe('evalPredicate flag_count_at_least', () => {
+  it('returns true when truthy count equals min', () => {
+    const s = freshState();
+    const base = { ...s, world: { ...s.world, flags: { a: true, b: true, c: false } } };
+    expect(evalPredicate(base, { kind: 'flag_count_at_least', flags: ['a', 'b', 'c'], min: 2 })).toBe(true);
+  });
+
+  it('returns true when truthy count exceeds min', () => {
+    const s = freshState();
+    const base = { ...s, world: { ...s.world, flags: { a: true, b: true, c: true } } };
+    expect(evalPredicate(base, { kind: 'flag_count_at_least', flags: ['a', 'b', 'c'], min: 2 })).toBe(true);
+  });
+
+  it('returns false when truthy count is below min', () => {
+    const s = freshState();
+    const base = { ...s, world: { ...s.world, flags: { a: true, b: false, c: false } } };
+    expect(evalPredicate(base, { kind: 'flag_count_at_least', flags: ['a', 'b', 'c'], min: 2 })).toBe(false);
+  });
+
+  it('returns true for empty flags array with min 0', () => {
+    const s = freshState();
+    expect(evalPredicate(s, { kind: 'flag_count_at_least', flags: [], min: 0 })).toBe(true);
+  });
+
+  it('returns false for empty flags array with min 1', () => {
+    const s = freshState();
+    expect(evalPredicate(s, { kind: 'flag_count_at_least', flags: [], min: 1 })).toBe(false);
+  });
+});
+
 describe('milestone bump on advance_stage', () => {
   it('applies a free level-up when advance_stage fires', () => {
     let s = freshState();

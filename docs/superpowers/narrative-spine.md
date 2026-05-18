@@ -67,6 +67,10 @@ The seeds must be **subtle**. A first-time player should feel "something is slig
 ### Chapter 1 — Status Quo
 A unique intro scene for each of the four classes — the world before the call. The narrator is already meta-aware; that's load-bearing for the eventual reveal but reads as comedic voice on first play. **The opener establishes the class's want** (see *The Wants* above) — not as an exposition dump, but as the air the scene breathes: the Knight's dismissal-notice, the Wizard's slightly-burning library, the Bard's ten-minutes-to-showtime, the Farmhand's back field. **Plant the first non-meta motif:** a **man in tweed** is glimpsed at the edge of *one* of the four class openers (probably whichever one the player picks — context-permitting), never acknowledged, never named. He is reading.
 
+Per-class Ch 1 framework: each class explores a hub-and-spoke region (3-5 spokes) culminating in an EXTERNAL forced-leave event that overrides their want. For the Farmhand: hub is the family farm, spokes are Back Field / Chicken Coop / Old Well / Family Kitchen, and a freak tornado destroys the barn — Mother gives the Note (now a supplies list) to send the Farmhand to the crossroads for materials. The worldly cause (storm) layers over the meta cause (Fate has rearranged the geometry of the gate). Other classes follow the same shape in their own ways.
+
+Mother (Farmhand-only NPC): elderly, frail, lives in the farmhouse, can't make the walk to the crossroads. Sharp, competent, warmly undemonstrative. The Note from Mother is from her, given over post-tornado. Mother provides the Farmhand's emotional anchor and her situation shapes the Ch 9 ending tone (alongside the Neighbor reveal).
+
 ### Chapter 2 — The Call to Adventure
 The inciting event — the Hermit appears, the message arrives, the world tilts. The Hermit's meta-awareness lands here ("right on schedule"). The man in tweed is *not* present in the Call scene itself; the Hermit notices something off-camera and trails off mid-sentence, then continues.
 
@@ -134,6 +138,9 @@ The player is asked to visit a specific area or set of areas — a derelict shri
 - **"On schedule"** as a phrase NPCs use casually about events that shouldn't be scheduled
 - **Books in the wrong places** — a paperback in a sword-belt, a footnote in a soup, the Wizard's Tome of Questionable Translations literally referencing the player by class
 - **Folk names for the MacGuffin** — different NPCs use different names (the Wishing Stone, the Author's Cup, the Last Pen, the World's End Token, the Boon, etc.); only meta-aware speakers call it the Sacred MacGuffin outright. The variety is itself a tell — nobody agrees on what it actually is, because in-world it isn't anything in particular
+- **Henwald** (Farmhand Ch 1 NPC, possible later recurrence): rooster, Foghorn-Leghorn cadence (bombastic Southern, paternal, friendly), spokes-chicken at the family farm coop. Speaks in "I say, I say" and quoted-but-unattributed phrases. The Farmhand's talking-animal companion (per the spine's monomyth-trope-grant idea).
+- **Animal-talk:** the Farmhand has the monomyth's "talking animal helper" trope (Henwald the rooster speaks to them). Mother does not — she hears clucks. The script gives the protagonist the trope; reality doesn't.
+- **The Officious Tax Rat** works for the Editor's bureaucratic apparatus (not made explicit). His vest bears a monogram matching the Archmage's staff in Ch 4. His paperwork stamps "On Schedule." Across iterations, the Tax Rat shows up wherever an "unspecified authority" needs an unspecified levy.
 
 ## Voice Principles
 
@@ -155,6 +162,7 @@ These should exist, somewhere, by the time they are needed:
 - **The folding chair** — show it empty in the background of a late-Chapter-7 location
 - **Campbell's pen** — picked up in Chapter 8 (lifted during Phase 1's chaos, or set down by Campbell mid-thesis); used in the Rewrite ending to re-author the MacGuffin's wish
 - **An author photo** — possibly in the Burning Library, on a back wall, dust-covered, not commented upon
+- **The Note from Mother / Supplies list** (Farmhand only). A quest item the Farmhand starts with, blank pre-tornado, filled post-tornado with a 4-item list: a strong beam, a sack of nails, a strong-backed neighbor, Mother's tea. Each supply is acquired as a reward across Ch 2-7. The supplies axis pairs with the MacGuffin axis at Ch 9 endings (Accept = tragic clutter, Refuse = the supplies are everything, Rewrite = supplies are re-authored). Per-supply chapter assignments TBD.
 
 ---
 

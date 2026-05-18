@@ -110,5 +110,15 @@ export const items: Record<ItemId, Item> = {
     flavor: 'A weather-worn fingerpost-arrow, slightly bent. It points, mostly, away from you. Throwable, in a pinch.',
     kind: 'consumable',
     effects: [{ kind: 'deal_damage', amount: 6 }]
+  },
+  [ItemId('farm_fresh_egg')]: {
+    id: ItemId('farm_fresh_egg'),
+    name: 'a Farm-Fresh Egg',
+    flavor: 'Still warm. Worth eating raw, in a pinch. Worth throwing harder, in a real pinch.',
+    kind: 'consumable',
+    effects: [
+      { kind: 'heal_hp', amount: 8, context: 'out_of_combat' },
+      { kind: 'deal_damage', amount: 4 }
+    ]
   }
 };

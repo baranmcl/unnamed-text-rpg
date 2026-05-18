@@ -167,3 +167,44 @@ describe('ItemEffect context filtering', () => {
     }
   });
 });
+
+describe('Farm-Fresh Egg', () => {
+  it('heals 8 HP when eaten out of combat', () => {
+    let s = createInitialState(5);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = {
+      ...s,
+      character: {
+        ...s.character,
+        inventory: [...s.character.inventory, { itemId: 'farm_fresh_egg' as ItemId, qty: 1 }],
+        hp: { ...s.character.hp, current: 5 }
+      }
+    };
+    const before = s.character.hp.current;
+    s = reduce(s, { kind: 'UseItem', itemId: 'farm_fresh_egg' as ItemId });
+    expect(s.character.hp.current).toBe(before + 8);
+    expect(s.character.inventory.find((e) => e.itemId === 'farm_fresh_egg')).toBeUndefined();
+  });
+
+  it('deals 4 damage when thrown in combat (ignores armor)', () => {
+    let s = createInitialState(5);
+    s = reduce(s, { kind: 'StartNewGame', name: 'T', classId: 'reluctant_farmhand' as ClassId });
+    if (s.combat) s = { ...s, combat: null };
+    s = {
+      ...s,
+      character: {
+        ...s.character,
+        inventory: [...s.character.inventory, { itemId: 'farm_fresh_egg' as ItemId, qty: 1 }]
+      }
+    };
+    s = reduce(s, { kind: 'TriggerEncounter', encounterId: 'combat_plot_convenience' as EncounterId });
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat');
+    const before = s.combat.combatants.find((c) => c.kind === 'monster')!.hp;
+    s = reduce(s, { kind: 'UseItem', itemId: 'farm_fresh_egg' as ItemId });
+    // Hard-assert combat is still turn-based (don't silently skip the assertion)
+    if (s.combat?.kind !== 'turn-based') throw new Error('expected combat to continue');
+    const after = s.combat.combatants.find((c) => c.kind === 'monster')!.hp;
+    expect(before - after).toBe(4);
+  });
+});
